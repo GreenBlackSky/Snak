@@ -5,20 +5,30 @@ BLACK = (0, 0, 0)
 WHITE = (240, 240, 240)
 RED = (240, 10, 10)
 
+KEYS = {pygame.K_UP: (0, -1), \
+        pygame.K_DOWN: (0, 1), \
+        pygame.K_LEFT: (-1, 0), \
+        pygame.K_RIGHT: (1, 0)}
+
 
 class Controller:
     def __init__(self):
         self.direction = (0, -1)
-
+        self.desired_direction = self.direction
+        
+    def desire(self, direction):
+        self.desired_direction = direction
+        
     def decision(self):
-        ndx, ndy = random.choice([(0, -1), (0, 1), (-1, 0), (1, 0)])
+#        ndx, ndy = random.choice([(0, -1), (0, 1), (-1, 0), (1, 0)])
+        ndx, ndy = self.desired_direction
         cdx, cdy = self.direction
         if (ndx + cdx, ndy + cdy) != (0, 0):
             self.direction = (ndx, ndy)
         return self.direction
 
 class Snake:
-    def __init__(self, pos, mind):
+    def __init__(self, pos):
         self.head = pos
         self.tail = pos
         self.cells = [pos]
@@ -54,7 +64,7 @@ class Game:
         self.screen.fill(BLACK)
         # Snake
         self.snake_mind = Controller()
-        self.snake = Snake((self.width/2, self.height/2), self.snake_mind)
+        self.snake = Snake((self.width/2, self.height/2))
         self.draw_rect((self.width/2, self.height/2), WHITE)
         # Food
         self.food_pos = self.random_pos()
@@ -67,8 +77,8 @@ class Game:
 
     def draw_rect(self, pos, color):
         x, y = pos
-        rect = (x*self.cell_size - self.cell_size/2, \
-                y*self.cell_size - self.cell_size/2, \
+        rect = (x*self.cell_size, \
+                y*self.cell_size, \
                 self.cell_size, \
                 self.cell_size)
         pygame.draw.rect(self.screen, color, rect, 0)
@@ -95,6 +105,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    self.snake_mind.desire(KEYS[event.key])
             # Move snake
             self.make_move(self.get_next_move())
             # Check for Gameover
@@ -104,7 +116,7 @@ class Game:
             self.draw_rect(self.snake.head, WHITE)
             self.draw_rect(self.snake.tail, BLACK)
             pygame.display.update()
-            time.sleep(0.5)
+            time.sleep(0.25)
 
 
 if __name__ == "__main__":
