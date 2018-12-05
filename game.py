@@ -20,7 +20,6 @@ class Controller:
         self.desired_direction = direction
         
     def decision(self):
-#        ndx, ndy = random.choice([(0, -1), (0, 1), (-1, 0), (1, 0)])
         ndx, ndy = self.desired_direction
         cdx, cdy = self.direction
         if (ndx + cdx, ndy + cdy) != (0, 0):
@@ -35,9 +34,6 @@ class Snake:
 
     def is_selfcrossed(self):
         return (self.head in self.cells[1::])
-
-    def get_tail(self):
-        return self.cells[-1]
 
     def next_pos(self, direction):
         dx, dy = direction
@@ -57,8 +53,9 @@ class Snake:
 class Game:
     def __init__(self):
         # Config
-        self.width, self.height = 80, 45
+        self.width, self.height = 40, 20
         self.cell_size = 10
+        self.fps = 8
         # Screen
         self.screen = pygame.display.set_mode((self.width*self.cell_size, self.height*self.cell_size))
         self.screen.fill(BLACK)
@@ -73,7 +70,10 @@ class Game:
         pygame.display.update()
 
     def random_pos(self):
-        return (random.randint(0, self.width), random.randint(0, self.height))
+        ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
+        while ret in self.snake.cells:
+            ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
+        return ret
 
     def draw_rect(self, pos, color):
         x, y = pos
@@ -86,9 +86,9 @@ class Game:
     def get_next_move(self):
         nx, ny = self.snake.next_pos(self.snake_mind.decision())
         if nx < 0: nx = self.width
-        elif nx > self.width: nx = 0
+        elif nx >= self.width: nx = 0
         if ny < 0: ny = self.height
-        elif ny > self.height: ny = 0
+        elif ny >= self.height: ny = 0
         return (nx, ny)
 
     def make_move(self, next_pos):
@@ -105,7 +105,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                elif event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN and event.key in KEYS:
                     self.snake_mind.desire(KEYS[event.key])
             # Move snake
             self.make_move(self.get_next_move())
@@ -116,7 +116,7 @@ class Game:
             self.draw_rect(self.snake.head, WHITE)
             self.draw_rect(self.snake.tail, BLACK)
             pygame.display.update()
-            time.sleep(0.25)
+            time.sleep(1.0/self.fps)
 
 
 if __name__ == "__main__":
