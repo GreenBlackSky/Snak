@@ -26,31 +26,31 @@ class Controller:
             self.direction = (ndx, ndy)
         return self.direction
 
-class Snake:
-    def __init__(self, pos):
-        self.head = pos
-        self.tail = pos
-        self.cells = [pos]
-
-    def is_selfcrossed(self):
-        return (self.head in self.cells[1::])
-
-    def next_pos(self, direction):
-        dx, dy = direction
-        x, y = self.head
-        return (x + dx, y + dy) 
-
-    def move_and_eat(self, pos):
-        self.head = pos
-        self.cells.insert(0, pos)
-
-    def move(self, pos):
-        self.move_and_eat(pos)
-        self.tail = self.cells[-1]
-        self.cells.pop()
-
 
 class Game:
+    class Snake:
+        def __init__(self, pos):
+            self.head = pos
+            self.tail = pos
+            self.cells = [pos]
+
+        def is_selfcrossed(self):
+            return (self.head in self.cells[1::])
+
+        def next_pos(self, direction):
+            dx, dy = direction
+            x, y = self.head
+            return (x + dx, y + dy) 
+
+        def move_and_eat(self, pos):
+            self.head = pos
+            self.cells.insert(0, pos)
+
+        def move(self, pos):
+            self.move_and_eat(pos)
+            self.tail = self.cells[-1]
+            self.cells.pop()
+
     def __init__(self):
         # Config
         self.width, self.height = 40, 20
@@ -61,7 +61,7 @@ class Game:
         self.screen.fill(BLACK)
         # Snake
         self.snake_mind = Controller()
-        self.snake = Snake((self.width/2, self.height/2))
+        self.snake = Game.Snake((self.width/2, self.height/2))
         self.draw_rect((self.width/2, self.height/2), WHITE)
         # Food
         self.food_pos = self.random_pos()
