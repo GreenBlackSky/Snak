@@ -92,12 +92,13 @@ class Game:
         return (nx, ny)
 
     def make_move(self, next_pos):
+        ret = False
         if self.food_pos == next_pos:
             self.snake.move_and_eat(next_pos)
-            self.food_pos = self.random_pos()
-            self.draw_rect(self.food_pos, RED)
+            ret = True
         else:
             self.snake.move(next_pos)
+        return ret
 
     def play(self):
         while True:
@@ -108,7 +109,9 @@ class Game:
                 elif event.type == pygame.KEYDOWN and event.key in KEYS:
                     self.snake_mind.desire(KEYS[event.key])
             # Move snake
-            self.make_move(self.get_next_move())
+            if self.make_move(self.get_next_move()):
+                self.food_pos = self.random_pos()
+                self.draw_rect(self.food_pos, RED)
             # Check for Gameover
             if self.snake.is_selfcrossed():
                 sys.exit()
