@@ -14,4 +14,4 @@ Some generic widgets were implemented in this project, such as button, checkbox,
 
 ## GUI
 
-As backend pygame was used.
+pygame

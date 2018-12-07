@@ -1,12 +1,22 @@
 import sys, pygame, time
 from game import Game
 from widgets import *
+from enum import Enum
+
 
 class GUI:
     KEYS = {pygame.K_UP: (0, -1), \
             pygame.K_DOWN: (0, 1), \
             pygame.K_LEFT: (-1, 0), \
             pygame.K_RIGHT: (1, 0)}
+
+
+    class Signal(Enum):
+        StartNewGame = 0,
+        PauseGame = 1,
+        OpenEvolutionMenu = 2,
+        ContinueGame = 3,
+        OpenMainMenu = 4
 
 
     class Form:
@@ -16,7 +26,13 @@ class GUI:
             self.font = font
             self.focus = None
             x, y, self.width, self.height = self.screen.get_rect()
-            self.widgets = dict()
+            self.widgets = None
+            self.callbacks = None
+
+        def initialize(self, widget):
+            self.focus = widget
+            widget.highlight()
+            self.redraw()
 
         def draw_button(self, button):
             pygame.draw.rect(self.screen, button.first_color, button.rect, 0)
@@ -27,26 +43,45 @@ class GUI:
                         y + max((h - th)/2, 0))
             self.screen.blit(label, label_pos)
 
-        def update(self, events):
-            # Check events
+        def map_events(self, events):
             mouse_pressed = False
             mouse_released = False
+            focus_n = self.widgets.index(self.focus)
+            return_pressed = False
             for event in events:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     mouse_pressed = True
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     mouse_released = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        focus_n -= 1
+                    if event.key == pygame.K_DOWN:
+                        focus_n += 1
+                    if event.key == pygame.K_RETURN:
+                        return_pressed = True
+            focus_n = max(focus_n, 0)
+            focus_n = min(focus_n, len(self.widgets) - 1)
+            return mouse_pressed, mouse_released, focus_n, return_pressed
+
+        def update(self, events):
+            mouse_pressed, mouse_released, focus_n, return_pressed = self.map_events(events)
             # Check focus
             ret = None
+            if return_pressed:
+                ret = self.callbacks[self.focus]
             mx, my = pygame.mouse.get_pos()
             if self.focus.check_state(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
-                ret = self.widgets[self.focus]
+                ret = self.callbacks[self.focus]
             # Move focus
             if not self.focus.pressed:
+                old_focus = self.focus
                 for widget in self.widgets:
                     widget.diminish()
                     if widget.inside(mx, my):
                         self.focus = widget
+                if old_focus == self.focus:
+                    self.focus = self.widgets[focus_n]
             # Redraw
             self.focus.highlight()
             self.redraw()
@@ -60,34 +95,43 @@ class GUI:
     class MainMenu(Form):
         def __init__(self, screen, font):
             super().__init__(screen, font)
-            self.focus = Button((self.width*(2.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "START")
-            self.widgets[self.focus] = GUI.GameForm
-            self.widgets[Button((self.width*(2.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "EVOLVE")] = GUI.EvolutionMenu
-            self.focus.highlight()
-            self.redraw()
+            start_button = Button((self.width*(2.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "START")
+            evolve_button = Button((self.width*(2.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "EVOLVE")
+            self.widgets = [start_button, evolve_button]
+            self.callbacks = { \
+                start_button : GUI.Signal.StartNewGame, \
+                evolve_button : GUI.Signal.OpenEvolutionMenu}
+            self.initialize(start_button)
 
 
     class PauseMenu(Form):
         def __init__(self, screen, font):
             super().__init__(screen, font)
-            self.focus = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Continue")
-            self.widgets[self.focus] = GUI.GameForm
-            self.widgets[Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Restart")] = GUI.GameForm
-            self.widgets[Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Back")] = GUI.MainMenu
-            self.focus.highlight()
-            self.redraw()
+            continue_button = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Continue")
+            restart_button = Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Restart")
+            back_button = Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Back")
+            self.widgets = [continue_button, restart_button, back_button]
+            self.callbacks = { \
+                continue_button: GUI.Signal.ContinueGame, \
+                restart_button: GUI.Signal.StartNewGame, \
+                back_button: GUI.Signal.OpenMainMenu}
+            self.initialize(continue_button)
 
 
     class EvolutionMenu(Form):
         def __init__(self, screen, font):
             super().__init__(screen, font)
-            self.focus = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Start")
-            self.widgets[self.focus] = None
-            self.widgets[Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Pause")] = None
-            self.widgets[Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Watch")] = GUI.GameForm
-            self.widgets[Button((self.width*(1.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "Back")] = GUI.MainMenu
-            self.focus.highlight()
-            self.redraw()
+            start_button = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Start")
+            pause_button = Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Pause")
+            watch_button = Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Watch")
+            back_button = Button((self.width*(1.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "Back")
+            self.widgets = [start_button, pause_button, watch_button, back_button]
+            self.callbacks = { \
+                start_button: None, \
+                pause_button: None, \
+                watch_button: GUI.Signal.StartNewGame, \
+                back_button: GUI.Signal.OpenMainMenu}
+            self.initialize(start_button)
 
 
     class GameForm(Form):
@@ -111,7 +155,7 @@ class GUI:
             for event in events:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        return GUI.PauseMenu
+                        return GUI.Signal.PauseGame
                     if event.key in GUI.KEYS:
                         self.game.snake_mind.desire(GUI.KEYS[event.key])
             # Move snake
@@ -121,10 +165,16 @@ class GUI:
                 self.draw_cell(self.game.food_pos, RED)
             # Check for Gameover
             if self.game.snake.is_selfcrossed():
-                return GUI.MainMenu
+                return GUI.Signal.OpenMainMenu
             # Redraw screen
             self.draw_cell(self.game.snake.head, WHITE)
             self.draw_cell(self.game.snake.tail, BLACK)
+
+        def redraw(self):
+            self.screen.fill(BLACK)
+            self.draw_cell(self.game.food_pos, RED)
+            for cell in self.game.snake.cells:
+                self.draw_cell(cell, WHITE)
 
 
     def __init__(self, width, height, cell_size=10):
@@ -133,40 +183,48 @@ class GUI:
         self.cell_size = cell_size
         self.screen = pygame.display.set_mode((width*self.cell_size, height*self.cell_size))
         self.form = GUI.MainMenu(self.screen, self.font)
+        self.fps = 20
+        self.last_game = None
+
+    def check_events(self):
+        ret = list()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            else:
+                ret.append(event)
+        return ret
+
+    def update(self, signal):
+        self.fps = 20
+        if signal == GUI.Signal.PauseGame:
+            self.last_game = self.form
+            self.form = GUI.PauseMenu(self.screen, self.font)
+        elif signal == GUI.Signal.ContinueGame:
+            self.form = self.last_game
+            self.form.redraw()
+            self.fps = 8
+        elif signal == GUI.Signal.OpenMainMenu:
+            self.form = GUI.MainMenu(self.screen, self.font)
+        elif signal == GUI.Signal.OpenEvolutionMenu:
+            self.form = GUI.EvolutionMenu(self.screen, self.font)
+        elif signal == GUI.Signal.StartNewGame:
+            self.form = GUI.GameForm(self.screen, self.font, self.cell_size)
+            self.fps = 8
 
     def exec(self):
-        events = list()
-        fps = 20
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                else:
-                    events.append(event)
-            next_form = self.form.update(events)
-            events.clear()
-
-            if next_form is not None:
-                fps = 20
-                if next_form == GUI.PauseMenu:
-                    self.form = GUI.PauseMenu(self.screen, self.font)
-                elif next_form == GUI.MainMenu:
-                    self.form = GUI.MainMenu(self.screen, self.font)
-                elif next_form == GUI.EvolutionMenu:
-                    self.form = GUI.EvolutionMenu(self.screen, self.font)
-                elif next_form == GUI.GameForm:
-                    self.form = GUI.GameForm(self.screen, self.font, self.cell_size)
-                    fps = 8
-            time.sleep(1.0/fps)
+            events = self.check_events()
+            signal = self.form.update(events)
+            if signal is not None:
+                self.update(signal)
+            time.sleep(1.0/self.fps)
             pygame.display.update()
 
 
 if __name__ == "__main__":
     GUI(80, 40, 10).exec()
 
-# TODO implement continuing game
-# TODO move focus on keydown
-# TODO do smthing on Esc
 # TODO add score and highscore
 # TODO add you-loose-menu
 # TODO add scale choise
@@ -174,6 +232,3 @@ if __name__ == "__main__":
 
 # TODO odd size causes strange behavior
 
-# TODO move controller to separate file
-# TODO add NN controller and HumanController
-# TODO implement evolution algorithm

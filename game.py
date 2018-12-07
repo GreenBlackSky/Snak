@@ -67,3 +67,7 @@ class Game:
             self.food_pos = self.random_pos()
         else:
             self.snake.move(next_pos)
+
+# TODO move controller to separate file
+# TODO add NN controller and HumanController
+# TODO implement evolution algorithm
