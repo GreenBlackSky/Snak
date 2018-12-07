@@ -51,9 +51,9 @@ class Game:
             self.tail = self.cells[-1]
             self.cells.pop()
 
-    def __init__(self):
+    def __init__(self, width, height):
         # Config
-        self.width, self.height = 40, 20
+        self.width, self.height = width, height
         self.cell_size = 10
         self.fps = 8
         # Screen
@@ -124,4 +124,4 @@ class Game:
 
 if __name__ == "__main__":
     pygame.init()
-    Game().play()
+    Game(80, 45).play()
