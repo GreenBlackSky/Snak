@@ -46,6 +46,7 @@ class Game:
         self.snake_mind = Controller()
         self.snake = Game.Snake((self.width/2, self.height/2))
         self.food_pos = self.random_pos()
+        self.score = 0
 
     def random_pos(self):
         ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
@@ -65,6 +66,7 @@ class Game:
         if self.food_pos == next_pos:
             self.snake.move_and_eat(next_pos)
             self.food_pos = self.random_pos()
+            self.score += 1
         else:
             self.snake.move(next_pos)
 
