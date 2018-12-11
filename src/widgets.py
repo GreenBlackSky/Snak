@@ -3,6 +3,7 @@ BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
 WHITE = (240, 240, 240)
 RED = (240, 10, 10)
+GREEN = (10, 240, 100)
 
 
 class Widget:
@@ -30,7 +31,7 @@ class Widget:
 
 
 class Button(Widget):
-    def __init__(self, rect, text=""):
+    def __init__(self, rect, text):
         super().__init__(rect)
         self.text = text
         self.pressed = False
@@ -64,6 +65,13 @@ class TextList(Widget):
 class TextInput(Widget):
     def __init__(self, rect):
         super().__init__(rect)
+
+
+class Label(Widget):
+    def __init__(self, rect, text):
+        super().__init__(rect)
+        self.text = text
+
 
 # TODO inactive widgets
 # TODO lables

@@ -8,12 +8,13 @@ from enum import Enum
 
 
 class GUI:
-    KEYS = {pygame.K_UP: (0, -1), \
-            pygame.K_DOWN: (0, 1), \
-            pygame.K_LEFT: (-1, 0), \
+    KEYS = {pygame.K_UP: (0, -1),
+            pygame.K_DOWN: (0, 1),
+            pygame.K_LEFT: (-1, 0),
             pygame.K_RIGHT: (1, 0)}
 
-    WIDGET_TYPES = {"Button": Button}
+    WIDGET_TYPES = {"Button": Button,
+                    "Label": Label}
 
     class Signal(Enum):
         StartNewGame = 0,
@@ -33,9 +34,32 @@ class GUI:
             self.widgets = []
             self.callbacks = {}
 
-        def initialize(self, widget):
-            self.focus = widget
-            widget.highlight()
+        def update(self):
+            pass
+
+        def redraw(self):
+            pass
+
+    class Menu(Form):
+        def __init__(self, screen, menu_type, path):
+            super().__init__(screen)
+            if path is None:
+                path = "cfg/menu.yaml"
+            config = yaml.load(open(path, 'r'))
+            for widget_cfg in config[menu_type]:
+                widget_type = GUI.WIDGET_TYPES[widget_cfg["type"]]
+                rect = (self.width*widget_cfg['x'],
+                        self.height*widget_cfg['y'],
+                        self.width*widget_cfg['w'],
+                        self.height*widget_cfg['h'])
+                widget = widget_type(rect, widget_cfg["capture"])
+                self.widgets.append(widget)
+                if widget_cfg["callback"] == "None":
+                    self.callbacks[widget] = None
+                else:
+                    self.callbacks[widget] = GUI.Signal[widget_cfg["callback"]]
+            self.focus = self.widgets[0]
+            self.focus.highlight()
             self.redraw()
 
         def draw_button(self, button):
@@ -47,6 +71,9 @@ class GUI:
             label_pos = (x + max((w - tw)/2, 0), \
                         y + max((h - th)/2, 0))
             self.screen.blit(label, label_pos)
+        
+        def draw_label(self, label):
+            pass
 
         def map_events(self, events):
             mouse_pressed = False
@@ -96,28 +123,8 @@ class GUI:
             for widget in self.widgets:
                 if type(widget) == Button:
                     self.draw_button(widget)
-
-    class Menu(Form):
-        def __init__(self, screen, menu_type, path):
-            super().__init__(screen)
-            if path is None:
-                path = "cfg/menu.yaml"
-            config = yaml.load(open(path, 'r'))
-            for widget_cfg in config[menu_type]:
-                widget_type = GUI.WIDGET_TYPES[widget_cfg["type"]]
-                rect = (self.width*widget_cfg['x'],
-                        self.height*widget_cfg['y'],
-                        self.width*widget_cfg['w'],
-                        self.height*widget_cfg['h'])
-                widget = widget_type(rect, widget_cfg["capture"])
-                self.widgets.append(widget)
-                if widget_cfg["callback"] == "None":
-                    self.callbacks[widget] = None
-                else:
-                    self.callbacks[widget] = GUI.Signal[widget_cfg["callback"]]
-            self.focus = self.widgets[0]
-            self.focus.highlight()
-            self.redraw()
+                elif type(widget) == Label:
+                    self.draw_label(widget)
 
     class GameForm(Form):
         def __init__(self, screen, cell_size):
@@ -140,7 +147,7 @@ class GUI:
             tx, ty, tw, th = label.get_rect()
             label_pos = (max((self.width - tw)/2, 0), 0)
             self.screen.blit(label, label_pos)
-        
+
         def update(self, events):
             # Check events
             for event in events:
@@ -149,19 +156,19 @@ class GUI:
                         return GUI.Signal.PauseGame
                     if event.key in GUI.KEYS:
                         self.game.snake_mind.desire(GUI.KEYS[event.key])
-            self.draw_cell(self.game.snake.head, GRAY)
+            self.draw_cell(self.game.snake.head, WHITE)
             # Move snake
             food_pos = self.game.food_pos
             self.game.make_move(self.game.get_next_move())
             if self.game.food_pos != food_pos:
-                self.draw_cell(self.game.food_pos, RED)
                 self.draw_score()
+                self.draw_cell(self.game.food_pos, RED)
             # Check for Gameover
             if self.game.snake.is_selfcrossed():
                 return GUI.Signal.OpenMainMenu
             # Redraw screen
             self.draw_cell(self.game.snake.tail, BLACK)
-            self.draw_cell(self.game.snake.head, WHITE)
+            self.draw_cell(self.game.snake.head, GREEN)
 
         def redraw(self):
             self.screen.fill(BLACK)
@@ -174,8 +181,8 @@ class GUI:
         pygame.init()
         self.cell_size = cell_size
         self.screen = pygame.display.set_mode((width*self.cell_size, height*self.cell_size))
-        path = sys.argv[1] if len(sys.argv) > 1 else None
-        self.form = GUI.Menu(self.screen, "MainMenu", path)
+        self.path = sys.argv[1] if len(sys.argv) > 1 else None
+        self.form = GUI.Menu(self.screen, "MainMenu", self.path)
         self.fps = 20
         self.last_game = None
 
@@ -192,15 +199,15 @@ class GUI:
         self.fps = 20
         if signal == GUI.Signal.PauseGame:
             self.last_game = self.form
-            self.form = GUI.Menu(self.screen, "PauseMenu")
+            self.form = GUI.Menu(self.screen, "PauseMenu", self.path)
         elif signal == GUI.Signal.ContinueGame:
             self.form = self.last_game
             self.form.redraw()
             self.fps = 8
         elif signal == GUI.Signal.OpenMainMenu:
-            self.form = GUI.Menu(self.screen, "MainMenu")
+            self.form = GUI.Menu(self.screen, "MainMenu", self.path)
         elif signal == GUI.Signal.OpenEvolutionMenu:
-            self.form = GUI.Menu(self.screen, "EvolutionMenu")
+            self.form = GUI.Menu(self.screen, "EvolutionMenu", self.path)
         elif signal == GUI.Signal.StartNewGame:
             self.form = GUI.GameForm(self.screen, self.cell_size)
             self.fps = 8
@@ -218,12 +225,10 @@ class GUI:
 if __name__ == "__main__":
     GUI(80, 40, 10).exec()
 
-# TODO make head different color
 # TODO add highscore
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
 # TODO implement score as label-widget
-# TODO make score untochable
 # TODO add scale choise
 # TODO add speed choise
 # TODO open file safely
