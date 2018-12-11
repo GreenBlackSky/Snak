@@ -98,9 +98,11 @@ class GUI:
                     self.draw_button(widget)
 
     class Menu(Form):
-        def __init__(self, screen, menu_type):
+        def __init__(self, screen, menu_type, path):
             super().__init__(screen)
-            config = yaml.load(open("cfg/menu.yaml", 'r'))
+            if path is None:
+                path = "cfg/menu.yaml"
+            config = yaml.load(open(path, 'r'))
             for widget_cfg in config[menu_type]:
                 widget_type = GUI.WIDGET_TYPES[widget_cfg["type"]]
                 rect = (self.width*widget_cfg['x'],
@@ -172,7 +174,8 @@ class GUI:
         pygame.init()
         self.cell_size = cell_size
         self.screen = pygame.display.set_mode((width*self.cell_size, height*self.cell_size))
-        self.form = GUI.Menu(self.screen, "MainMenu")
+        path = sys.argv[1] if len(sys.argv) > 1 else None
+        self.form = GUI.Menu(self.screen, "MainMenu", path)
         self.fps = 20
         self.last_game = None
 
