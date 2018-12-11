@@ -49,8 +49,9 @@ class Game:
         self.score = 0
 
     def random_pos(self):
-        ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
-        while ret in self.snake.cells:
+        # ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
+        ret = self.snake.head
+        while ret in self.snake.cells or ret == self.snake.tail:
             ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
         return ret
 

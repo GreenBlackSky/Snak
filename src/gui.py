@@ -172,8 +172,8 @@ class GUI:
             if self.game.snake.is_selfcrossed():
                 return GUI.Signal.OpenMainMenu
             # Redraw screen
-            self.draw_cell(self.game.snake.head, WHITE)
             self.draw_cell(self.game.snake.tail, BLACK)
+            self.draw_cell(self.game.snake.head, WHITE)
 
         def redraw(self):
             self.screen.fill(BLACK)
@@ -228,13 +228,15 @@ class GUI:
 
 
 if __name__ == "__main__":
-    GUI(80, 40, 10).exec()
+    GUI(40, 20, 20).exec()
 
+# TODO make head different color
 # TODO add highscore
+# TODO make form widget
+# TODO move different menus to config file
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
 # TODO make score untochable
 # TODO add scale choise
 # TODO add speed choise
-# TODO odd size causes strange behavior
 
