@@ -133,9 +133,11 @@ class GUI:
             pygame.draw.rect(self.screen, color, rect, 0)
 
         def draw_score(self):
-            font = pygame.font.SysFont("monospace", int(self.height/5))
+            font = pygame.font.SysFont("monospace", int(self.height/2))
             label = font.render(str(self.game.score), 1, GRAY, BLACK)
-            self.screen.blit(label, (0, 0))
+            tx, ty, tw, th = label.get_rect()
+            label_pos = (max((self.width - tw)/2, 0), 0)
+            self.screen.blit(label, label_pos)
         
         def update(self, events):
             # Check events
@@ -145,6 +147,7 @@ class GUI:
                         return GUI.Signal.PauseGame
                     if event.key in GUI.KEYS:
                         self.game.snake_mind.desire(GUI.KEYS[event.key])
+            self.draw_cell(self.game.snake.head, GRAY)
             # Move snake
             food_pos = self.game.food_pos
             self.game.make_move(self.game.get_next_move())
@@ -210,14 +213,15 @@ class GUI:
 
 
 if __name__ == "__main__":
-    GUI(40, 20, 20).exec()
+    GUI(80, 40, 10).exec()
 
 # TODO make head different color
 # TODO add highscore
-# TODO make form widget
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
+# TODO implement score as label-widget
 # TODO make score untochable
 # TODO add scale choise
 # TODO add speed choise
 # TODO open file safely
+# TODO make form widget (??)
