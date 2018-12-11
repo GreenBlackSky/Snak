@@ -30,7 +30,7 @@ class Widget:
 
 
 class Button(Widget):
-    def __init__(self, rect, text):
+    def __init__(self, rect, text=""):
         super().__init__(rect)
         self.text = text
         self.pressed = False
@@ -66,6 +66,7 @@ class TextInput(Widget):
         super().__init__(rect)
 
 # TODO inactive widgets
+# TODO lables
 # TODO checkbox
 # TODO text field
 # TODO list

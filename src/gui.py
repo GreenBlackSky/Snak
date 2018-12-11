@@ -1,6 +1,7 @@
 import sys
 import pygame
 import time
+import yaml
 from game import Game
 from widgets import *
 from enum import Enum
@@ -12,12 +13,16 @@ class GUI:
             pygame.K_LEFT: (-1, 0), \
             pygame.K_RIGHT: (1, 0)}
 
+    WIDGET_TYPES = {"Button": Button}
+
     class Signal(Enum):
         StartNewGame = 0,
         PauseGame = 1,
         OpenEvolutionMenu = 2,
         ContinueGame = 3,
-        OpenMainMenu = 4
+        OpenMainMenu = 4,
+        YouLoose = 5,
+        NewHighScore = 6
 
     class Form:
         def __init__(self, screen):
@@ -92,44 +97,25 @@ class GUI:
                 if type(widget) == Button:
                     self.draw_button(widget)
 
-    class MainMenu(Form):
-        def __init__(self, screen):
+    class Menu(Form):
+        def __init__(self, screen, menu_type):
             super().__init__(screen)
-            start_button = Button((self.width*(2.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "START")
-            evolve_button = Button((self.width*(2.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "EVOLVE")
-            self.widgets = [start_button, evolve_button]
-            self.callbacks = { \
-                start_button: GUI.Signal.StartNewGame, \
-                evolve_button: GUI.Signal.OpenEvolutionMenu}
-            self.initialize(start_button)
-
-    class PauseMenu(Form):
-        def __init__(self, screen):
-            super().__init__(screen)
-            continue_button = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Continue")
-            restart_button = Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Restart")
-            back_button = Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Back")
-            self.widgets = [continue_button, restart_button, back_button]
-            self.callbacks = { \
-                continue_button: GUI.Signal.ContinueGame, \
-                restart_button: GUI.Signal.StartNewGame, \
-                back_button: GUI.Signal.OpenMainMenu}
-            self.initialize(continue_button)
-
-    class EvolutionMenu(Form):
-        def __init__(self, screen):
-            super().__init__(screen)
-            start_button = Button((self.width*(1.0/5), 0, self.width/5.0, self.height/5.0), "Start")
-            pause_button = Button((self.width*(1.0/5), self.height*(1.0/5), self.width/5.0, self.height/5.0), "Pause")
-            watch_button = Button((self.width*(1.0/5), self.height*(2.0/5), self.width/5.0, self.height/5.0), "Watch")
-            back_button = Button((self.width*(1.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "Back")
-            self.widgets = [start_button, pause_button, watch_button, back_button]
-            self.callbacks = { \
-                start_button: None, \
-                pause_button: None, \
-                watch_button: GUI.Signal.StartNewGame, \
-                back_button: GUI.Signal.OpenMainMenu}
-            self.initialize(start_button)
+            config = yaml.load(open("cfg/menu.yaml", 'r'))
+            for widget_cfg in config[menu_type]:
+                widget_type = GUI.WIDGET_TYPES[widget_cfg["type"]]
+                rect = (self.width*widget_cfg['x'],
+                        self.height*widget_cfg['y'],
+                        self.width*widget_cfg['w'],
+                        self.height*widget_cfg['h'])
+                widget = widget_type(rect, widget_cfg["capture"])
+                self.widgets.append(widget)
+                if widget_cfg["callback"] == "None":
+                    self.callbacks[widget] = None
+                else:
+                    self.callbacks[widget] = GUI.Signal[widget_cfg["callback"]]
+            self.focus = self.widgets[0]
+            self.focus.highlight()
+            self.redraw()
 
     class GameForm(Form):
         def __init__(self, screen, cell_size):
@@ -183,7 +169,7 @@ class GUI:
         pygame.init()
         self.cell_size = cell_size
         self.screen = pygame.display.set_mode((width*self.cell_size, height*self.cell_size))
-        self.form = GUI.MainMenu(self.screen)
+        self.form = GUI.Menu(self.screen, "MainMenu")
         self.fps = 20
         self.last_game = None
 
@@ -200,15 +186,15 @@ class GUI:
         self.fps = 20
         if signal == GUI.Signal.PauseGame:
             self.last_game = self.form
-            self.form = GUI.PauseMenu(self.screen)
+            self.form = GUI.Menu(self.screen, "PauseMenu")
         elif signal == GUI.Signal.ContinueGame:
             self.form = self.last_game
             self.form.redraw()
             self.fps = 8
         elif signal == GUI.Signal.OpenMainMenu:
-            self.form = GUI.MainMenu(self.screen)
+            self.form = GUI.Menu(self.screen, "MainMenu")
         elif signal == GUI.Signal.OpenEvolutionMenu:
-            self.form = GUI.EvolutionMenu(self.screen)
+            self.form = GUI.Menu(self.screen, "EvolutionMenu")
         elif signal == GUI.Signal.StartNewGame:
             self.form = GUI.GameForm(self.screen, self.cell_size)
             self.fps = 8
@@ -229,10 +215,9 @@ if __name__ == "__main__":
 # TODO make head different color
 # TODO add highscore
 # TODO make form widget
-# TODO move different menus to config file
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
 # TODO make score untochable
 # TODO add scale choise
 # TODO add speed choise
-
+# TODO open file safely
