@@ -25,12 +25,12 @@ class Game:
             self.cells = [pos]
 
         def is_selfcrossed(self):
-            return (self.head in self.cells[1::])
+            return self.head in self.cells[1::]
 
         def next_pos(self, direction):
             dx, dy = direction
             x, y = self.head
-            return (x + dx, y + dy) 
+            return x + dx, y + dy
 
         def move_and_eat(self, pos):
             self.head = pos
@@ -49,7 +49,6 @@ class Game:
         self.score = 0
 
     def random_pos(self):
-        # ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
         ret = self.snake.head
         while ret in self.snake.cells or ret == self.snake.tail:
             ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
@@ -57,11 +56,15 @@ class Game:
 
     def get_next_move(self):
         nx, ny = self.snake.next_pos(self.snake_mind.decision())
-        if nx < 0: nx = self.width
-        elif nx >= self.width: nx = 0
-        if ny < 0: ny = self.height
-        elif ny >= self.height: ny = 0
-        return (nx, ny)
+        if nx < 0:
+            nx = self.width
+        elif nx >= self.width:
+            nx = 0
+        if ny < 0:
+            ny = self.height
+        elif ny >= self.height:
+            ny = 0
+        return nx, ny
 
     def make_move(self, next_pos):
         if self.food_pos == next_pos:

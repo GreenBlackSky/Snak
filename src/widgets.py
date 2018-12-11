@@ -4,6 +4,7 @@ GRAY = (100, 100, 100)
 WHITE = (240, 240, 240)
 RED = (240, 10, 10)
 
+
 class Widget:
     def __init__(self, rect):
         self.rect = rect

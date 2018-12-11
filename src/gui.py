@@ -1,4 +1,6 @@
-import sys, pygame, time
+import sys
+import pygame
+import time
 from game import Game
 from widgets import *
 from enum import Enum
@@ -10,14 +12,12 @@ class GUI:
             pygame.K_LEFT: (-1, 0), \
             pygame.K_RIGHT: (1, 0)}
 
-
     class Signal(Enum):
         StartNewGame = 0,
         PauseGame = 1,
         OpenEvolutionMenu = 2,
         ContinueGame = 3,
         OpenMainMenu = 4
-
 
     class Form:
         def __init__(self, screen):
@@ -99,10 +99,9 @@ class GUI:
             evolve_button = Button((self.width*(2.0/5), self.height*(3.0/5), self.width/5.0, self.height/5.0), "EVOLVE")
             self.widgets = [start_button, evolve_button]
             self.callbacks = { \
-                start_button : GUI.Signal.StartNewGame, \
-                evolve_button : GUI.Signal.OpenEvolutionMenu}
+                start_button: GUI.Signal.StartNewGame, \
+                evolve_button: GUI.Signal.OpenEvolutionMenu}
             self.initialize(start_button)
-
 
     class PauseMenu(Form):
         def __init__(self, screen):
@@ -116,7 +115,6 @@ class GUI:
                 restart_button: GUI.Signal.StartNewGame, \
                 back_button: GUI.Signal.OpenMainMenu}
             self.initialize(continue_button)
-
 
     class EvolutionMenu(Form):
         def __init__(self, screen):
@@ -132,7 +130,6 @@ class GUI:
                 watch_button: GUI.Signal.StartNewGame, \
                 back_button: GUI.Signal.OpenMainMenu}
             self.initialize(start_button)
-
 
     class GameForm(Form):
         def __init__(self, screen, cell_size):
@@ -181,7 +178,6 @@ class GUI:
             self.draw_cell(self.game.food_pos, RED)
             for cell in self.game.snake.cells:
                 self.draw_cell(cell, WHITE)
-
 
     def __init__(self, width, height, cell_size=10):
         pygame.init()
