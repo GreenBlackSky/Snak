@@ -103,6 +103,10 @@ class GUI:
             # Check focus
             ret = None
             if return_pressed:
+                # self.focus.press()
+                # self.redraw()
+                # pygame.display.update()
+                # time.sleep(0.1)
                 ret = self.callbacks[self.focus]
             mx, my = pygame.mouse.get_pos()
             if self.focus.check_state(mouse_pressed, mouse_released, self.focus.inside(mx, my)):

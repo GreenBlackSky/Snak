@@ -6,6 +6,22 @@ RED = (240, 10, 10)
 GREEN = (10, 240, 100)
 
 
+class Timer:
+    def __init__(self, period, callback):
+        self.period = period
+        self.callback = callback
+        self.active = True
+
+    def tick(self):
+        self.period -= 1
+        if self.period == 0:
+            self.callback()
+            self.active = False
+    
+    def is_active(self):
+        return self.active
+
+
 class Widget:
     def __init__(self, rect):
         self.rect = rect
@@ -14,18 +30,6 @@ class Widget:
         self.first_color = GRAY
         self.second_color = WHITE
         self.active = True
-
-    def highlight(self):
-        if not self.highlighted and self.active:
-            self.highlighted = True
-            self.first_color = WHITE
-            self.second_color = GRAY
-
-    def diminish(self):
-        if self.highlighted and self.active:
-            self.highlighted = False
-            self.first_color = GRAY
-            self.second_color = WHITE
 
     def inside(self, cx, cy):
         x, y, w, h = self.rect
@@ -50,6 +54,8 @@ class Widget:
 class Window(Widget):
     pass
 
+class Scene(Widget):
+    pass
 
 class Button(Widget):
     def __init__(self, rect, text):
@@ -84,6 +90,18 @@ class Button(Widget):
                 ret = True
         return ret
 
+    def highlight(self):
+        if not self.highlighted and self.active:
+            self.highlighted = True
+            self.first_color = WHITE
+            self.second_color = GRAY
+
+    def diminish(self):
+        if self.highlighted and self.active:
+            self.highlighted = False
+            self.first_color = GRAY
+            self.second_color = WHITE
+
 
 class TextList(Widget):
     def __init__(self, rect):
@@ -102,8 +120,8 @@ class Label(Widget):
         self.first_color = BLACK
 
 
-# TODO Move form here, transform it to window
-# TODO lables
-# TODO checkbox
-# TODO text field
-# TODO list
+# TODO Window
+# TODO Scene
+# TODO Сheckbox
+# TODO LineEdit
+# TODO TextList
