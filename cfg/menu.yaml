@@ -2,56 +2,39 @@
   MainMenu: [
     {
       type: Button,
-      x: 0.4,
-      y: 0.2,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.4, 0.2, 0.2, 0.2],
       capture: "START",
       callback: StartNewGame
     },
     {
       type: Button,
-      x: 0.4,
-      y: 0.6,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.4, 0.6, 0.2, 0.2],
       capture: "EVOLVE",
-      callback: OpenEvolutionMenu
+      callback: OpenEvolutionMenu,
+      active: 0
     },
     {
       type: Label,
-      x: 0.4,
-      y: 0.4,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.4, 0.4, 0.2, 0.2],
       capture: "LABEL",
     }
   ],
   PauseMenu: [
     {
       type: Button,
-      x: 0.2,
-      y: 0,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0, 0.2, 0.2],
       capture: "Continue",
       callback: ContinueGame
     },
     {
       type: Button,
-      x: 0.2,
-      y: 0.2,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0.2, 0.2, 0.2],
       capture: "Restart",
       callback: StartNewGame
     },
     {
       type: Button,
-      x: 0.2,
-      y: 0.4,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0.4, 0.2, 0.2],
       capture: "Back",
       callback: OpenMainMenu
     }
@@ -59,34 +42,22 @@
   EvolutionMenu: [
     {
       type: Button,
-      x: 0.2,
-      y: 0,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0, 0.2, 0.2],
       capture: "Start",
     },
     {
       type: Button,
-      x: 0.2,
-      y: 0.2,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0.2, 0.2, 0.2],
       capture: "Pause",
     },
     {
       type: Button,
-      x: 0.2,
-      y: 0.4,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0.4, 0.2, 0.2],
       capture: "Watch",
     },
     {
       type: Button,
-      x: 0.2,
-      y: 0.6,
-      w: 0.2,
-      h: 0.2,
+      rect: [0.2, 0.6, 0.2, 0.2],
       capture: "Back",
       callback: OpenMainMenu
     }

@@ -49,11 +49,11 @@ class GUI:
             config = yaml.load(open(path, 'r'))
             for widget_cfg in config[menu_type]:
                 widget_type = GUI.WIDGET_TYPES[widget_cfg["type"]]
-                rect = (self.width*widget_cfg['x'],
-                        self.height*widget_cfg['y'],
-                        self.width*widget_cfg['w'],
-                        self.height*widget_cfg['h'])
+                xm, ym, wm, hm = widget_cfg["rect"]
+                rect = (self.width*xm, self.height*ym, self.width*wm, self.height*hm)
                 widget = widget_type(rect, widget_cfg["capture"])
+                if not widget_cfg.get("active", True):
+                    widget.set_active(False)
                 self.widgets.append(widget)
                 if widget.is_focusable():
                     self.focus_order.append(widget)

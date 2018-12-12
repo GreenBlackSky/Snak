@@ -1,21 +1,5 @@
 import random
-
-
-class Controller:
-    def __init__(self):
-        self.direction = (0, -1)
-        self.desired_direction = self.direction
-        
-    def desire(self, direction):
-        self.desired_direction = direction
-        
-    def decision(self):
-        ndx, ndy = self.desired_direction
-        cdx, cdy = self.direction
-        if (ndx + cdx, ndy + cdy) != (0, 0):
-            self.direction = (ndx, ndy)
-        return self.direction
-
+from controller import Controller
 
 class Game:
     class Snake:
@@ -73,7 +57,3 @@ class Game:
             self.score += 1
         else:
             self.snake.move(next_pos)
-
-# TODO move controller to separate file
-# TODO add NN controller and HumanController
-# TODO implement evolution algorithm
