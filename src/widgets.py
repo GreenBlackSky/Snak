@@ -10,6 +10,7 @@ class Widget:
     def __init__(self, rect):
         self.rect = rect
         self.highlighted = False
+        self.focusable = False
         self.first_color = GRAY
         self.second_color = WHITE
 
@@ -29,12 +30,16 @@ class Widget:
         x, y, w, h = self.rect
         return x < cx < x + w and y < cy < y + h
 
+    def is_focusable(self):
+        return self.focusable
+
 
 class Button(Widget):
     def __init__(self, rect, text):
         super().__init__(rect)
         self.text = text
         self.pressed = False
+        self.focusable = True
 
     def press(self):
         self.first_color = RED
@@ -71,6 +76,7 @@ class Label(Widget):
     def __init__(self, rect, text):
         super().__init__(rect)
         self.text = text
+        self.first_color = BLACK
 
 
 # TODO inactive widgets

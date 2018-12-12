@@ -32,6 +32,7 @@ class GUI:
             self.focus = None
             x, y, self.width, self.height = self.screen.get_rect()
             self.widgets = []
+            self.focus_order = []
             self.callbacks = {}
 
         def update(self):
@@ -54,15 +55,19 @@ class GUI:
                         self.height*widget_cfg['h'])
                 widget = widget_type(rect, widget_cfg["capture"])
                 self.widgets.append(widget)
-                if widget_cfg["callback"] == "None":
+                if widget.is_focusable():
+                    self.focus_order.append(widget)
+                if "callback" not in widget_cfg:
                     self.callbacks[widget] = None
                 else:
                     self.callbacks[widget] = GUI.Signal[widget_cfg["callback"]]
-            self.focus = self.widgets[0]
+            if not self.focus_order:
+                raise "No focusable on form"
+            self.focus = self.focus_order[0]
             self.focus.highlight()
             self.redraw()
 
-        def draw_button(self, button):
+        def draw_rect_with_text(self, button):
             pygame.draw.rect(self.screen, button.first_color, button.rect, 0)
             x, y, w, h = button.rect
             font = pygame.font.SysFont("monospace", int(h/3))
@@ -71,14 +76,11 @@ class GUI:
             label_pos = (x + max((w - tw)/2, 0), \
                         y + max((h - th)/2, 0))
             self.screen.blit(label, label_pos)
-        
-        def draw_label(self, label):
-            pass
 
         def map_events(self, events):
             mouse_pressed = False
             mouse_released = False
-            focus_n = self.widgets.index(self.focus)
+            focus_n = self.focus_order.index(self.focus)
             return_pressed = False
             for event in events:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -93,7 +95,7 @@ class GUI:
                     if event.key == pygame.K_RETURN:
                         return_pressed = True
             focus_n = max(focus_n, 0)
-            focus_n = min(focus_n, len(self.widgets) - 1)
+            focus_n = min(focus_n, len(self.focus_order) - 1)
             return mouse_pressed, mouse_released, focus_n, return_pressed
 
         def update(self, events):
@@ -108,12 +110,12 @@ class GUI:
             # Move focus
             if not self.focus.pressed:
                 old_focus = self.focus
-                for widget in self.widgets:
+                for widget in self.focus_order:
                     widget.diminish()
                     if widget.inside(mx, my):
                         self.focus = widget
                 if old_focus == self.focus:
-                    self.focus = self.widgets[focus_n]
+                    self.focus = self.focus_order[focus_n]
             # Redraw
             self.focus.highlight()
             self.redraw()
@@ -121,10 +123,8 @@ class GUI:
 
         def redraw(self):
             for widget in self.widgets:
-                if type(widget) == Button:
-                    self.draw_button(widget)
-                elif type(widget) == Label:
-                    self.draw_label(widget)
+                if type(widget) == Button or type(widget) == Label:
+                    self.draw_rect_with_text(widget)
 
     class GameForm(Form):
         def __init__(self, screen, cell_size):
@@ -185,6 +185,7 @@ class GUI:
         self.form = GUI.Menu(self.screen, "MainMenu", self.path)
         self.fps = 20
         self.last_game = None
+        self.highscore = 0
 
     def check_events(self):
         ret = list()
@@ -225,6 +226,8 @@ class GUI:
 if __name__ == "__main__":
     GUI(80, 40, 10).exec()
 
+# TODO Pass events to forms and handle them there
+# TODO Create custom events
 # TODO add highscore
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
@@ -232,4 +235,5 @@ if __name__ == "__main__":
 # TODO add scale choise
 # TODO add speed choise
 # TODO open file safely
-# TODO make form widget (??)
+# TODO make form widget
+# TODO make form focus on itself if no focusable
