@@ -1,127 +1,180 @@
-BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
-DARK_GRAY = (50, 50, 50)
-WHITE = (240, 240, 240)
-RED = (240, 10, 10)
-GREEN = (10, 240, 100)
-
-
-class Timer:
-    def __init__(self, period, callback):
-        self.period = period
-        self.callback = callback
-        self.active = True
-
-    def tick(self):
-        self.period -= 1
-        if self.period == 0:
-            self.callback()
-            self.active = False
-    
-    def is_active(self):
-        return self.active
+import yaml
+from enum import Enum
 
 
 class Widget:
-    def __init__(self, rect):
-        self.rect = rect
-        self.highlighted = False
-        self.focusable = False
-        self.first_color = GRAY
-        self.second_color = WHITE
-        self.active = True
+    class Color(Enum):
+        BLACK = (0, 0, 0)
+        WHITE = (255, 255, 255)
+        GRAY = (100, 100, 100)
+        DARK_GRAY = (50, 50, 50)
+        RED = (250, 10, 10)
 
-    def inside(self, cx, cy):
+    class ColorRole(Enum):
+        Background = 0
+        Foreground = 1
+        Text = 2
+
+    class State(Enum):
+        Active = 0
+        Inactive = 1
+        Highlighted = 2
+        Pressed = 3
+
+    class Signal(Enum):
+        Pressed = 0
+        Input_finished = 1
+        Exit = 2
+
+    class Event(Enum):
+        pass
+
+    @staticmethod
+    def load(path: str):
+        pass
+
+    @staticmethod
+    def default_colors():
+        State, Role, Color = Widget.State, Widget.ColorRole, Widget.Color
+        return {
+            State.Active: {
+                Role.Background: Color.BLACK,
+                Role.Foreground: Color.GRAY,
+                Role.Text: Color.WHITE
+            },
+            State.Inactive: {
+                Role.Background: Color.BLACK,
+                Role.Foreground: Color.DARK_GRAY,
+                Role.Text: Color.BLACK
+            },
+            State.Highlighted: {
+                Role.Background: Color.BLACK,
+                Role.Foreground: Color.WHITE,
+                Role.Text: Color.GRAY
+            },
+            State.Pressed: {
+                Role.Background: Color.BLACK,
+                Role.Foreground: Color.RED,
+                Role.Text: Color.BLACK
+            }
+        }
+
+    def __init__(self, rect: (float, float, float, float)):
+        self.rect = rect
+        self.__focusable = False
+        self.children = list()
+        self.__active = True
+        self.__painter = None
+        self.__callbacks = dict()
+        self.__colors = Widget.default_colors()
+
+    def set_color(self, state: Widget.State, role: Widget.ColorRole, color: Widget.Color):
+        if not isinstance(color, Widget.Color):
+            raise "Unknown color"
+        if state not in self.__colors:
+            raise "No such state"
+        if role not in self.__colors[state]:
+            raise "No such role"
+        self.__colors[state][role] = color
+
+    def get_color(self, state: Widget.State, role: Widget.ColorRole,):
+        return self.__colors[state][role]
+
+    def set_painter(self, painter: object):
+        self.__painter = painter
+
+    def draw(self):
+        if self.__painter is None:
+            raise "No painter specified"
+        self.__painter.draw(self)
+        for child in self.children:
+            child.draw()
+
+    def set_callback(self, signal: Widget.Signal, callback: callable):
+        if not isinstance(signal, Widget.Signal):
+            raise "Unknown signal"
+        self.__callbacks[signal] = callback
+
+    def add_child(self, child: Widget):
+        x, y, w, h = child.rect
+        if not self.inside(x, y) or not self.inside(x + w, y + h):
+            raise "Child is outside of parent"
+        self.children.append(child)
+
+    def get_children(self):
+        return self.children
+
+    def inside(self, cx: float, cy: float):
         x, y, w, h = self.rect
         return x < cx < x + w and y < cy < y + h
 
     def is_focusable(self):
-        return self.focusable and self.active
+        return self.__focusable and self.__active
 
-    def set_active(self, val):
-        self.active = val
-        if not self.active:
-            self.first_color = DARK_GRAY
-            self.second_color = BLACK
-        else:
-            self.first_color = GRAY
-            self.second_color = WHITE
+    def set_active(self, val: bool):
+        self.__active = val
 
     def is_active(self):
-        return self.active
+        return self.__active
 
-
-class Window(Widget):
-    pass
-
-class Scene(Widget):
-    pass
+    def get_state(self):
+        return Widget.State.Active if self.__active else Widget.State.Inactive
 
 class Button(Widget):
     def __init__(self, rect, text):
         super().__init__(rect)
         self.text = text
-        self.pressed = False
-        self.focusable = True
+        self.__focusable = True
+        self.__pressed = False
+        self.__highlighted = False
 
     def press(self):
-        if not self.active:
+        if not self.__active:
             return
-        self.first_color = RED
-        self.second_color = BLACK
-        self.pressed = True
+        self.__pressed = True
 
     def release(self):
-        if not self.active:
-            return
-        self.first_color = GRAY
-        self.second_color = WHITE
-        self.pressed = False
+        self.__pressed = False
 
     def check_state(self, mouse_pressed, mouse_released, mouse_on_button):
-        if not self.active:
+        if not self.__active:
             return
         ret = False
         if mouse_on_button and mouse_pressed:
             self.press()
-        if self.pressed and mouse_released:
+        if self.__pressed and mouse_released:
             self.release()
             if mouse_on_button:
                 ret = True
+        if ret and Widget.Signal.Pressed in self.__callbacks:
+            self.__callbacks[Widget.Signal.Pressed]()
         return ret
 
     def highlight(self):
-        if not self.highlighted and self.active:
-            self.highlighted = True
-            self.first_color = WHITE
-            self.second_color = GRAY
+        if not self.__highlighted and self.__active:
+            self.__highlighted = True
 
     def diminish(self):
-        if self.highlighted and self.active:
-            self.highlighted = False
-            self.first_color = GRAY
-            self.second_color = WHITE
+        if self.__highlighted and self.__active:
+            self.__highlighted = False
 
+    def is_highlighted(self):
+        return self.__highlighted
 
-class TextList(Widget):
-    def __init__(self, rect):
-        super().__init__(rect)
-
-
-class TextInput(Widget):
-    def __init__(self, rect):
-        super().__init__(rect)
-
+    def get_state(self):
+        if self.__pressed:
+            ret = Widget.State.Pressed
+        elif not self.__active:
+            ret = Widget.State.Inactive
+        else:
+            if self.__highlighted:
+                ret = Widget.State.Highlighted
+            else:
+                ret = Widget.State.Active
+        return ret
 
 class Label(Widget):
-    def __init__(self, rect, text):
-        super().__init__(rect)
-        self.text = text
-        self.first_color = BLACK
+    pass
 
-
-# TODO Window
-# TODO Scene
-# TODO Сheckbox
-# TODO LineEdit
-# TODO TextList
+class Window(Widget):
+    pass

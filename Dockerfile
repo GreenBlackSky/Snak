@@ -18,4 +18,4 @@ COPY cfg /home/user/app/cfg
 
 USER user
 
-CMD ["python3", "/home/user/app/src/gui.py", "/home/user/app/cfg/menu.yaml"]
+CMD ["python3", "/home/user/app/src/main.py", "/home/user/app/cfg/menu.yaml"]
