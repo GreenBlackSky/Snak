@@ -1,4 +1,3 @@
-import yaml
 from enum import Enum
 
 
@@ -22,16 +21,31 @@ class Widget:
         Pressed = 3
 
     class Signal(Enum):
-        Pressed = 0
+        Button_pressed = 0
         Input_finished = 1
         Exit = 2
 
-    class Event(Enum):
-        pass
-
     @staticmethod
-    def load(path: str):
-        pass
+    def load(cfg: dict):
+        w_rect = cfg["rect"]
+        w_type = cfg["type"]
+
+        if w_type == "Button":
+            w_text = cfg["capture"]
+            ret = Button(w_rect, w_text)
+        elif w_type == "Label":
+            w_text = cfg["capture"]
+            ret = Label(w_rect, w_text)
+        elif w_type == "Window":
+            ret = MainWindow(w_rect)
+        elif w_type == "MainWindow":
+            ret = MainWindow
+
+        if "children" in cfg:
+            for child in cfg["children"]:
+                ret.add_child(Widget.load(child))
+
+        return ret
 
     @staticmethod
     def default_colors():
@@ -120,6 +134,19 @@ class Widget:
     def get_state(self):
         return Widget.State.Active if self.__active else Widget.State.Inactive
 
+
+class MainWindow(Widget):
+    def __init__(self, rect):
+        super().__init__(rect)
+
+
+class Window(Widget):
+    def __init__(self, rect, text):
+        super().__init__(rect)
+        self.__active = False
+        self.text = text
+
+
 class Button(Widget):
     def __init__(self, rect, text):
         super().__init__(rect)
@@ -173,8 +200,13 @@ class Button(Widget):
                 ret = Widget.State.Active
         return ret
 
-class Label(Widget):
-    pass
 
-class Window(Widget):
-    pass
+class Label(Widget):
+    def __init__(self, rect, text):
+        super().__init__(rect)
+        self.text = text
+
+
+class Scene(Widget):
+    def __init__(self, rect):
+        super().__init__(rect)
