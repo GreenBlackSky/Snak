@@ -1,3 +1,10 @@
+from game import Game
+import pygame
+import yaml
+import time
+from enum import Enum
+
+
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
 DARK_GRAY = (50, 50, 50)
@@ -5,6 +12,15 @@ WHITE = (240, 240, 240)
 RED = (240, 10, 10)
 GREEN = (10, 240, 100)
 
+
+class Signal(Enum):
+    StartNewGame = 0,
+    PauseGame = 1,
+    OpenEvolutionMenu = 2,
+    ContinueGame = 3,
+    OpenMainMenu = 4,
+    YouLoose = 5,
+    NewHighScore = 6
 
 class Widget:
     def __init__(self, rect):
@@ -98,8 +114,111 @@ class Label(Widget):
         self.first_color = BLACK
 
 
-class Window(Widget):
-    pass
+class Form:
+    def __init__(self, width, height, redraw):
+        self.redraw = redraw
+        self.focus = None
+        self.width, self.height = width, height
+        self.widgets = []
+        self.focus_order = []
+        self.callbacks = {}
 
-class Scene(Widget):
-    pass
+class Menu(Form):
+    def __init__(self, width, height, redraw, menu_type, path):
+        super().__init__(width, height, redraw)
+        if path is None:
+            path = "cfg/menu.yaml"
+        config = yaml.load(open(path, 'r'))
+        for widget_cfg in config[menu_type]:
+            if widget_cfg["type"] == "Button":
+                widget_type = Button
+            elif widget_cfg["type"] == "Label":
+                widget_type = Label
+            xm, ym, wm, hm = widget_cfg["rect"]
+            rect = (self.width*xm, self.height*ym, self.width*wm, self.height*hm)
+            widget = widget_type(rect, widget_cfg["capture"])
+            if not widget_cfg.get("active", True):
+                widget.set_active(False)
+            self.widgets.append(widget)
+            if widget.is_focusable():
+                self.focus_order.append(widget)
+            if "callback" not in widget_cfg:
+                self.callbacks[widget] = None
+            else:
+                self.callbacks[widget] = Signal[widget_cfg["callback"]]
+        if not self.focus_order:
+            raise "No focusable on form"
+        self.focus = self.focus_order[0]
+        self.focus.highlight()
+        self.redraw(self)
+
+    def map_events(self, events):
+        mouse_pressed = False
+        mouse_released = False
+        focus_n = self.focus_order.index(self.focus)
+        return_pressed = False
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_pressed = True
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_released = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    focus_n -= 1
+                if event.key == pygame.K_DOWN:
+                    focus_n += 1
+                if event.key == pygame.K_RETURN:
+                    return_pressed = True
+        focus_n = max(focus_n, 0)
+        focus_n = min(focus_n, len(self.focus_order) - 1)
+        return mouse_pressed, mouse_released, focus_n, return_pressed
+
+    def update(self, events):
+        mouse_pressed, mouse_released, focus_n, return_pressed = self.map_events(events)
+        # Check focus
+        ret = None
+        if return_pressed:
+            self.focus.press()
+            self.redraw(self)
+            pygame.display.update()
+            time.sleep(0.1)
+            ret = self.callbacks[self.focus]
+        mx, my = pygame.mouse.get_pos()
+        if self.focus.check_state(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
+            ret = self.callbacks[self.focus]
+        # Move focus
+        if not self.focus.pressed:
+            old_focus = self.focus
+            for widget in self.focus_order:
+                widget.diminish()
+                if widget.inside(mx, my):
+                    self.focus = widget
+            if old_focus == self.focus:
+                self.focus = self.focus_order[focus_n]
+        # Redraw
+        self.focus.highlight()
+        self.redraw(self)
+        return ret
+
+class GameForm(Form):
+    def __init__(self, width, height, redraw, cell_size):
+        super().__init__(width, height, redraw)
+        self.cell_size = cell_size
+        self.game = Game(self.width//self.cell_size, self.height//self.cell_size)
+        self.redraw(self.game)
+
+    def update(self, events):
+        # Check events
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return Signal.PauseGame
+                if event.key in GUI.KEYS:
+                    self.game.snake_mind.desire(GUI.KEYS[event.key])
+        # Move snake
+        self.game.make_move(self.game.get_next_move())
+        # Check for Gameover
+        if self.game.snake.is_selfcrossed():
+            return Signal.OpenMainMenu
+        # Redraw screen
+        self.redraw(self.game)           
