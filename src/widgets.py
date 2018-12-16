@@ -12,6 +12,10 @@ WHITE = (240, 240, 240)
 RED = (240, 10, 10)
 GREEN = (10, 240, 100)
 
+KEYS = {pygame.K_UP: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_RIGHT: (1, 0)}
 
 class Signal(Enum):
     StartNewGame = 0,
@@ -114,20 +118,21 @@ class Label(Widget):
         self.first_color = BLACK
 
 
-class Form:
-    def __init__(self, width, height, redraw):
+class Window(Widget):
+    def __init__(self, rect, redraw):
+        super().__init__(rect)
         self.redraw = redraw
         self.focus = None
-        self.width, self.height = width, height
         self.widgets = []
         self.focus_order = []
         self.callbacks = {}
 
-class Menu(Form):
-    def __init__(self, width, height, redraw, menu_type, path):
-        super().__init__(width, height, redraw)
+class Menu(Window):
+    def __init__(self, rect, redraw, menu_type, path):
+        super().__init__(rect, redraw)
         if path is None:
             path = "cfg/menu.yaml"
+        x, y, w, h = self.rect
         config = yaml.load(open(path, 'r'))
         for widget_cfg in config[menu_type]:
             if widget_cfg["type"] == "Button":
@@ -135,7 +140,7 @@ class Menu(Form):
             elif widget_cfg["type"] == "Label":
                 widget_type = Label
             xm, ym, wm, hm = widget_cfg["rect"]
-            rect = (self.width*xm, self.height*ym, self.width*wm, self.height*hm)
+            rect = (w*xm, h*ym, w*wm, h*hm)
             widget = widget_type(rect, widget_cfg["capture"])
             if not widget_cfg.get("active", True):
                 widget.set_active(False)
@@ -200,12 +205,15 @@ class Menu(Form):
         self.redraw(self)
         return ret
 
-class GameForm(Form):
-    def __init__(self, width, height, redraw, cell_size):
-        super().__init__(width, height, redraw)
+class GameForm(Window):
+    def __init__(self, rect, redraw, cell_size):
+        super().__init__(rect, redraw)
         self.cell_size = cell_size
-        self.game = Game(self.width//self.cell_size, self.height//self.cell_size)
-        self.redraw(self.game)
+        x, y, w, h = self.rect
+        self.game = Game(w//self.cell_size, h//self.cell_size)
+        self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
+        self.score.second_color = DARK_GRAY
+        self.redraw(self)
 
     def update(self, events):
         # Check events
@@ -213,12 +221,18 @@ class GameForm(Form):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return Signal.PauseGame
-                if event.key in GUI.KEYS:
-                    self.game.snake_mind.desire(GUI.KEYS[event.key])
+                if event.key in KEYS:
+                    self.game.snake_mind.desire(KEYS[event.key])
         # Move snake
         self.game.make_move(self.game.get_next_move())
+        # Check score
+        self.score.text = str(self.game.score)
         # Check for Gameover
         if self.game.snake.is_selfcrossed():
             return Signal.OpenMainMenu
         # Redraw screen
-        self.redraw(self.game)           
+        self.redraw(self)           
+
+# TODO implement events
+# TODO make form widget
+# TODO separate main loop from gui
