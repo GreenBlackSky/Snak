@@ -6,22 +6,6 @@ RED = (240, 10, 10)
 GREEN = (10, 240, 100)
 
 
-class Timer:
-    def __init__(self, period, callback):
-        self.period = period
-        self.callback = callback
-        self.active = True
-
-    def tick(self):
-        self.period -= 1
-        if self.period == 0:
-            self.callback()
-            self.active = False
-    
-    def is_active(self):
-        return self.active
-
-
 class Widget:
     def __init__(self, rect):
         self.rect = rect
@@ -50,12 +34,6 @@ class Widget:
     def is_active(self):
         return self.active
 
-
-class Window(Widget):
-    pass
-
-class Scene(Widget):
-    pass
 
 class Button(Widget):
     def __init__(self, rect, text):
@@ -120,8 +98,8 @@ class Label(Widget):
         self.first_color = BLACK
 
 
-# TODO Window
-# TODO Scene
-# TODO Сheckbox
-# TODO LineEdit
-# TODO TextList
+class Window(Widget):
+    pass
+
+class Scene(Widget):
+    pass

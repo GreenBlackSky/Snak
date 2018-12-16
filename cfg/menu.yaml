@@ -12,11 +12,6 @@
       capture: "EVOLVE",
       callback: OpenEvolutionMenu,
       active: 0
-    },
-    {
-      type: Label,
-      rect: [0.4, 0.4, 0.2, 0.2],
-      capture: "LABEL",
     }
   ],
   PauseMenu: [

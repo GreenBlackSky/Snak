@@ -147,7 +147,7 @@ class GUI:
 
         def draw_score(self):
             font = pygame.font.SysFont("monospace", int(self.height/2))
-            label = font.render(str(self.game.score), 1, GRAY, BLACK)
+            label = font.render(str(self.game.score), 1, DARK_GRAY, BLACK)
             tx, ty, tw, th = label.get_rect()
             label_pos = (max((self.width - tw)/2, 0), 0)
             self.screen.blit(label, label_pos)
@@ -171,15 +171,15 @@ class GUI:
             if self.game.snake.is_selfcrossed():
                 return GUI.Signal.OpenMainMenu
             # Redraw screen
-            self.draw_cell(self.game.snake.tail, BLACK)
-            self.draw_cell(self.game.snake.head, GREEN)
+            self.redraw()
+            self.draw_cell(self.game.snake.head, WHITE)
 
         def redraw(self):
             self.screen.fill(BLACK)
             self.draw_score()
             self.draw_cell(self.game.food_pos, RED)
             for cell in self.game.snake.cells:
-                self.draw_cell(cell, WHITE)
+                self.draw_cell(cell, GRAY)
 
     def __init__(self, width, height, cell_size=10):
         pygame.init()
@@ -230,14 +230,11 @@ class GUI:
 if __name__ == "__main__":
     GUI(80, 40, 10).exec()
 
-# TODO Pass events to forms and handle them there
-# TODO Create custom events
 # TODO add highscore
 # TODO add you-loose-menu
 # TODO add new-highscore-menu
-# TODO implement score as label-widget
 # TODO add scale choise
 # TODO add speed choise
 # TODO open file safely
-# TODO make form widget
-# TODO make form focus on itself if no focusable
+
+
