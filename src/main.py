@@ -1,26 +1,27 @@
 import pygame
 import sys
 import time
-from widgets import *
+import yaml
+from widgets import Window, Scene, Menu, Label, Signal, Colors
 from gui import GUI
+from game import Game
 
 
-def check_events():
-    ret = list()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        else:
-            ret.append(event)
-    return ret
+KEYS = {pygame.K_UP: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_RIGHT: (1, 0)}
 
 
 class MainWindow(Window):
     def __init__(self, gui):
         super().__init__(gui.rect, gui.draw_menu)
-        self.path = sys.argv[1] if len(sys.argv) > 1 else None
         self.gui = gui
-        self.form = Menu(self.rect, gui.draw_menu, "MainMenu", self.path)
+        path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
+        with open(path, 'r') as file:
+            self.config = yaml.load(file)
+        file.close()
+        self.form = Menu(self.rect, gui.draw_menu, self.config["MainMenu"])
         self.fps = 20
         self.last_game = None
         self.highscore = 0
@@ -29,15 +30,15 @@ class MainWindow(Window):
         self.fps = 20
         if signal == Signal.PauseGame:
             self.last_game = self.form
-            self.form = Menu(self.rect, gui.draw_menu, "PauseMenu", self.path)
+            self.form = Menu(self.rect, gui.draw_menu, self.config["PauseMenu"])
         elif signal == Signal.ContinueGame:
             self.form = self.last_game
             self.form.redraw(self.form)
             self.fps = 8
         elif signal == Signal.OpenMainMenu:
-            self.form = Menu(self.rect, gui.draw_menu, "MainMenu", self.path)
+            self.form = Menu(self.rect, gui.draw_menu, self.config["MainMenu"])
         elif signal == Signal.OpenEvolutionMenu:
-            self.form = Menu(self.rect, gui.draw_menu, "EvolutionMenu", self.path)
+            self.form = Menu(self.rect, gui.draw_menu, self.config["EvolutionMenu"])
         elif signal == Signal.StartNewGame:
             self.form = GameForm(self.rect, gui.draw_game, gui.cell_size)
             self.fps = 8
@@ -50,7 +51,7 @@ class GameForm(Scene):
         x, y, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
-        self.score.second_color = DARK_GRAY
+        self.score.second_color = Colors.DARK_GRAY
         self.redraw(self)
 
     def update(self, events):
@@ -71,8 +72,12 @@ if __name__ == "__main__":
     gui = GUI(80, 40, 10)
     main_window = MainWindow(gui)
     # events = list()
-    while True:
-        events = check_events()
+    playing = True
+    while playing:
+        events = gui.check_events()
+        for event in events:
+            if event.type == pygame.QUIT:
+                playing = False
         signal = main_window.form.update(events)
         if signal is not None:
             main_window.update(signal)

@@ -11,27 +11,27 @@ class GUI:
         self.rect = (0, 0, width, height)
 
     def draw_button(self, button):
-        pygame.draw.rect(self.screen, button.first_color, button.rect, 0)
+        pygame.draw.rect(self.screen, button.first_color.value, button.rect, 0)
         x, y, w, h = button.rect
         font = pygame.font.SysFont("monospace", int(h/3))
-        label = font.render(button.text, 1, button.second_color)
+        label = font.render(button.text, 1, button.second_color.value)
         tx, ty, tw, th = label.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(label, label_pos)
 
     def draw_label(self, label):
-        pygame.draw.rect(self.screen, label.first_color, label.rect, 0)
+        pygame.draw.rect(self.screen, label.first_color.value, label.rect, 0)
         x, y, w, h = label.rect
         font = pygame.font.SysFont("monospace", int(h))
-        surface = font.render(label.text, 1, label.second_color)
+        surface = font.render(label.text, 1, label.second_color.value)
         tx, ty, tw, th = surface.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(surface, label_pos)
 
     def draw_menu(self, menu):
-        self.screen.fill(BLACK)
+        self.screen.fill(Colors.BLACK.value)
         for widget in menu.widgets:
             if type(widget) == Button:
                 self.draw_button(widget)
@@ -39,12 +39,12 @@ class GUI:
                 self.draw_label(widget)
 
     def draw_game(self, game):
-        self.screen.fill(BLACK)
+        self.screen.fill(Colors.BLACK.value)
         self.draw_label(game.score)
-        self.draw_cell(game.game.food_pos, RED)
+        self.draw_cell(game.game.food_pos, Colors.RED.value)
         for cell in game.game.snake.cells:
-            self.draw_cell(cell, GRAY)
-        self.draw_cell(game.game.snake.head, WHITE)
+            self.draw_cell(cell, Colors.GRAY.value)
+        self.draw_cell(game.game.snake.head, Colors.WHITE.value)
 
     def draw_cell(self, pos, color):
         x, y = pos
@@ -53,5 +53,9 @@ class GUI:
                 self.cell_size, \
                 self.cell_size)
         pygame.draw.rect(self.screen, color, rect, 0)
+
+    @staticmethod
+    def check_events():
+        return list(pygame.event.get())
 
 # TODO draw_scene instead of game

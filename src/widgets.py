@@ -1,21 +1,13 @@
-from game import Game
 import pygame
-import yaml
 from enum import Enum
 
-
-BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
-DARK_GRAY = (50, 50, 50)
-WHITE = (240, 240, 240)
-RED = (240, 10, 10)
-GREEN = (10, 240, 100)
-
-
-KEYS = {pygame.K_UP: (0, -1),
-        pygame.K_DOWN: (0, 1),
-        pygame.K_LEFT: (-1, 0),
-        pygame.K_RIGHT: (1, 0)}
+class Colors(Enum):
+    BLACK = (0, 0, 0)
+    GRAY = (100, 100, 100)
+    DARK_GRAY = (50, 50, 50)
+    WHITE = (240, 240, 240)
+    RED = (240, 10, 10)
+    GREEN = (10, 240, 100)
 
 
 class Signal(Enum):
@@ -33,8 +25,8 @@ class Widget:
         self.rect = rect
         self.highlighted = False
         self.focusable = False
-        self.first_color = GRAY
-        self.second_color = WHITE
+        self.first_color = Colors.GRAY
+        self.second_color = Colors.WHITE
         self.active = True
 
     def inside(self, cx, cy):
@@ -47,11 +39,11 @@ class Widget:
     def set_active(self, val):
         self.active = val
         if not self.active:
-            self.first_color = DARK_GRAY
-            self.second_color = BLACK
+            self.first_color = Colors.DARK_GRAY
+            self.second_color = Colors.BLACK
         else:
-            self.first_color = GRAY
-            self.second_color = WHITE
+            self.first_color = Colors.GRAY
+            self.second_color = Colors.WHITE
 
     def is_active(self):
         return self.active
@@ -67,18 +59,30 @@ class Button(Widget):
     def press(self):
         if not self.active:
             return
-        self.first_color = RED
-        self.second_color = BLACK
+        self.first_color = Colors.RED
+        self.second_color = Colors.BLACK
         self.pressed = True
 
     def release(self):
         if not self.active:
             return
-        self.first_color = GRAY
-        self.second_color = WHITE
+        self.first_color = Colors.GRAY
+        self.second_color = Colors.WHITE
         self.pressed = False
 
-    def check_state(self, mouse_pressed, mouse_released, mouse_on_button):
+    def highlight(self):
+        if not self.highlighted and self.active:
+            self.highlighted = True
+            self.first_color = Colors.WHITE
+            self.second_color = Colors.GRAY
+
+    def diminish(self):
+        if self.highlighted and self.active:
+            self.highlighted = False
+            self.first_color = Colors.GRAY
+            self.second_color = Colors.WHITE
+
+    def update(self, mouse_pressed, mouse_released, mouse_on_button):
         if not self.active:
             return
         ret = False
@@ -89,18 +93,6 @@ class Button(Widget):
             if mouse_on_button:
                 ret = True
         return ret
-
-    def highlight(self):
-        if not self.highlighted and self.active:
-            self.highlighted = True
-            self.first_color = WHITE
-            self.second_color = GRAY
-
-    def diminish(self):
-        if self.highlighted and self.active:
-            self.highlighted = False
-            self.first_color = GRAY
-            self.second_color = WHITE
 
 
 class TextList(Widget):
@@ -117,7 +109,7 @@ class Label(Widget):
     def __init__(self, rect, text):
         super().__init__(rect)
         self.text = text
-        self.first_color = BLACK
+        self.first_color = Colors.BLACK
 
 
 class CheckBox(Widget):
@@ -136,26 +128,22 @@ class Window(Widget):
 
 
 class Menu(Window):
-    def __init__(self, rect, redraw, menu_type, path):
+    def __init__(self, rect, redraw, config):
         super().__init__(rect, redraw)
-        self.capture = menu_type
-        if path is None:
-            path = "cfg/menu.yaml"
         x, y, w, h = self.rect
-        config = yaml.load(open(path, 'r'))
-        for widget_cfg in config[menu_type]:
-            if widget_cfg["type"] == "Button":
-                widget_type = Button
-            elif widget_cfg["type"] == "Label":
-                widget_type = Label
+        for widget_cfg in config:
+            # Create widget
             xm, ym, wm, hm = widget_cfg["rect"]
-            rect = (w*xm, h*ym, w*wm, h*hm)
-            widget = widget_type(rect, widget_cfg["capture"])
+            rect = (x + w*xm, y + h*ym, w*wm, h*hm)
+            widget = eval(widget_cfg["type"])(rect, widget_cfg["capture"])
+            # Activate widget
             if not widget_cfg.get("active", True):
                 widget.set_active(False)
+            # Add widget to focus_order and widgets
             self.widgets.append(widget)
             if widget.is_focusable():
                 self.focus_order.append(widget)
+            # set callback
             if "callback" not in widget_cfg:
                 self.callbacks[widget] = None
             else:
@@ -171,7 +159,6 @@ class Menu(Window):
         mouse_released = False
         focus_n = self.focus_order.index(self.focus)
         return_pressed = False
-        escape_pressed = False
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pressed = True
@@ -184,23 +171,19 @@ class Menu(Window):
                     focus_n += 1
                 if event.key == pygame.K_RETURN:
                     return_pressed = True
-                if event.key == pygame.K_ESCAPE:
-                    escape_pressed = True
         focus_n = max(focus_n, 0)
         focus_n = min(focus_n, len(self.focus_order) - 1)
-        return mouse_pressed, mouse_released, focus_n, return_pressed, escape_pressed
+        return mouse_pressed, mouse_released, focus_n, return_pressed
 
     def update(self, events):
-        mouse_pressed, mouse_released, focus_n, return_pressed, escape_pressed = self.map_events(events)
-        if escape_pressed and self.capture == "PauseMenu":
-            return Signal.ContinueGame
+        mouse_pressed, mouse_released, focus_n, return_pressed = self.map_events(events)
         # Check focus
         ret = None
         if return_pressed:
             self.focus.press()
             ret = self.callbacks[self.focus]
         mx, my = pygame.mouse.get_pos()
-        if self.focus.check_state(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
+        if self.focus.update(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
             ret = self.callbacks[self.focus]
         # Move focus
         if not self.focus.pressed:
