@@ -1,7 +1,6 @@
 from game import Game
 import pygame
 import yaml
-import time
 from enum import Enum
 
 
@@ -12,10 +11,12 @@ WHITE = (240, 240, 240)
 RED = (240, 10, 10)
 GREEN = (10, 240, 100)
 
+
 KEYS = {pygame.K_UP: (0, -1),
         pygame.K_DOWN: (0, 1),
         pygame.K_LEFT: (-1, 0),
         pygame.K_RIGHT: (1, 0)}
+
 
 class Signal(Enum):
     StartNewGame = 0,
@@ -25,6 +26,7 @@ class Signal(Enum):
     OpenMainMenu = 4,
     YouLoose = 5,
     NewHighScore = 6
+
 
 class Widget:
     def __init__(self, rect):
@@ -118,6 +120,11 @@ class Label(Widget):
         self.first_color = BLACK
 
 
+class CheckBox(Widget):
+    def __init__(self, rect):
+        super().__init__(rect)
+
+
 class Window(Widget):
     def __init__(self, rect, redraw):
         super().__init__(rect)
@@ -127,9 +134,11 @@ class Window(Widget):
         self.focus_order = []
         self.callbacks = {}
 
+
 class Menu(Window):
     def __init__(self, rect, redraw, menu_type, path):
         super().__init__(rect, redraw)
+        self.capture = menu_type
         if path is None:
             path = "cfg/menu.yaml"
         x, y, w, h = self.rect
@@ -162,6 +171,7 @@ class Menu(Window):
         mouse_released = False
         focus_n = self.focus_order.index(self.focus)
         return_pressed = False
+        escape_pressed = False
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pressed = True
@@ -174,19 +184,20 @@ class Menu(Window):
                     focus_n += 1
                 if event.key == pygame.K_RETURN:
                     return_pressed = True
+                if event.key == pygame.K_ESCAPE:
+                    escape_pressed = True
         focus_n = max(focus_n, 0)
         focus_n = min(focus_n, len(self.focus_order) - 1)
-        return mouse_pressed, mouse_released, focus_n, return_pressed
+        return mouse_pressed, mouse_released, focus_n, return_pressed, escape_pressed
 
     def update(self, events):
-        mouse_pressed, mouse_released, focus_n, return_pressed = self.map_events(events)
+        mouse_pressed, mouse_released, focus_n, return_pressed, escape_pressed = self.map_events(events)
+        if escape_pressed and self.capture == "PauseMenu":
+            return Signal.ContinueGame
         # Check focus
         ret = None
         if return_pressed:
             self.focus.press()
-            self.redraw(self)
-            pygame.display.update()
-            time.sleep(0.1)
             ret = self.callbacks[self.focus]
         mx, my = pygame.mouse.get_pos()
         if self.focus.check_state(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
@@ -205,34 +216,12 @@ class Menu(Window):
         self.redraw(self)
         return ret
 
-class GameForm(Window):
-    def __init__(self, rect, redraw, cell_size):
+
+class Scene(Window):
+    def __init__(self, rect, redraw):
         super().__init__(rect, redraw)
-        self.cell_size = cell_size
-        x, y, w, h = self.rect
-        self.game = Game(w//self.cell_size, h//self.cell_size)
-        self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
-        self.score.second_color = DARK_GRAY
-        self.redraw(self)
 
-    def update(self, events):
-        # Check events
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return Signal.PauseGame
-                if event.key in KEYS:
-                    self.game.snake_mind.desire(KEYS[event.key])
-        # Move snake
-        self.game.make_move(self.game.get_next_move())
-        # Check score
-        self.score.text = str(self.game.score)
-        # Check for Gameover
-        if self.game.snake.is_selfcrossed():
-            return Signal.OpenMainMenu
-        # Redraw screen
-        self.redraw(self)           
-
-# TODO implement events
-# TODO make form widget
-# TODO separate main loop from gui
+# TODO Colors
+# TODO events
+# TODO load
+# TODO redraw

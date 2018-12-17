@@ -1,6 +1,4 @@
-import sys
 import pygame
-import time
 from widgets import *
 
 
@@ -8,17 +6,9 @@ class GUI:
     def __init__(self, width, height, cell_size=10):
         pygame.init()
         width, height = width*cell_size, height*cell_size
-        self.rect = (0, 0, width, height)
         self.cell_size = cell_size
         self.screen = pygame.display.set_mode((width, height))
-        self.path = sys.argv[1] if len(sys.argv) > 1 else None
-        self.form = Menu(self.rect,
-                          self.draw_menu,
-                          "MainMenu",
-                          self.path)
-        self.fps = 20
-        self.last_game = None
-        self.highscore = 0
+        self.rect = (0, 0, width, height)
 
     def draw_button(self, button):
         pygame.draw.rect(self.screen, button.first_color, button.rect, 0)
@@ -64,35 +54,4 @@ class GUI:
                 self.cell_size)
         pygame.draw.rect(self.screen, color, rect, 0)
 
-    def check_events(self):
-        ret = list()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            else:
-                ret.append(event)
-        return ret
-
-    def update(self, signal):
-        self.fps = 20
-        if signal == Signal.PauseGame:
-            self.last_game = self.form
-            self.form = Menu(self.rect, self.draw_menu, "PauseMenu", self.path)
-        elif signal == Signal.ContinueGame:
-            self.form = self.last_game
-            self.form.redraw(self.form)
-            self.fps = 8
-        elif signal == Signal.OpenMainMenu:
-            self.form = Menu(self.rect, self.draw_menu, "MainMenu", self.path)
-        elif signal == Signal.OpenEvolutionMenu:
-            self.form = Menu(self.rect, self.draw_menu, "EvolutionMenu", self.path)
-        elif signal == Signal.StartNewGame:
-            self.form = GameForm(self.rect, self.draw_game, self.cell_size)
-            self.fps = 8
-
-
-# TODO add highscore
-# TODO add you-loose-menu
-# TODO add new-highscore-menu
-# TODO add scale choise
-# TODO add speed choise
+# TODO draw_scene instead of game
