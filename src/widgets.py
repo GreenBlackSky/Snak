@@ -1,5 +1,6 @@
-import pygame
 from enum import Enum
+from colors import Color, ColorRole
+from events import Event
 
 
 class Signal(Enum):
@@ -12,21 +13,6 @@ class Signal(Enum):
     NewHighScore = 6
 
 
-class Color(Enum):
-    BLACK = (0, 0, 0)
-    GRAY = (100, 100, 100)
-    DARK_GRAY = (50, 50, 50)
-    WHITE = (240, 240, 240)
-    RED = (240, 10, 10)
-    GREEN = (10, 240, 100)
-
-
-class ColorRole(Enum):
-    Background = 0
-    Foreground = 1
-    Text = 2
-
-
 class Widget:
     class State(Enum):
         Active = 0
@@ -35,7 +21,7 @@ class Widget:
         Pressed = 3
 
     @staticmethod
-    def default_colors():
+    def default_palette():
         return {
             Widget.State.Active: {
                 ColorRole.Background: Color.BLACK,
@@ -63,7 +49,7 @@ class Widget:
         self.rect = rect
         self.focusable = False
         self.state = Widget.State.Active
-        self.palette = Widget.default_colors()
+        self.palette = Widget.default_palette()
 
     def inside(self, cx, cy):
         x, y, w, h = self.rect
@@ -178,35 +164,34 @@ class Menu(Window):
         self.focus.highlight()
         self.redraw(self)
 
-    def map_events(self, events):
+    def update(self, events):
+        # Map events
         mouse_pressed = False
         mouse_released = False
         focus_n = self.focus_order.index(self.focus)
         return_pressed = False
+        mx, my = None, None
         for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == Event.Type.MousePressed:
                 mouse_pressed = True
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            if event.type == Event.Type.MouseReleased:
                 mouse_released = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+            if event.type == Event.Type.MousePos:
+                mx, my = event.data
+            if event.type == Event.Type.KeyPressed:
+                if event.data == Event.Key.K_UP:
                     focus_n -= 1
-                if event.key == pygame.K_DOWN:
+                if event.data == Event.Key.K_DOWN:
                     focus_n += 1
-                if event.key == pygame.K_RETURN:
+                if event.data == Event.Key.K_RETURN:
                     return_pressed = True
         focus_n = max(focus_n, 0)
         focus_n = min(focus_n, len(self.focus_order) - 1)
-        return mouse_pressed, mouse_released, focus_n, return_pressed
-
-    def update(self, events):
-        mouse_pressed, mouse_released, focus_n, return_pressed = self.map_events(events)
         # Check focus
         ret = None
         if return_pressed:
             self.focus.press()
             ret = self.callbacks[self.focus]
-        mx, my = pygame.mouse.get_pos()
         if self.focus.update(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
             ret = self.callbacks[self.focus]
         # Move focus

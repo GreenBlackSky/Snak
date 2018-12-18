@@ -1,6 +1,7 @@
 import pygame
-from widgets import Window, Button, Menu, Label, Color, ColorRole
-
+from widgets import Window, Button, Menu, Label
+from colors import Color, ColorRole
+from events import Event
 
 class GUI:
     def __init__(self, width, height, cell_size=10):
@@ -58,8 +59,35 @@ class GUI:
                 self.cell_size)
         pygame.draw.rect(self.screen, color, rect, 0)
 
+    def update(self):
+        pygame.display.update()
+
     @staticmethod
     def check_events():
-        return list(pygame.event.get())
+        keys = {
+            pygame.K_RETURN:    Event.Key.K_RETURN,
+            pygame.K_ESCAPE:    Event.Key.K_ESCAPE,
+            pygame.K_UP:        Event.Key.K_UP,
+            pygame.K_DOWN:      Event.Key.K_DOWN,
+            pygame.K_RIGHT:     Event.Key.K_RIGHT,
+            pygame.K_LEFT:      Event.Key.K_LEFT,
+        }
+        ret = list()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key in keys:
+                ret.append(Event(Event.Type.KeyPressed, keys[event.key]))
+            elif event.type == pygame.KEYDOWN and event.key in keys:
+                ret.append(Event(Event.Type.KeyReleased, keys[event.key]))
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = pygame.mouse.get_pos()
+                ret.append(Event(Event.Type.MousePressed, (x, y)))
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                x, y = pygame.mouse.get_pos()
+                ret.append(Event(Event.Type.MouseReleased, (x, y)))
+            elif event.type == pygame.QUIT:
+                ret.append(Event(Event.Type.Quit))
+        x, y = pygame.mouse.get_pos()
+        ret.append(Event(Event.Type.MousePos, (x, y)))
+        return ret
 
 # TODO draw_scene instead of game

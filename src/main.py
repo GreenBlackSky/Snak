@@ -1,16 +1,17 @@
-import pygame
 import sys
 import time
 import yaml
-from widgets import Widget, Window, Scene, Menu, Label, Signal, Color, ColorRole
+from widgets import Widget, Window, Scene, Menu, Label, Signal
+from events import Event
+from colors import Color, ColorRole
 from gui import GUI
 from game import Game
 
 
-KEYS = {pygame.K_UP: (0, -1),
-        pygame.K_DOWN: (0, 1),
-        pygame.K_LEFT: (-1, 0),
-        pygame.K_RIGHT: (1, 0)}
+KEYS = {Event.Key.K_UP: (0, -1),
+        Event.Key.K_DOWN: (0, 1),
+        Event.Key.K_LEFT: (-1, 0),
+        Event.Key.K_RIGHT: (1, 0)}
 
 
 class MainWindow(Window):
@@ -57,11 +58,11 @@ class GameForm(Scene):
 
     def update(self, events):
         for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+            if event.type == Event.Type.KeyPressed:
+                if event.data == Event.Key.K_ESCAPE:
                     return Signal.PauseGame
-                if event.key in KEYS:
-                    self.game.snake_mind.desire(KEYS[event.key])
+                if event.data in KEYS:
+                    self.game.snake_mind.desire(KEYS[event.data])
         self.game.make_move(self.game.get_next_move())
         self.score.text = str(self.game.score)
         if self.game.snake.is_selfcrossed():
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     while playing:
         events = gui.check_events()
         for event in events:
-            if event.type == pygame.QUIT:
+            if event.type == Event.Type.Quit:
                 playing = False
         signal = main_window.form.update(events)
         if signal is not None:
@@ -86,5 +87,5 @@ if __name__ == "__main__":
         # events += gui.check_events()
         # events = main_window.update(events)
 
-        pygame.display.update()
+        gui.update()
         time.sleep(1.0/main_window.fps)
