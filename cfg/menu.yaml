@@ -1,0 +1,60 @@
+{
+  MainMenu: [
+    {
+      type: Button,
+      rect: [0.4, 0.2, 0.2, 0.2],
+      capture: "START",
+      callback: StartNewGame
+    },
+    {
+      type: Button,
+      rect: [0.4, 0.6, 0.2, 0.2],
+      capture: "EVOLVE",
+      callback: OpenEvolutionMenu,
+      active: 0
+    }
+  ],
+  PauseMenu: [
+    {
+      type: Button,
+      rect: [0.2, 0, 0.2, 0.2],
+      capture: "Continue",
+      callback: ContinueGame
+    },
+    {
+      type: Button,
+      rect: [0.2, 0.2, 0.2, 0.2],
+      capture: "Restart",
+      callback: StartNewGame
+    },
+    {
+      type: Button,
+      rect: [0.2, 0.4, 0.2, 0.2],
+      capture: "Back",
+      callback: OpenMainMenu
+    }
+  ],
+  EvolutionMenu: [
+    {
+      type: Button,
+      rect: [0.2, 0, 0.2, 0.2],
+      capture: "Start",
+    },
+    {
+      type: Button,
+      rect: [0.2, 0.2, 0.2, 0.2],
+      capture: "Pause",
+    },
+    {
+      type: Button,
+      rect: [0.2, 0.4, 0.2, 0.2],
+      capture: "Watch",
+    },
+    {
+      type: Button,
+      rect: [0.2, 0.6, 0.2, 0.2],
+      capture: "Back",
+      callback: OpenMainMenu
+    }
+  ]
+}
