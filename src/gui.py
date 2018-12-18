@@ -1,5 +1,5 @@
 import pygame
-from widgets import *
+from widgets import Window, Button, Menu, Label, Color, ColorRole
 
 
 class GUI:
@@ -11,27 +11,31 @@ class GUI:
         self.rect = (0, 0, width, height)
 
     def draw_button(self, button):
-        pygame.draw.rect(self.screen, button.first_color.value, button.rect, 0)
+        fore_color = button.palette[button.state][ColorRole.Foreground].value
+        text_color = button.palette[button.state][ColorRole.Text].value
+        pygame.draw.rect(self.screen, fore_color, button.rect, 0)
         x, y, w, h = button.rect
         font = pygame.font.SysFont("monospace", int(h/3))
-        label = font.render(button.text, 1, button.second_color.value)
+        label = font.render(button.text, 1, text_color)
         tx, ty, tw, th = label.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(label, label_pos)
 
     def draw_label(self, label):
-        pygame.draw.rect(self.screen, label.first_color.value, label.rect, 0)
+        fore_color = label.palette[label.state][ColorRole.Foreground].value
+        text_color = label.palette[label.state][ColorRole.Text].value
+        pygame.draw.rect(self.screen, fore_color, label.rect, 0)
         x, y, w, h = label.rect
         font = pygame.font.SysFont("monospace", int(h))
-        surface = font.render(label.text, 1, label.second_color.value)
+        surface = font.render(label.text, 1, text_color)
         tx, ty, tw, th = surface.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(surface, label_pos)
 
     def draw_menu(self, menu):
-        self.screen.fill(Colors.BLACK.value)
+        self.screen.fill(Color.BLACK.value)
         for widget in menu.widgets:
             if type(widget) == Button:
                 self.draw_button(widget)
@@ -39,12 +43,12 @@ class GUI:
                 self.draw_label(widget)
 
     def draw_game(self, game):
-        self.screen.fill(Colors.BLACK.value)
+        self.screen.fill(Color.BLACK.value)
         self.draw_label(game.score)
-        self.draw_cell(game.game.food_pos, Colors.RED.value)
+        self.draw_cell(game.game.food_pos, Color.RED.value)
         for cell in game.game.snake.cells:
-            self.draw_cell(cell, Colors.GRAY.value)
-        self.draw_cell(game.game.snake.head, Colors.WHITE.value)
+            self.draw_cell(cell, Color.GRAY.value)
+        self.draw_cell(game.game.snake.head, Color.WHITE.value)
 
     def draw_cell(self, pos, color):
         x, y = pos

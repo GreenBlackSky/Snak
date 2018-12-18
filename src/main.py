@@ -2,7 +2,7 @@ import pygame
 import sys
 import time
 import yaml
-from widgets import Window, Scene, Menu, Label, Signal, Colors
+from widgets import Widget, Window, Scene, Menu, Label, Signal, Color, ColorRole
 from gui import GUI
 from game import Game
 
@@ -51,7 +51,8 @@ class GameForm(Scene):
         x, y, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
-        self.score.second_color = Colors.DARK_GRAY
+        self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
+        self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
         self.redraw(self)
 
     def update(self, events):
