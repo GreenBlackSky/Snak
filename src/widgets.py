@@ -93,15 +93,31 @@ class Button(Widget):
         if self.state == Widget.State.Pressed:
             self.state = Widget.State.Highlighted
 
-    def update(self, mouse_pressed, mouse_released, mouse_on_button):
+    def update(self, events):
         if not self.is_active():
             return
+        mouse_pressed = False
+        mouse_released = False
+        return_pressed = False
+        return_released = False
+        mx, my = None, None
+        for event in events:
+            if event.type == Event.Type.MousePressed:
+                mouse_pressed = True
+            elif event.type == Event.Type.MouseReleased:
+                mouse_released = True
+            elif event.type == Event.Type.MouseState:
+                mx, my, _ = event.data
+            elif event.type == Event.Type.KeyPressed and event.data == Event.Key.K_RETURN:
+                return_pressed = True
+            elif event.type == Event.Type.KeyReleased and event.data == Event.Key.K_RETURN:
+                return_released = True
         ret = False
-        if mouse_on_button and mouse_pressed:
+        if return_pressed or (self.inside(mx, my) and mouse_pressed):
             self.press()
-        if self.state == Widget.State.Pressed and mouse_released:
+        if self.state == Widget.State.Pressed and (mouse_released or return_released):
             self.release()
-            if mouse_on_button:
+            if self.inside(mx, my) or return_released:
                 ret = True
         return ret
 
@@ -165,34 +181,22 @@ class Menu(Window):
         self.redraw(self)
 
     def update(self, events):
-        # Map events
-        mouse_pressed = False
-        mouse_released = False
+        # Process events
         focus_n = self.focus_order.index(self.focus)
-        return_pressed = False
         mx, my = None, None
         for event in events:
-            if event.type == Event.Type.MousePressed:
-                mouse_pressed = True
-            if event.type == Event.Type.MouseReleased:
-                mouse_released = True
-            if event.type == Event.Type.MousePos:
-                mx, my = event.data
             if event.type == Event.Type.KeyPressed:
                 if event.data == Event.Key.K_UP:
                     focus_n -= 1
-                if event.data == Event.Key.K_DOWN:
+                elif event.data == Event.Key.K_DOWN:
                     focus_n += 1
-                if event.data == Event.Key.K_RETURN:
-                    return_pressed = True
+            elif event.type == Event.Type.MouseState:
+                mx, my, _ = event.data
         focus_n = max(focus_n, 0)
         focus_n = min(focus_n, len(self.focus_order) - 1)
         # Check focus
         ret = None
-        if return_pressed:
-            self.focus.press()
-            ret = self.callbacks[self.focus]
-        if self.focus.update(mouse_pressed, mouse_released, self.focus.inside(mx, my)):
+        if self.focus.update(events):
             ret = self.callbacks[self.focus]
         # Move focus
         if not self.focus.is_pressed():

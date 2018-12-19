@@ -15,39 +15,58 @@ KEYS = {Event.Key.K_UP: (0, -1),
 
 
 class MainWindow(Window):
-    def __init__(self, gui):
+    def __init__(self, gui, config):
         super().__init__(gui.rect, gui.draw_menu)
         self.gui = gui
-        path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
-        with open(path, 'r') as file:
-            self.config = yaml.load(file)
-        file.close()
+        self.config = config
         self.form = Menu(self.rect, gui.draw_menu, self.config["MainMenu"])
+        self.forms = {
+            "MainMenu": Menu(self.rect, gui.draw_menu, self.config["MainMenu"]),
+            "PauseMenu": Menu(self.rect, gui.draw_menu, self.config["PauseMenu"]),
+            "EvolutionMenu": Menu(self.rect, gui.draw_menu, self.config["EvolutionMenu"]),
+            "Game": GameForm(gui, gui.cell_size)
+        }
         self.fps = 20
-        self.last_game = None
         self.highscore = 0
 
     def update(self, signal):
         self.fps = 20
         if signal == Signal.PauseGame:
-            self.last_game = self.form
-            self.form = Menu(self.rect, gui.draw_menu, self.config["PauseMenu"])
+            self.pause_game()
         elif signal == Signal.ContinueGame:
-            self.form = self.last_game
-            self.form.redraw(self.form)
-            self.fps = 8
+            self.continue_game()
         elif signal == Signal.OpenMainMenu:
-            self.form = Menu(self.rect, gui.draw_menu, self.config["MainMenu"])
+            self.open_main_menu()
         elif signal == Signal.OpenEvolutionMenu:
-            self.form = Menu(self.rect, gui.draw_menu, self.config["EvolutionMenu"])
+            self.open_evolution_menu()
         elif signal == Signal.StartNewGame:
-            self.form = GameForm(self.rect, gui.draw_game, gui.cell_size)
-            self.fps = 8
+            self.start_new_game()
+
+    def pause_game(self):
+        self.fps = 20
+        self.form = self.forms["PauseMenu"]
+
+    def continue_game(self):
+        self.form = self.forms["Game"]
+        self.fps = 8
+
+    def open_main_menu(self):
+        self.fps = 20
+        self.form = self.forms["MainMenu"]
+
+    def open_evolution_menu(self):
+        self.fps = 20
+        self.form = self.forms["EvolutionMenu"]
+
+    def start_new_game(self):
+        self.form = self.forms["Game"]
+        self.form.reset()
+        self.fps = 8
 
 
 class GameForm(Scene):
-    def __init__(self, rect, redraw, cell_size):
-        super().__init__(rect, redraw)
+    def __init__(self, gui, cell_size):
+        super().__init__(gui.rect, gui.draw_game)
         self.cell_size = cell_size
         x, y, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
@@ -69,10 +88,20 @@ class GameForm(Scene):
             return Signal.OpenMainMenu
         self.redraw(self)
 
+    def reset(self):
+        x, y, w, h = self.rect
+        self.game = Game(w//self.cell_size, h//self.cell_size)
+        self.score.text = "0"
+        self.game.score = 0
+
 
 if __name__ == "__main__":
+    path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
+    file = open(path, 'r')
+    config = yaml.load(file)
+    file.close()
     gui = GUI(80, 40, 10)
-    main_window = MainWindow(gui)
+    main_window = MainWindow(gui, config)
     # events = list()
     playing = True
     while playing:

@@ -8,6 +8,7 @@ class GUI:
         pygame.init()
         width, height = width*cell_size, height*cell_size
         self.cell_size = cell_size
+        self.mouse_pressed = False
         self.screen = pygame.display.set_mode((width, height))
         self.rect = (0, 0, width, height)
 
@@ -62,8 +63,7 @@ class GUI:
     def update(self):
         pygame.display.update()
 
-    @staticmethod
-    def check_events():
+    def check_events(self):
         keys = {
             pygame.K_RETURN:    Event.Key.K_RETURN,
             pygame.K_ESCAPE:    Event.Key.K_ESCAPE,
@@ -76,18 +76,20 @@ class GUI:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key in keys:
                 ret.append(Event(Event.Type.KeyPressed, keys[event.key]))
-            elif event.type == pygame.KEYDOWN and event.key in keys:
+            elif event.type == pygame.KEYUP and event.key in keys:
                 ret.append(Event(Event.Type.KeyReleased, keys[event.key]))
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                self.mouse_pressed = True
                 x, y = pygame.mouse.get_pos()
                 ret.append(Event(Event.Type.MousePressed, (x, y)))
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.mouse_pressed = False
                 x, y = pygame.mouse.get_pos()
-                ret.append(Event(Event.Type.MouseReleased, (x, y)))
+                ret.append(Event(Event.Type.MouseReleased, (x, y, self.mouse_pressed)))
             elif event.type == pygame.QUIT:
                 ret.append(Event(Event.Type.Quit))
         x, y = pygame.mouse.get_pos()
-        ret.append(Event(Event.Type.MousePos, (x, y)))
+        ret.append(Event(Event.Type.MouseState, (x, y, self.mouse_pressed)))
         return ret
 
 # TODO draw_scene instead of game

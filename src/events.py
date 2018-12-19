@@ -6,11 +6,13 @@ class Event:
         KeyPressed = 0
         KeyReleased = 1
         MousePressed = 2
-        MousePos = 3
+        MouseState = 3
         MouseReleased = 4
         ButtonPressed = 5
         ButtonReleased = 6
-        Quit = 7
+        ButtonActivated = 7
+        Quit = 8
+        Custom = 9
 
     class Key(Enum):
         K_RETURN = 0
