@@ -1,7 +1,7 @@
 import sys
 import time
 import yaml
-from widgets import Widget, Window, Scene, Menu, Label, Signal
+from widgets import Widget, Scene, Layout, Label, Signal
 from events import Event
 from colors import Color, ColorRole
 from gui import GUI
@@ -14,16 +14,16 @@ KEYS = {Event.Key.K_UP: (0, -1),
         Event.Key.K_RIGHT: (1, 0)}
 
 
-class MainWindow(Window):
+class MainWindow(Layout):
     def __init__(self, gui, config):
         super().__init__(gui.rect, gui.draw_menu)
         self.gui = gui
         self.config = config
-        self.form = Menu(self.rect, gui.draw_menu, self.config["MainMenu"])
-        self.forms = {
-            "MainMenu": Menu(self.rect, gui.draw_menu, self.config["MainMenu"]),
-            "PauseMenu": Menu(self.rect, gui.draw_menu, self.config["PauseMenu"]),
-            "EvolutionMenu": Menu(self.rect, gui.draw_menu, self.config["EvolutionMenu"]),
+        self.layout = Layout(self.rect, gui.draw_menu, self.config["MainMenu"])
+        self.layouts = {
+            "MainMenu": Layout(self.rect, gui.draw_menu, self.config["MainMenu"]),
+            "PauseMenu": Layout(self.rect, gui.draw_menu, self.config["PauseMenu"]),
+            "EvolutionMenu": Layout(self.rect, gui.draw_menu, self.config["EvolutionMenu"]),
             "Game": GameForm(gui, gui.cell_size)
         }
         self.fps = 20
@@ -44,23 +44,23 @@ class MainWindow(Window):
 
     def pause_game(self):
         self.fps = 20
-        self.form = self.forms["PauseMenu"]
+        self.layout = self.layouts["PauseMenu"]
 
     def continue_game(self):
-        self.form = self.forms["Game"]
+        self.layout = self.layouts["Game"]
         self.fps = 8
 
     def open_main_menu(self):
         self.fps = 20
-        self.form = self.forms["MainMenu"]
+        self.layout = self.layouts["MainMenu"]
 
     def open_evolution_menu(self):
         self.fps = 20
-        self.form = self.forms["EvolutionMenu"]
+        self.layout = self.layouts["EvolutionMenu"]
 
     def start_new_game(self):
-        self.form = self.forms["Game"]
-        self.form.reset()
+        self.layout = self.layouts["Game"]
+        self.layout.reset()
         self.fps = 8
 
 
@@ -68,7 +68,7 @@ class GameForm(Scene):
     def __init__(self, gui, cell_size):
         super().__init__(gui.rect, gui.draw_game)
         self.cell_size = cell_size
-        x, y, w, h = self.rect
+        *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
@@ -89,7 +89,7 @@ class GameForm(Scene):
         self.redraw(self)
 
     def reset(self):
-        x, y, w, h = self.rect
+        *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.score.text = "0"
         self.game.score = 0
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         for event in events:
             if event.type == Event.Type.Quit:
                 playing = False
-        signal = main_window.form.update(events)
+        signal = main_window.layout.update(events)
         if signal is not None:
             main_window.update(signal)
 

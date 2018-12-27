@@ -1,5 +1,5 @@
 import pygame
-from widgets import Window, Button, Menu, Label
+from widgets import Button, Label
 from colors import Color, ColorRole
 from events import Event
 
@@ -19,7 +19,7 @@ class GUI:
         x, y, w, h = button.rect
         font = pygame.font.SysFont("monospace", int(h/3))
         label = font.render(button.text, 1, text_color)
-        tx, ty, tw, th = label.get_rect()
+        *_, tw, th = label.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(label, label_pos)
@@ -31,14 +31,14 @@ class GUI:
         x, y, w, h = label.rect
         font = pygame.font.SysFont("monospace", int(h))
         surface = font.render(label.text, 1, text_color)
-        tx, ty, tw, th = surface.get_rect()
+        *_, tw, th = surface.get_rect()
         label_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
         self.screen.blit(surface, label_pos)
 
     def draw_menu(self, menu):
         self.screen.fill(Color.BLACK.value)
-        for widget in menu.widgets:
+        for widget in menu.widgets.values():
             if type(widget) == Button:
                 self.draw_button(widget)
             elif type(widget) == Label:

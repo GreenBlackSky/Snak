@@ -143,21 +143,19 @@ class CheckBox(Widget):
         super().__init__(rect)
 
 
-class Window(Widget):
-    def __init__(self, rect, redraw):
+class Layout(Widget):
+    def __init__(self, rect, redraw, config=None):
         super().__init__(rect)
         self.redraw = redraw
         self.focus = None
-        self.widgets = []
+        self.widgets = {}
         self.focus_order = []
         self.callbacks = {}
-
-
-class Menu(Window):
-    def __init__(self, rect, redraw, config):
-        super().__init__(rect, redraw)
         x, y, w, h = self.rect
-        for widget_cfg in config:
+        if not config:
+            return
+        self.id = config["id"]
+        for widget_cfg in config["children"]:
             # Create widget
             xm, ym, wm, hm = widget_cfg["rect"]
             rect = (x + w*xm, y + h*ym, w*wm, h*hm)
@@ -166,7 +164,7 @@ class Menu(Window):
             if not widget_cfg.get("active", True):
                 widget.set_active(False)
             # Add widget to focus_order and widgets
-            self.widgets.append(widget)
+            self.widgets[widget_cfg["id"]] = widget
             if widget.is_focusable():
                 self.focus_order.append(widget)
             # set callback
@@ -213,7 +211,7 @@ class Menu(Window):
         return ret
 
 
-class Scene(Window):
+class Scene(Layout):
     def __init__(self, rect, redraw):
         super().__init__(rect, redraw)
 
