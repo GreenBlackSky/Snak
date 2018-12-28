@@ -199,6 +199,6 @@ class Scene(Layout):
     def __init__(self, rect, redraw):
         super().__init__(rect, redraw)
 
-# TODO events
-# TODO load
-# TODO redraw
+# TODO load self
+# TODO redraw self
+# TODO callbacks from config
