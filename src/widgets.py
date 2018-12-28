@@ -3,16 +3,6 @@ from colors import Color, ColorRole
 from events import Event
 
 
-class Signal(Enum):
-    StartNewGame = 0,
-    PauseGame = 1,
-    OpenEvolutionMenu = 2,
-    ContinueGame = 3,
-    OpenMainMenu = 4,
-    YouLoose = 5,
-    NewHighScore = 6
-
-
 class Widget:
     class State(Enum):
         Active = 0
@@ -160,6 +150,7 @@ class Layout(Widget):
             xm, ym, wm, hm = widget_cfg["rect"]
             rect = (x + w*xm, y + h*ym, w*wm, h*hm)
             widget = eval(widget_cfg["type"])(rect, widget_cfg["capture"])
+            widget.id = widget_cfg["id"]
             # Activate widget
             if not widget_cfg.get("active", True):
                 widget.set_active(False)
@@ -167,11 +158,6 @@ class Layout(Widget):
             self.widgets[widget_cfg["id"]] = widget
             if widget.is_focusable():
                 self.focus_order.append(widget)
-            # set callback
-            if "callback" not in widget_cfg:
-                self.callbacks[widget] = None
-            else:
-                self.callbacks[widget] = Signal[widget_cfg["callback"]]
         if not self.focus_order:
             raise "No focusable on form"
         self.focus = self.focus_order[0]
@@ -193,9 +179,8 @@ class Layout(Widget):
         focus_n = max(focus_n, 0)
         focus_n = min(focus_n, len(self.focus_order) - 1)
         # Check focus
-        ret = None
         if self.focus.update(events):
-            ret = self.callbacks[self.focus]
+            self.callbacks[self.focus.id]()
         # Move focus
         if not self.focus.is_pressed():
             old_focus = self.focus
@@ -208,7 +193,6 @@ class Layout(Widget):
         # Redraw
         self.focus.highlight()
         self.redraw(self)
-        return ret
 
 
 class Scene(Layout):
