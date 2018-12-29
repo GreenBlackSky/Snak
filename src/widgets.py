@@ -35,7 +35,8 @@ class Widget:
             }
         }
 
-    def __init__(self, rect):
+    def __init__(self, rect, gui):
+        self.gui = gui
         self.rect = rect
         self.focusable = False
         self.state = Widget.State.Active
@@ -59,8 +60,8 @@ class Widget:
 
 
 class Button(Widget):
-    def __init__(self, rect, text):
-        super().__init__(rect)
+    def __init__(self, rect, gui, text):
+        super().__init__(rect, gui)
         self.text = text
         self.focusable = True
 
@@ -111,6 +112,8 @@ class Button(Widget):
                 ret = True
         return ret
 
+    def redraw(self):
+        self.gui.draw_button(self)
 
 class TextList(Widget):
     def __init__(self, rect):
@@ -123,8 +126,8 @@ class TextInput(Widget):
 
 
 class Label(Widget):
-    def __init__(self, rect, text):
-        super().__init__(rect)
+    def __init__(self, rect, gui, text):
+        super().__init__(rect, gui)
         self.text = text
 
 
@@ -134,9 +137,9 @@ class CheckBox(Widget):
 
 
 class Layout(Widget):
-    def __init__(self, rect, redraw, config=None):
-        super().__init__(rect)
-        self.redraw = redraw
+    def __init__(self, rect, gui, config=None):
+        super().__init__(rect, gui)
+        # self.gui = gui
         self.focus = None
         self.widgets = {}
         self.focus_order = []
@@ -149,7 +152,7 @@ class Layout(Widget):
             # Create widget
             xm, ym, wm, hm = widget_cfg["rect"]
             rect = (x + w*xm, y + h*ym, w*wm, h*hm)
-            widget = eval(widget_cfg["type"])(rect, widget_cfg["capture"])
+            widget = eval(widget_cfg["type"])(rect, gui, widget_cfg["capture"])
             widget.id = widget_cfg["id"]
             # Activate widget
             if not widget_cfg.get("active", True):
@@ -162,7 +165,7 @@ class Layout(Widget):
             raise "No focusable on form"
         self.focus = self.focus_order[0]
         self.focus.highlight()
-        self.redraw(self)
+        self.redraw()
 
     def update(self, events):
         # Process events
@@ -192,13 +195,16 @@ class Layout(Widget):
                 self.focus = self.focus_order[focus_n]
         # Redraw
         self.focus.highlight()
-        self.redraw(self)
+        self.redraw()
 
+    def redraw(self):
+        self.gui.draw_layout(self)
+        for widget in self.widgets.values():
+            widget.redraw()
 
 class Scene(Layout):
-    def __init__(self, rect, redraw):
-        super().__init__(rect, redraw)
+    def __init__(self, rect, gui):
+        super().__init__(rect, gui)
 
 # TODO load self
-# TODO redraw self
 # TODO callbacks from config

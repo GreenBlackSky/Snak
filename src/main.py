@@ -10,13 +10,13 @@ from game import Game
 
 class MainWindow(Layout):
     def __init__(self, gui, config):
-        super().__init__(config["rect"], gui.draw_menu)
-        self.gui = gui
+        super().__init__(config["rect"], gui)
+        # self.gui = gui
         self.config = config
         self.layouts = {
-            "MainMenu": Layout(self.rect, gui.draw_menu, self.config["MainMenu"]),
-            "PauseMenu": Layout(self.rect, gui.draw_menu, self.config["PauseMenu"]),
-            "EvolutionMenu": Layout(self.rect, gui.draw_menu, self.config["EvolutionMenu"]),
+            "MainMenu": Layout(self.rect, gui, self.config["MainMenu"]),
+            "PauseMenu": Layout(self.rect, gui, self.config["PauseMenu"]),
+            "EvolutionMenu": Layout(self.rect, gui, self.config["EvolutionMenu"]),
             "Game": GameForm(gui, gui.cell_size, self)
         }
         self.layout = self.layouts["MainMenu"]
@@ -60,15 +60,15 @@ class GameForm(Scene):
             Event.Key.K_RIGHT: (1, 0)}
 
     def __init__(self, gui, cell_size, parent):
-        super().__init__(parent.rect, gui.draw_game)
+        super().__init__(parent.rect, gui)
         self.cell_size = cell_size
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.parent = parent
-        self.score = Label((w*0.4, 0, h*0.2, h*0.2), '0')
+        self.score = Label((w*0.4, 0, h*0.2, h*0.2), gui, '0')
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
-        self.redraw(self)
+        self.redraw()
 
     def update(self, events):
         for event in events:
@@ -83,7 +83,10 @@ class GameForm(Scene):
         if self.game.snake.is_selfcrossed():
             self.parent.open_main_menu()
             return
-        self.redraw(self)
+        self.redraw()
+
+    def redraw(self):
+        self.gui.draw_game(self)
 
     def reset(self):
         *_, w, h = self.rect

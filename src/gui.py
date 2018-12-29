@@ -35,13 +35,8 @@ class GUI:
                     y + max((h - th)/2, 0))
         self.screen.blit(surface, label_pos)
 
-    def draw_menu(self, menu):
+    def draw_layout(self, layout):
         self.screen.fill(Color.BLACK.value)
-        for widget in menu.widgets.values():
-            if type(widget) == Button:
-                self.draw_button(widget)
-            elif type(widget) == Label:
-                self.draw_label(widget)
 
     def draw_game(self, game):
         self.screen.fill(Color.BLACK.value)
