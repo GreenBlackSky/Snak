@@ -9,9 +9,9 @@ class GameScene(Scene):
             Event.Key.K_LEFT: (-1, 0),
             Event.Key.K_RIGHT: (1, 0)}
 
-    def __init__(self, gui, cell_size, parent):
-        super().__init__(parent.rect, gui)
-        self.cell_size = cell_size
+    def __init__(self, parent, gui, config):
+        super().__init__(parent, gui, config)
+        self.cell_size = config["cell_size"]
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.parent = parent

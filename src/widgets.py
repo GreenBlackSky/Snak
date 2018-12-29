@@ -35,9 +35,14 @@ class Widget:
             }
         }
 
-    def __init__(self, rect, gui):
+    def __init__(self, parent, gui, config):
         self.gui = gui
-        self.rect = rect
+        if parent:
+            x, y, w, h = parent.rect
+            xm, ym, wm, hm = config["rect"]
+            self.rect = (x + w*xm, y + h*ym, w*wm, h*hm)
+        else:
+            self.rect = config["rect"]
         self.focusable = False
         self.state = Widget.State.Active
         self.palette = Widget.default_palette()
@@ -60,9 +65,9 @@ class Widget:
 
 
 class Button(Widget):
-    def __init__(self, rect, gui, text):
-        super().__init__(rect, gui)
-        self.text = text
+    def __init__(self, parent, gui, config):
+        super().__init__(parent, gui, config)
+        self.text = config["capture"]
         self.focusable = True
 
     def highlight(self):
@@ -115,6 +120,13 @@ class Button(Widget):
     def redraw(self):
         self.gui.draw_button(self)
 
+
+class Label(Widget):
+    def __init__(self, parent, gui, config):
+        super().__init__(parent, gui, config)
+        self.text = config["text"]
+
+
 class TextList(Widget):
     def __init__(self, rect):
         super().__init__(rect)
@@ -125,33 +137,22 @@ class TextInput(Widget):
         super().__init__(rect)
 
 
-class Label(Widget):
-    def __init__(self, rect, gui, text):
-        super().__init__(rect, gui)
-        self.text = text
-
-
 class CheckBox(Widget):
     def __init__(self, rect):
         super().__init__(rect)
 
 
 class Layout(Widget):
-    def __init__(self, rect, gui, config=None):
-        super().__init__(rect, gui)
+    def __init__(self, parent, gui, config):
+        super().__init__(None, gui, config)
         self.focus = None
         self.widgets = {}
         self.focus_order = []
         self.callbacks = {}
-        x, y, w, h = self.rect
-        if not config:
-            return
         self.id = config["id"]
-        for widget_cfg in config["children"]:
+        for widget_cfg in config.get("children", []):
             # Create widget
-            xm, ym, wm, hm = widget_cfg["rect"]
-            rect = (x + w*xm, y + h*ym, w*wm, h*hm)
-            widget = eval(widget_cfg["type"])(rect, gui, widget_cfg["capture"])
+            widget = eval(widget_cfg["type"])(self, gui, widget_cfg)
             widget.id = widget_cfg["id"]
             # Activate widget
             if not widget_cfg.get("active", True):
@@ -160,11 +161,9 @@ class Layout(Widget):
             self.widgets[widget_cfg["id"]] = widget
             if widget.is_focusable():
                 self.focus_order.append(widget)
-        if not self.focus_order:
-            raise "No focusable on form"
-        self.focus = self.focus_order[0]
-        self.focus.highlight()
-        self.redraw()
+        if self.focus_order:
+            self.focus = self.focus_order[0]
+            self.focus.highlight()
 
     def update(self, events):
         # Process events
@@ -202,8 +201,8 @@ class Layout(Widget):
             widget.redraw()
 
 class Scene(Layout):
-    def __init__(self, rect, gui):
-        super().__init__(rect, gui)
+    def __init__(self, parent, gui, config):
+        super().__init__(parent, gui, config)
 
 class Window(Widget):
     pass

@@ -4,13 +4,13 @@ from gamescene import GameScene
 
 class MainWindow(Window):
     def __init__(self, gui, config):
-        super().__init__(config["rect"], gui)
+        super().__init__(None, gui, config)
         self.config = config
         self.layouts = {
-            "MainMenu": Layout(self.rect, gui, self.config["MainMenu"]),
-            "PauseMenu": Layout(self.rect, gui, self.config["PauseMenu"]),
-            "EvolutionMenu": Layout(self.rect, gui, self.config["EvolutionMenu"]),
-            "Game": GameScene(gui, gui.cell_size, self)
+            "MainMenu": Layout(self, gui, self.config["MainMenu"]),
+            "PauseMenu": Layout(self, gui, self.config["PauseMenu"]),
+            "EvolutionMenu": Layout(self, gui, self.config["EvolutionMenu"]),
+            "Game": GameScene(self, gui, self.config["GameScene"])
         }
         self.layout = self.layouts["MainMenu"]
         self.fps = 20

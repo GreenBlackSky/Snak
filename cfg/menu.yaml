@@ -1,7 +1,7 @@
 {
   rect: [0, 0, 800, 400],
-  cell_size: 10,
   MainMenu: {
+    rect: [0, 0, 800, 400],
     id: main_menu,
     children: [
       {
@@ -22,6 +22,7 @@
     ]
   },
   PauseMenu: {
+    rect: [0, 0, 800, 400],
     id: pause_menu,
     children: [
       {
@@ -48,6 +49,7 @@
     ]
   },
   EvolutionMenu: {
+    rect: [0, 0, 800, 400],
     id: evolution_menu,
     children: [
       {
@@ -76,5 +78,10 @@
         callback: OpenMainMenu
       }
     ]
+  },
+  GameScene: {
+      cell_size: 10,
+      id: game_scene,
+      rect: [0, 0, 800, 400],
   }
 }
