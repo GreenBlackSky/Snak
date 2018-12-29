@@ -139,7 +139,6 @@ class CheckBox(Widget):
 class Layout(Widget):
     def __init__(self, rect, gui, config=None):
         super().__init__(rect, gui)
-        # self.gui = gui
         self.focus = None
         self.widgets = {}
         self.focus_order = []
@@ -205,6 +204,10 @@ class Layout(Widget):
 class Scene(Layout):
     def __init__(self, rect, gui):
         super().__init__(rect, gui)
+
+class Window(Widget):
+    pass
+
 
 # TODO load self
 # TODO callbacks from config
