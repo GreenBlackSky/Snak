@@ -10,7 +10,7 @@ from game import Game
 
 class MainWindow(Layout):
     def __init__(self, gui, config):
-        super().__init__(gui.rect, gui.draw_menu)
+        super().__init__(config["rect"], gui.draw_menu)
         self.gui = gui
         self.config = config
         self.layouts = {
@@ -60,7 +60,7 @@ class GameForm(Scene):
             Event.Key.K_RIGHT: (1, 0)}
 
     def __init__(self, gui, cell_size, parent):
-        super().__init__(gui.rect, gui.draw_game)
+        super().__init__(parent.rect, gui.draw_game)
         self.cell_size = cell_size
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
@@ -97,7 +97,9 @@ if __name__ == "__main__":
     file = open(path, 'r')
     config = yaml.load(file)
     file.close()
-    gui = GUI(80, 40, 10)
+    *_, w, h = config["rect"]
+    cell_size = config["cell_size"]
+    gui = GUI(w//cell_size, h//cell_size, cell_size)
     main_window = MainWindow(gui, config)
     playing = True
     while playing:

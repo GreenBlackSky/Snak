@@ -1,4 +1,6 @@
 {
+  rect: [0, 0, 800, 400],
+  cell_size: 10,
   MainMenu: {
     id: main_menu,
     children: [

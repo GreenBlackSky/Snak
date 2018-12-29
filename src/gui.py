@@ -10,7 +10,6 @@ class GUI:
         self.cell_size = cell_size
         self.mouse_pressed = False
         self.screen = pygame.display.set_mode((width, height))
-        self.rect = (0, 0, width, height)
 
     def draw_button(self, button):
         fore_color = button.palette[button.state][ColorRole.Foreground].value
