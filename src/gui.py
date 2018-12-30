@@ -1,7 +1,6 @@
 import pygame
-from widgets import Button, Label
-from colors import Color, ColorRole
-from events import Event
+from mwidgets import Event, Color, ColorRole
+
 
 class GUI:
     def __init__(self, width, height, cell_size=10):

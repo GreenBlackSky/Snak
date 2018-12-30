@@ -1,5 +1,5 @@
-from widgets import Window, Layout
 from gamescene import GameScene
+from mwidgets import Window, Layout
 
 
 class MainWindow(Window):

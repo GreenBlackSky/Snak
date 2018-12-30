@@ -1,7 +1,6 @@
-from widgets import Widget, Scene, Label
-from events import Event
+from mwidgets import Scene, Label, Widget, Event, Color, ColorRole
 from game import Game
-from colors import Color, ColorRole
+
 
 class GameScene(Scene):
     KEYS = {Event.Key.K_UP: (0, -1),

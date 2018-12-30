@@ -2,8 +2,8 @@ import sys
 import time
 import yaml
 from gui import GUI
-from events import Event
 from mainwindow import MainWindow
+from mwidgets import Event
 
 if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
