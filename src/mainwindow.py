@@ -13,7 +13,7 @@ class MainWindow(Window):
             "Game": GameScene(self, gui, self.config["GameScene"])
         }
         self.layout = self.layouts["MainMenu"]
-        self.fps = 20
+        self.fps = config["fps"]
         self.highscore = 0
         self.set_callbacks()
 

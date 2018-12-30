@@ -1,5 +1,6 @@
 {
   rect: [0, 0, 800, 400],
+  fps: 20,
   MainMenu: {
     rect: [0, 0, 800, 400],
     id: main_menu,
@@ -83,5 +84,9 @@
       cell_size: 10,
       id: game_scene,
       rect: [0, 0, 800, 400],
+      Label: {
+        rect: [0.4, 0, 0.2, 0.2],
+        text: "0"
+      }
   }
 }

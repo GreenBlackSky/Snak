@@ -15,7 +15,7 @@ class GameScene(Scene):
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.parent = parent
-        self.score = Label((w*0.4, 0, h*0.2, h*0.2), gui, '0')
+        self.score = Label(parent, gui, config["Label"])
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
         self.redraw()
