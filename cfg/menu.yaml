@@ -81,12 +81,12 @@
     ]
   },
   GameScene: {
-      cell_size: 10,
-      id: game_scene,
-      rect: [0, 0, 1, 1],
-      Label: {
-        rect: [0.4, 0, 0.2, 0.2],
-        text: "0"
-      }
+    cell_size: 10,
+    id: game_scene,
+    rect: [0, 0, 1, 1],
+    Label: {
+      rect: [0.4, 0, 0.2, 0.2],
+      text: "0"
+    }
   }
 }

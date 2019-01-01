@@ -32,19 +32,10 @@ class GUI:
                     y + max((h - th)/2, 0))
         self.screen.blit(surface, label_pos)
 
-    def draw_layout(self, layout):
-        self.screen.fill(Color.BLACK.value)
+    def fill(self, color):
+        self.screen.fill(color.value)
 
-    def draw_game(self, game):
-        self.screen.fill(Color.BLACK.value)
-        self.draw_label(game.score)
-        cell_side = game.cell_size
-        self.draw_rect(game.game.food_pos, cell_side, Color.RED.value)
-        for cell in game.game.snake.cells:
-            self.draw_rect(cell, cell_side, Color.GRAY.value)
-        self.draw_rect(game.game.snake.head, cell_side, Color.WHITE.value)
-
-    def draw_rect(self, pos, size, color):
+    def draw_square(self, pos, size, color):
         x, y = pos
         rect = (x*size, y*size, size, size)
         pygame.draw.rect(self.screen, color, rect, 0)

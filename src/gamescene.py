@@ -10,10 +10,8 @@ class GameScene(Scene):
 
     def __init__(self, config, parent):
         super().__init__(config, parent)
-        self.cell_size = config["cell_size"]
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
-        self.parent = parent
         self.score = Label(config["Label"], self)
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
@@ -34,7 +32,12 @@ class GameScene(Scene):
         self.redraw()
 
     def redraw(self):
-        self.gui.draw_game(self)
+        self.clear()
+        self.gui.draw_label(self.score)
+        self.draw_cell(self.game.food_pos, Color.RED.value)
+        for cell in self.game.snake.cells:
+            self.draw_cell(cell, Color.GRAY.value)
+        self.draw_cell(self.game.snake.head, Color.WHITE.value)
 
     def reset(self):
         *_, w, h = self.rect
