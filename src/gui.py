@@ -3,10 +3,8 @@ from mwidgets import Event, Color, ColorRole
 
 
 class GUI:
-    def __init__(self, width, height, cell_size=10):
+    def __init__(self, width, height):
         pygame.init()
-        width, height = width*cell_size, height*cell_size
-        self.cell_size = cell_size
         self.mouse_pressed = False
         self.screen = pygame.display.set_mode((width, height))
 
@@ -40,17 +38,15 @@ class GUI:
     def draw_game(self, game):
         self.screen.fill(Color.BLACK.value)
         self.draw_label(game.score)
-        self.draw_cell(game.game.food_pos, Color.RED.value)
+        cell_side = game.cell_size
+        self.draw_rect(game.game.food_pos, cell_side, Color.RED.value)
         for cell in game.game.snake.cells:
-            self.draw_cell(cell, Color.GRAY.value)
-        self.draw_cell(game.game.snake.head, Color.WHITE.value)
+            self.draw_rect(cell, cell_side, Color.GRAY.value)
+        self.draw_rect(game.game.snake.head, cell_side, Color.WHITE.value)
 
-    def draw_cell(self, pos, color):
+    def draw_rect(self, pos, size, color):
         x, y = pos
-        rect = (x*self.cell_size, \
-                y*self.cell_size, \
-                self.cell_size, \
-                self.cell_size)
+        rect = (x*size, y*size, size, size)
         pygame.draw.rect(self.screen, color, rect, 0)
 
     def update(self):

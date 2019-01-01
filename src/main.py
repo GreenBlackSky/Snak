@@ -12,8 +12,7 @@ if __name__ == "__main__":
     config = yaml.load(file)
     file.close()
     *_, w, h = config["rect"]
-    cell_size = config["GameScene"]["cell_size"]
-    gui = GUI(w//cell_size, h//cell_size, cell_size)
+    gui = GUI(w, h)
     main_window = MainWindow(config, gui)
     playing = True
     while playing:

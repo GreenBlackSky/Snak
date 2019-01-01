@@ -5,12 +5,11 @@ from mwidgets import Window, Layout
 class MainWindow(Window):
     def __init__(self, config, gui):
         super().__init__(config, gui=gui)
-        self.config = config
         self.layouts = {
-            "MainMenu": Layout(self.config["MainMenu"], self),
-            "PauseMenu": Layout(self.config["PauseMenu"], self),
-            "EvolutionMenu": Layout(self.config["EvolutionMenu"], self),
-            "Game": GameScene(self.config["GameScene"], self)
+            "MainMenu": Layout(config["MainMenu"], self),
+            "PauseMenu": Layout(config["PauseMenu"], self),
+            "EvolutionMenu": Layout(config["EvolutionMenu"], self),
+            "Game": GameScene(config["GameScene"], self)
         }
         self.layout = self.layouts["MainMenu"]
         self.fps = config["fps"]
