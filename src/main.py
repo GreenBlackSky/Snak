@@ -14,7 +14,7 @@ if __name__ == "__main__":
     *_, w, h = config["rect"]
     cell_size = config["GameScene"]["cell_size"]
     gui = GUI(w//cell_size, h//cell_size, cell_size)
-    main_window = MainWindow(gui, config)
+    main_window = MainWindow(config, gui)
     playing = True
     while playing:
         events = gui.check_events()

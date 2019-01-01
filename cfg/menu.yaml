@@ -2,7 +2,7 @@
   rect: [0, 0, 800, 400],
   fps: 20,
   MainMenu: {
-    rect: [0, 0, 800, 400],
+    rect: [0, 0, 1, 1],
     id: main_menu,
     children: [
       {
@@ -23,7 +23,7 @@
     ]
   },
   PauseMenu: {
-    rect: [0, 0, 800, 400],
+    rect: [0, 0, 1, 1],
     id: pause_menu,
     children: [
       {
@@ -50,7 +50,7 @@
     ]
   },
   EvolutionMenu: {
-    rect: [0, 0, 800, 400],
+    rect: [0, 0, 1, 1],
     id: evolution_menu,
     children: [
       {
@@ -83,7 +83,7 @@
   GameScene: {
       cell_size: 10,
       id: game_scene,
-      rect: [0, 0, 800, 400],
+      rect: [0, 0, 1, 1],
       Label: {
         rect: [0.4, 0, 0.2, 0.2],
         text: "0"

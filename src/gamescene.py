@@ -8,16 +8,15 @@ class GameScene(Scene):
             Event.Key.K_LEFT: (-1, 0),
             Event.Key.K_RIGHT: (1, 0)}
 
-    def __init__(self, parent, gui, config):
-        super().__init__(parent, gui, config)
+    def __init__(self, config, parent):
+        super().__init__(config, parent)
         self.cell_size = config["cell_size"]
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.parent = parent
-        self.score = Label(parent, gui, config["Label"])
+        self.score = Label(config["Label"], self)
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
-        self.redraw()
 
     def update(self, events):
         for event in events:

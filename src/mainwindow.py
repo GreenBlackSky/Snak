@@ -3,14 +3,14 @@ from mwidgets import Window, Layout
 
 
 class MainWindow(Window):
-    def __init__(self, gui, config):
-        super().__init__(None, gui, config)
+    def __init__(self, config, gui):
+        super().__init__(config, gui=gui)
         self.config = config
         self.layouts = {
-            "MainMenu": Layout(self, gui, self.config["MainMenu"]),
-            "PauseMenu": Layout(self, gui, self.config["PauseMenu"]),
-            "EvolutionMenu": Layout(self, gui, self.config["EvolutionMenu"]),
-            "Game": GameScene(self, gui, self.config["GameScene"])
+            "MainMenu": Layout(self.config["MainMenu"], self),
+            "PauseMenu": Layout(self.config["PauseMenu"], self),
+            "EvolutionMenu": Layout(self.config["EvolutionMenu"], self),
+            "Game": GameScene(self.config["GameScene"], self)
         }
         self.layout = self.layouts["MainMenu"]
         self.fps = config["fps"]
