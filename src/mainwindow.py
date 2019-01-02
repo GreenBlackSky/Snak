@@ -35,3 +35,5 @@ class MainWindow(Window):
         self.layout = self.layouts["GameScene"]
         self.layout.reset()
         self.fps = 8
+
+# TODO callbacks from config
