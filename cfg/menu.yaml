@@ -1,92 +1,99 @@
 {
   rect: [0, 0, 800, 400],
   fps: 20,
-  MainMenu: {
-    rect: [0, 0, 1, 1],
-    id: main_menu,
-    children: [
-      {
-        id: new_game_button,
-        type: Button,
-        rect: [0.4, 0.2, 0.2, 0.2],
-        capture: "START",
-        callback: StartNewGame
-      },
-      {
-        id: open_evolution_menu_button,
-        type: Button,
-        rect: [0.4, 0.6, 0.2, 0.2],
-        capture: "EVOLVE",
-        callback: OpenEvolutionMenu,
-        active: 0
+  layout: MainMenu,
+  widgets: {
+    MainMenu: {
+      type: Layout,
+      rect: [0, 0, 1, 1],
+      id: main_menu,
+      children: [
+        {
+          id: new_game_button,
+          type: Button,
+          rect: [0.4, 0.2, 0.2, 0.2],
+          capture: "START",
+          callback: StartNewGame
+        },
+        {
+          id: open_evolution_menu_button,
+          type: Button,
+          rect: [0.4, 0.6, 0.2, 0.2],
+          capture: "EVOLVE",
+          callback: OpenEvolutionMenu,
+          active: 0
+        }
+      ]
+    },
+    PauseMenu: {
+      rect: [0, 0, 1, 1],
+      id: pause_menu,
+      type: Layout,
+      children: [
+        {
+          id: continue_game_button,
+          type: Button,
+          rect: [0.2, 0, 0.2, 0.2],
+          capture: "Continue",
+          callback: ContinueGame
+        },
+        {
+          id: start_new_game_button,
+          type: Button,
+          rect: [0.2, 0.2, 0.2, 0.2],
+          capture: "Restart",
+          callback: StartNewGame
+        },
+        {
+          id: main_menu_from_pause_button,
+          type: Button,
+          rect: [0.2, 0.4, 0.2, 0.2],
+          capture: "Back",
+          callback: OpenMainMenu
+        }
+      ]
+    },
+    EvolutionMenu: {
+      rect: [0, 0, 1, 1],
+      id: evolution_menu,
+      type: Layout,
+      children: [
+        {
+          id: start_evolution_button,
+          type: Button,
+          rect: [0.2, 0, 0.2, 0.2],
+          capture: "Start",
+        },
+        {
+          id: pause_evolution_button,
+          type: Button,
+          rect: [0.2, 0.2, 0.2, 0.2],
+          capture: "Pause",
+        },
+        {
+          id: watch_button,
+          type: Button,
+          rect: [0.2, 0.4, 0.2, 0.2],
+          capture: "Watch",
+        },
+        {
+          id: main_menu_from_evolution_button,
+          type: Button,
+          rect: [0.2, 0.6, 0.2, 0.2],
+          capture: "Back",
+          callback: OpenMainMenu
+        }
+      ]
+    },
+    GameScene: {
+      cell_size: 10,
+      id: game_scene,
+      type: GameScene,
+      rect: [0, 0, 1, 1],
+      Label: {
+        rect: [0.4, 0, 0.2, 0.2],
+        text: "0"
       }
-    ]
-  },
-  PauseMenu: {
-    rect: [0, 0, 1, 1],
-    id: pause_menu,
-    children: [
-      {
-        id: continue_game_button,
-        type: Button,
-        rect: [0.2, 0, 0.2, 0.2],
-        capture: "Continue",
-        callback: ContinueGame
-      },
-      {
-        id: start_new_game_button,
-        type: Button,
-        rect: [0.2, 0.2, 0.2, 0.2],
-        capture: "Restart",
-        callback: StartNewGame
-      },
-      {
-        id: main_menu_from_pause_button,
-        type: Button,
-        rect: [0.2, 0.4, 0.2, 0.2],
-        capture: "Back",
-        callback: OpenMainMenu
-      }
-    ]
-  },
-  EvolutionMenu: {
-    rect: [0, 0, 1, 1],
-    id: evolution_menu,
-    children: [
-      {
-        id: start_evolution_button,
-        type: Button,
-        rect: [0.2, 0, 0.2, 0.2],
-        capture: "Start",
-      },
-      {
-        id: pause_evolution_button,
-        type: Button,
-        rect: [0.2, 0.2, 0.2, 0.2],
-        capture: "Pause",
-      },
-      {
-        id: watch_button,
-        type: Button,
-        rect: [0.2, 0.4, 0.2, 0.2],
-        capture: "Watch",
-      },
-      {
-        id: main_menu_from_evolution_button,
-        type: Button,
-        rect: [0.2, 0.6, 0.2, 0.2],
-        capture: "Back",
-        callback: OpenMainMenu
-      }
-    ]
-  },
-  GameScene: {
-    cell_size: 10,
-    id: game_scene,
-    rect: [0, 0, 1, 1],
-    Label: {
-      rect: [0.4, 0, 0.2, 0.2],
-      text: "0"
     }
   }
 }

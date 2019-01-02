@@ -1,18 +1,10 @@
 from gamescene import GameScene
-from mwidgets import Window, Layout
-
+from mwidgets import Window, Layout, WidgetMaker
 
 class MainWindow(Window):
     def __init__(self, config, gui):
+        WidgetMaker.constructors["GameScene"] = GameScene
         super().__init__(config, gui=gui)
-        self.layouts = {
-            "MainMenu": Layout(config["MainMenu"], self),
-            "PauseMenu": Layout(config["PauseMenu"], self),
-            "EvolutionMenu": Layout(config["EvolutionMenu"], self),
-            "Game": GameScene(config["GameScene"], self)
-        }
-        self.layout = self.layouts["MainMenu"]
-        self.fps = config["fps"]
         self.highscore = 0
         self.set_callbacks()
 
@@ -28,7 +20,7 @@ class MainWindow(Window):
         self.layout = self.layouts["PauseMenu"]
 
     def continue_game(self):
-        self.layout = self.layouts["Game"]
+        self.layout = self.layouts["GameScene"]
         self.fps = 8
 
     def open_main_menu(self):
@@ -40,6 +32,6 @@ class MainWindow(Window):
         self.layout = self.layouts["EvolutionMenu"]
 
     def start_new_game(self):
-        self.layout = self.layouts["Game"]
+        self.layout = self.layouts["GameScene"]
         self.layout.reset()
         self.fps = 8
