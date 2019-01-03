@@ -1,9 +1,7 @@
 import sys
-import time
 import yaml
-from gui import GUI
 from mainwindow import MainWindow
-from mwidgets import Event
+from mwidgets import Loader
 
 
 if __name__ == "__main__":
@@ -11,16 +9,7 @@ if __name__ == "__main__":
     file = open(path, 'r')
     config = yaml.safe_load(file)
     file.close()
-    *_, w, h = config["rect"]
-    gui = GUI(w, h)
-    main_window = MainWindow(config, gui)
-    playing = True
-    while playing:
-        events = gui.check_events()
-        for event in events:
-            if event.type == Event.Type.Quit:
-                playing = False
-        
-        main_window.layout.update(events)
-        gui.update()
-        time.sleep(1.0/main_window.fps)
+    Loader.register_widget("MainWindow", MainWindow)
+    main_window = Loader.load_widget(config)
+    main_window.set_callbacks()
+    main_window.play()
