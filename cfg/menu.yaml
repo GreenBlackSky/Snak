@@ -15,15 +15,14 @@
           type: Button,
           rect: [0.4, 0.2, 0.2, 0.2],
           capture: "START",
-          callback: StartNewGame
+          on_click: main_window.start_new_game
         },
         {
           id: open_evolution_menu_button,
           type: Button,
           rect: [0.4, 0.6, 0.2, 0.2],
           capture: "EVOLVE",
-          callback: OpenEvolutionMenu,
-          active: 0
+          on_click: main_window.open_evolution_menu
         }
       ]
     },
@@ -37,21 +36,21 @@
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
           capture: "Continue",
-          callback: ContinueGame
+          on_click: main_window.continue_game
         },
         {
           id: start_new_game_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
           capture: "Restart",
-          callback: StartNewGame
+          on_click: main_window.start_new_game
         },
         {
           id: main_menu_from_pause_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
           capture: "Back",
-          callback: OpenMainMenu
+          on_click: main_window.open_main_menu
         }
       ]
     },
@@ -65,25 +64,28 @@
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
           capture: "Start",
+          active: 0
         },
         {
           id: pause_evolution_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
           capture: "Pause",
+          active: 0
         },
         {
           id: watch_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
           capture: "Watch",
+          active: 0
         },
         {
           id: main_menu_from_evolution_button,
           type: Button,
           rect: [0.2, 0.6, 0.2, 0.2],
           capture: "Back",
-          callback: OpenMainMenu
+          on_click: main_window.open_main_menu
         }
       ]
     },

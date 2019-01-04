@@ -1,7 +1,7 @@
 import time
 from gui import GUI
 from gamescene import GameScene
-from mwidgets import Window, Loader
+from mwidgets import Window, Loader, Widget
 from mwidgets import Event
 
 
@@ -14,12 +14,13 @@ class MainWindow(Window):
         self.highscore = 0
 
     def set_callbacks(self):
-        self.children["main_menu"].callbacks["new_game_button"] = self.start_new_game
-        self.children["main_menu"].callbacks["open_evolution_menu_button"] = self.open_evolution_menu
-        self.children["pause_menu"].callbacks["continue_game_button"] = self.continue_game
-        self.children["pause_menu"].callbacks["start_new_game_button"] = self.start_new_game
-        self.children["pause_menu"].callbacks["main_menu_from_pause_button"] = self.open_main_menu
-
+        self.children["main_menu"].children["new_game_button"].callbacks[Widget.Slots.Clicked].append(self.start_new_game)
+        self.children["main_menu"].children["open_evolution_menu_button"].callbacks[Widget.Slots.Clicked].append(self.open_evolution_menu)
+        self.children["pause_menu"].children["continue_game_button"].callbacks[Widget.Slots.Clicked].append(self.continue_game)
+        self.children["pause_menu"].children["start_new_game_button"].callbacks[Widget.Slots.Clicked].append(self.start_new_game)
+        self.children["pause_menu"].children["main_menu_from_pause_button"].callbacks[Widget.Slots.Clicked].append(self.open_main_menu)
+        self.children["evolution_menu"].children["main_menu_from_evolution_button"].callbacks[Widget.Slots.Clicked].append(self.open_main_menu)
+    
     def play(self):
         playing = True
         while playing:
