@@ -12,15 +12,14 @@ class MainWindow(Window):
         gui = GUI(w, h)
         super().__init__(config, gui=gui)
         self.highscore = 0
-
-    def set_callbacks(self):
-        self.children["main_menu"].children["new_game_button"].callbacks[Widget.Slots.Clicked].append(self.start_new_game)
-        self.children["main_menu"].children["open_evolution_menu_button"].callbacks[Widget.Slots.Clicked].append(self.open_evolution_menu)
-        self.children["pause_menu"].children["continue_game_button"].callbacks[Widget.Slots.Clicked].append(self.continue_game)
-        self.children["pause_menu"].children["start_new_game_button"].callbacks[Widget.Slots.Clicked].append(self.start_new_game)
-        self.children["pause_menu"].children["main_menu_from_pause_button"].callbacks[Widget.Slots.Clicked].append(self.open_main_menu)
-        self.children["evolution_menu"].children["main_menu_from_evolution_button"].callbacks[Widget.Slots.Clicked].append(self.open_main_menu)
-    
+        self.slots = {
+            "pause_game": self.pause_game,
+            "continue_game": self.continue_game,
+            "open_main_menu": self.open_main_menu,
+            "open_evolution_menu": self.open_evolution_menu,
+            "start_new_game": self.start_new_game
+        }
+        
     def play(self):
         playing = True
         while playing:
@@ -53,5 +52,3 @@ class MainWindow(Window):
         self.layout = self.children["game_scene"]
         self.layout.reset()
         self.fps = 8
-
-# TODO callbacks from config

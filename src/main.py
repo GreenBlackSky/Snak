@@ -11,5 +11,5 @@ if __name__ == "__main__":
     file.close()
     Loader.register_widget("MainWindow", MainWindow)
     main_window = Loader.load_widget(config)
-    main_window.set_callbacks()
     main_window.play()
+    
