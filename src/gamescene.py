@@ -21,15 +21,16 @@ class GameScene(Scene):
             if event.type == Event.Type.KeyPressed:
                 if event.data == Event.Key.K_ESCAPE:
                     self.parent.pause_game()
-                    return
+                    return []
                 if event.data in GameScene.KEYS:
                     self.game.snake_mind.desire(GameScene.KEYS[event.data])
         self.game.make_move(self.game.get_next_move())
         self.score.text = str(self.game.score)
         if self.game.snake.is_selfcrossed():
             self.parent.open_main_menu()
-            return
+            return []
         self.redraw()
+        return []
 
     def redraw(self):
         self.clear()

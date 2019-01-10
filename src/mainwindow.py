@@ -22,13 +22,15 @@ class MainWindow(Window):
         
     def play(self):
         playing = True
+        events = list()
         while playing:
-            events = self.gui.check_events()
+            events += self.gui.check_events()
             for event in events:
+                if not event.source:
+                    event.source = self
                 if event.type == Event.Type.Quit:
                     playing = False
-        
-            self.layout.update(events)
+            events = self.layout.update(events)
             self.gui.update()
             time.sleep(1.0/self.fps)
 

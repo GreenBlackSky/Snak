@@ -8,29 +8,23 @@ class GUI:
         self.mouse_pressed = False
         self.screen = pygame.display.set_mode((width, height))
 
-    def draw_button(self, button):
-        fore_color = button.palette[button.state][ColorRole.Foreground].value
-        text_color = button.palette[button.state][ColorRole.Text].value
-        pygame.draw.rect(self.screen, fore_color, button.rect, 0)
-        x, y, w, h = button.rect
+    def draw_rect_with_text(self, widget):
+        fore_color = widget.palette[widget.state][ColorRole.Foreground].value
+        text_color = widget.palette[widget.state][ColorRole.Text].value
+        pygame.draw.rect(self.screen, fore_color, widget.rect, 0)
+        x, y, w, h = widget.rect
         font = pygame.font.SysFont("monospace", int(h/3))
-        label = font.render(button.text, 1, text_color)
-        *_, tw, th = label.get_rect()
-        label_pos = (x + max((w - tw)/2, 0), \
+        surface = font.render(widget.text, 1, text_color)
+        *_, tw, th = surface.get_rect()
+        widget_pos = (x + max((w - tw)/2, 0), \
                     y + max((h - th)/2, 0))
-        self.screen.blit(label, label_pos)
+        self.screen.blit(surface, widget_pos)
+
+    def draw_button(self, button):
+        self.draw_rect_with_text(button)
 
     def draw_label(self, label):
-        fore_color = label.palette[label.state][ColorRole.Foreground].value
-        text_color = label.palette[label.state][ColorRole.Text].value
-        pygame.draw.rect(self.screen, fore_color, label.rect, 0)
-        x, y, w, h = label.rect
-        font = pygame.font.SysFont("monospace", int(h))
-        surface = font.render(label.text, 1, text_color)
-        *_, tw, th = surface.get_rect()
-        label_pos = (x + max((w - tw)/2, 0), \
-                    y + max((h - th)/2, 0))
-        self.screen.blit(surface, label_pos)
+        self.draw_rect_with_text(label)
 
     def fill(self, color):
         self.screen.fill(color.value)
@@ -55,21 +49,21 @@ class GUI:
         ret = list()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key in keys:
-                ret.append(Event(Event.Type.KeyPressed, keys[event.key]))
+                ret.append(Event(Event.Type.KeyPressed, data=keys[event.key]))
             elif event.type == pygame.KEYUP and event.key in keys:
-                ret.append(Event(Event.Type.KeyReleased, keys[event.key]))
+                ret.append(Event(Event.Type.KeyReleased, data=keys[event.key]))
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.mouse_pressed = True
                 x, y = pygame.mouse.get_pos()
-                ret.append(Event(Event.Type.MousePressed, (x, y)))
+                ret.append(Event(Event.Type.MousePressed, data=(x, y)))
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 self.mouse_pressed = False
                 x, y = pygame.mouse.get_pos()
-                ret.append(Event(Event.Type.MouseReleased, (x, y, self.mouse_pressed)))
+                ret.append(Event(Event.Type.MouseReleased, data=(x, y, self.mouse_pressed)))
             elif event.type == pygame.QUIT:
                 ret.append(Event(Event.Type.Quit))
         x, y = pygame.mouse.get_pos()
-        ret.append(Event(Event.Type.MouseState, (x, y, self.mouse_pressed)))
+        ret.append(Event(Event.Type.MouseState, data=(x, y, self.mouse_pressed)))
         return ret
 
 # TODO draw_scene instead of game
