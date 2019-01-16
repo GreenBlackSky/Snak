@@ -15,14 +15,14 @@
           type: Button,
           rect: [0.4, 0.2, 0.2, 0.2],
           capture: "START",
-          on_click: main_window.start_new_game
+          clicked: main_window.start_new_game
         },
         {
           id: open_evolution_menu_button,
           type: Button,
           rect: [0.4, 0.6, 0.2, 0.2],
           capture: "EVOLVE",
-          on_click: main_window.open_evolution_menu
+          clicked: main_window.open_evolution_menu
         }
       ]
     },
@@ -36,21 +36,21 @@
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
           capture: "Continue",
-          on_click: main_window.continue_game
+          clicked: main_window.continue_game
         },
         {
           id: start_new_game_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
           capture: "Restart",
-          on_click: main_window.start_new_game
+          clicked: main_window.start_new_game
         },
         {
           id: main_menu_from_pause_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
           capture: "Back",
-          on_click: main_window.open_main_menu
+          clicked: main_window.open_main_menu
         }
       ]
     },
@@ -85,7 +85,7 @@
           type: Button,
           rect: [0.2, 0.6, 0.2, 0.2],
           capture: "Back",
-          on_click: main_window.open_main_menu
+          clicked: main_window.open_main_menu
         }
       ]
     },

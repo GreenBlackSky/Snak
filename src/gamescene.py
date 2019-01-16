@@ -45,3 +45,5 @@ class GameScene(Scene):
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.score.text = "0"
         self.game.score = 0
+
+# TODO Move event-logic into config
