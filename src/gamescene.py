@@ -47,3 +47,4 @@ class GameScene(Scene):
         self.game.score = 0
 
 # TODO Move event-logic into config
+# TODO call super().update from update

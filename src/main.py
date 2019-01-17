@@ -13,5 +13,4 @@ if __name__ == "__main__":
     main_window = Loader.load_widget(config)
     main_window.play()
 
-# TODO Move triggering standart triggers from update into smaller methods
-# TODO Make fps constant
+# TODO Document basic widgets and thier roles

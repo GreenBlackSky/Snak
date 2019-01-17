@@ -65,5 +65,3 @@ class GUI:
         x, y = pygame.mouse.get_pos()
         ret.append(Event(Event.Type.MouseState, data=(x, y, self.mouse_pressed)))
         return ret
-
-# TODO draw_scene instead of game
