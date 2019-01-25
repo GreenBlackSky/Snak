@@ -99,7 +99,9 @@
         type: Label,
         rect: [0.4, 0, 0.2, 0.4],
         text: "0"
-      }
+      },
+      Paused: main_window.pause_game,
+      Closed: main_window.open_main_menu
     }
   ]
 }

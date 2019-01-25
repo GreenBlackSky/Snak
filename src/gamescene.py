@@ -16,18 +16,24 @@ class GameScene(Scene):
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
 
+        self.events = {
+            **self.events,
+            "Paused": Event.Type.Custom0,
+            "Closed": Event.Type.Custom1
+        }
+
     def update(self, events):
         for event in events:
             if event.type == Event.Type.KeyPressed:
                 if event.data == Event.Key.K_ESCAPE:
-                    self.parent.pause_game()
+                    self.event_queue.append(Event(Event.Type.Custom0, self))
                     break
                 if event.data in GameScene.KEYS:
                     self.game.snake_mind.desire(GameScene.KEYS[event.data])
         self.game.make_move(self.game.get_next_move())
         self.score.text = str(self.game.score)
         if self.game.snake.is_selfcrossed():
-            self.parent.open_main_menu()
+            self.event_queue.append(Event(Event.Type.Custom1, self))
         self.redraw()
         return super().update(events)
 
@@ -45,5 +51,5 @@ class GameScene(Scene):
         self.score.text = "0"
         self.game.score = 0
 
+# TODO Move colors into config
 # TODO Move event-logic into config
-# TODO create events instead of calling parent methods

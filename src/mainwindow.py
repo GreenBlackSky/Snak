@@ -9,8 +9,7 @@ class MainWindow(Window):
     def __init__(self, config, _):
         Loader.register_widget("GameScene", GameScene)
         *_, w, h = config["rect"]
-        gui = GUI(w, h)
-        super().__init__(config, gui=gui)
+        super().__init__(config, gui=GUI(w, h))
         self.highscore = 0
         self.triggers = {
             **self.triggers,
