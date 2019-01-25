@@ -35,7 +35,7 @@ class GameScene(Scene):
         if self.game.snake.is_selfcrossed():
             self.event_queue.append(Event(Event.Type.Custom1, self))
         self.redraw()
-        return super().update(events)
+        super().update(events)
 
     def redraw(self):
         self.clear()
