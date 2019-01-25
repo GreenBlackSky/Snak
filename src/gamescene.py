@@ -12,6 +12,7 @@ class GameScene(Scene):
         super().__init__(config, parent)
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
+        self.fps = config["fps"]
         self.score = Label(config["Label"], self)
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY

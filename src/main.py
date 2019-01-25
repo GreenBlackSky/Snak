@@ -11,6 +11,6 @@ if __name__ == "__main__":
     file.close()
     Loader.register_widget("MainWindow", MainWindow)
     main_window = Loader.load_widget(config)
-    main_window.play()
+    main_window.exec()
 
 # TODO Document basic widgets and thier roles

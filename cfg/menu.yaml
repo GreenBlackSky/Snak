@@ -93,6 +93,7 @@
       id: game_scene,
       type: GameScene,
       cell_size: 10,
+      fps: 8,
       rect: [0, 0, 1, 1],
       Label: {
         id: score_label,
