@@ -1,13 +1,11 @@
-from gui import GUI
 from gamescene import GameScene
 from mwidgets import Window, Loader, Widget
 
 
 class MainWindow(Window):
-    def __init__(self, config, _):
+    def __init__(self, config):
         Loader.register_widget("GameScene", GameScene)
-        *_, w, h = config["rect"]
-        super().__init__(config, gui=GUI(w, h))
+        super().__init__(config)
         self.highscore = 0
         self.triggers = {
             **self.triggers,
@@ -33,5 +31,3 @@ class MainWindow(Window):
     def start_new_game(self):
         self.layout = self.children["game_scene"]
         self.layout.reset()
-
-# TODO Move gui to main.py
