@@ -1,14 +1,10 @@
-from gamescene import GameScene
 from mwidgets import Window, Loader, Widget
 
 
 class MainWindow(Window):
     def __init__(self, config):
-        Loader.register_widget("GameScene", GameScene)
         super().__init__(config)
-        self.highscore = 0
-        self.triggers = {
-            **self.triggers,
+        self.triggers = {**self.triggers,
             "pause_game": self.pause_game,
             "continue_game": self.continue_game,
             "open_main_menu": self.open_main_menu,
@@ -30,4 +26,3 @@ class MainWindow(Window):
 
     def start_new_game(self):
         self.layout = self.children["game_scene"]
-        self.layout.reset()

@@ -16,11 +16,13 @@ class GameScene(Scene):
         self.score = Label(config["Label"], self)
         self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
         self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
-
         self.events = {
             **self.events,
             "Paused": Event.Type.Custom0,
             "Closed": Event.Type.Custom1
+        }
+        self.triggers = {**self.triggers,
+            "reset": self.reset
         }
 
     def update(self, events):

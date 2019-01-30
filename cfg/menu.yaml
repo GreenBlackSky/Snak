@@ -43,7 +43,7 @@
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
           capture: "Restart",
-          clicked: main_window.start_new_game
+          clicked: "main_window.start_new_game, game_scene.reset"
         },
         {
           id: main_menu_from_pause_button,

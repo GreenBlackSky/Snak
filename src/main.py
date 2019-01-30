@@ -1,7 +1,8 @@
 import sys
 import yaml
-from mainwindow import MainWindow
 from mwidgets import Loader
+from mainwindow import MainWindow
+from gamescene import GameScene
 from gui import GUI
 
 
@@ -16,6 +17,7 @@ if __name__ == "__main__":
     gui=GUI(w, h)
     # Load application
     Loader.register_widget("MainWindow", MainWindow)
+    Loader.register_widget("GameScene", GameScene)
     main_window = Loader.load(config)
     main_window.set_gui(gui)
     # Start exec loop
