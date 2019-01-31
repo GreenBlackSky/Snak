@@ -14,11 +14,13 @@ if __name__ == "__main__":
     file.close()
     # Initialize gui
     *_, w, h = config["rect"]
-    gui=GUI(w, h)
+    gui = GUI(w, h)
     # Load application
-    Loader.register_widget("MainWindow", MainWindow)
-    Loader.register_widget("GameScene", GameScene)
-    main_window = Loader.load(config)
+    loader = Loader()
+    loader.register_widget("MainWindow", MainWindow)
+    loader.register_widget("GameScene", GameScene)
+    main_window = loader.load(config)
+    loader.clean()
     main_window.set_gui(gui)
     # Start exec loop
     main_window.exec()
