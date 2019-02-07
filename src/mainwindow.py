@@ -13,16 +13,16 @@ class MainWindow(Window):
         }
 
     def pause_game(self):
-        self.layout = self.children["pause_menu"]
+        self.set_layout("pause_menu")
 
     def continue_game(self):
-        self.layout = self.children["game_scene"]
+        self.set_layout("game_scene")
 
     def open_main_menu(self):
-        self.layout = self.children["main_menu"]
+        self.set_layout("main_menu")
 
     def open_evolution_menu(self):
-        self.layout = self.children["evolution_menu"]
+        self.set_layout("evolution_menu")
 
     def start_new_game(self):
-        self.layout = self.children["game_scene"]
+        self.set_layout("game_scene")
