@@ -1,5 +1,4 @@
-from mwidgets import Window, Loader, Widget
-
+from mwidgets import Window, Loader, Widget, Event
 
 class MainWindow(Window):
     def __init__(self, config):

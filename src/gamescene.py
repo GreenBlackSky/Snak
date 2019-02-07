@@ -3,11 +3,6 @@ from game import Game
 
 
 class GameScene(Scene):
-    KEYS = {Event.Key.K_UP: (0, -1),
-            Event.Key.K_DOWN: (0, 1),
-            Event.Key.K_LEFT: (-1, 0),
-            Event.Key.K_RIGHT: (1, 0)}
-
     def __init__(self, config, parent):
         super().__init__(config, parent)
         *_, w, h = self.rect
@@ -22,23 +17,36 @@ class GameScene(Scene):
             "Closed": Event.Type.Custom1
         }
         self.triggers = {**self.triggers,
-            "reset": self.reset
+            "reset": self.reset,
+            "pause_game": self.pause_game,
+            "move_left": self.move_left,
+            "move_right": self.move_right,
+            "move_up": self.move_up,
+            "move_down": self.move_down
         }
 
+    def pause_game(self):
+        self.event_queue.append(Event(Event.Type.Custom0, self))
+
+    def move_left(self):
+        self.game.snake_mind.desire((-1, 0))
+
+    def move_right(self):
+        self.game.snake_mind.desire((1, 0))
+
+    def move_up(self):
+        self.game.snake_mind.desire((0, -1))
+
+    def move_down(self):
+        self.game.snake_mind.desire((0, 1))
+
     def update(self, events):
-        for event in events:
-            if event.type == Event.Type.KeyPressed:
-                if event.data == Event.Key.K_ESCAPE:
-                    self.event_queue.append(Event(Event.Type.Custom0, self))
-                    break
-                if event.data in GameScene.KEYS:
-                    self.game.snake_mind.desire(GameScene.KEYS[event.data])
+        super().update(events)
         self.game.make_move(self.game.get_next_move())
         self.score.text = str(self.game.score)
         if self.game.snake.is_selfcrossed():
             self.event_queue.append(Event(Event.Type.Custom1, self))
         self.redraw()
-        super().update(events)
 
     def redraw(self):
         self.clear()
@@ -55,4 +63,4 @@ class GameScene(Scene):
         self.game.score = 0
 
 # TODO Move colors into config
-# TODO Move event-logic into config
+# TODO Move label into config
