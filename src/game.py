@@ -1,4 +1,4 @@
-import random
+from random import randint
 from controller import Controller
 
 class Game:
@@ -35,7 +35,7 @@ class Game:
     def random_pos(self):
         ret = self.snake.head
         while ret in self.snake.cells or ret == self.snake.tail:
-            ret = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
+            ret = (randint(0, self.width - 1), randint(0, self.height - 1))
         return ret
 
     def get_next_move(self):

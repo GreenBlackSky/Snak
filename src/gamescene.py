@@ -1,4 +1,4 @@
-from mwidgets import Scene, Label, Widget, Event, Color, ColorRole
+from mwidgets import Scene, Widget, Event, Color, ColorRole
 from game import Game
 
 
@@ -8,7 +8,6 @@ class GameScene(Scene):
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.fps = config["fps"]
-        # self.score = Label(config["Label"], self)
         self.score = None
         
         self.events = {
