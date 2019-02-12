@@ -1,0 +1,3 @@
+[submodule "src/mwidgets"]
+	path = src/mwidgets
+	url = git@github.com:GreenBlackSky/MWidgets.git
