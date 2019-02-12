@@ -1,5 +1,6 @@
 {
   id: main_window,
+  gui: pygame,
   type: MainWindow,
   rect: [0, 0, 800, 400],
   fps: 20,
