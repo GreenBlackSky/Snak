@@ -3,11 +3,10 @@ from game import Game
 
 
 class GameScene(Scene):
-    def __init__(self, config, parent):
-        super().__init__(config, parent)
+    def __init__(self, rect, fps=None, cell_size=None, parent=None):
+        super().__init__(rect, fps, cell_size, parent)
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
-        self.fps = config["fps"]
         self.score = None
         
         self.events = {

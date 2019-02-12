@@ -15,14 +15,14 @@
           id: new_game_button,
           type: Button,
           rect: [0.4, 0.2, 0.2, 0.2],
-          capture: "START",
+          text: "START",
           clicked: main_window.start_new_game
         },
         {
           id: open_evolution_menu_button,
           type: Button,
           rect: [0.4, 0.6, 0.2, 0.2],
-          capture: "EVOLVE",
+          text: "EVOLVE",
           clicked: main_window.open_evolution_menu
         }
       ]
@@ -36,21 +36,21 @@
           id: continue_game_button,
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
-          capture: "Continue",
+          text: "Continue",
           clicked: main_window.continue_game
         },
         {
           id: start_new_game_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
-          capture: "Restart",
+          text: "Restart",
           clicked: "main_window.start_new_game, game_scene.reset"
         },
         {
           id: main_menu_from_pause_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
-          capture: "Back",
+          text: "Back",
           clicked: main_window.open_main_menu
         }
       ]
@@ -64,28 +64,28 @@
           id: start_evolution_button,
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
-          capture: "Start",
+          text: "Start",
           active: 0
         },
         {
           id: pause_evolution_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
-          capture: "Pause",
+          text: "Pause",
           active: 0
         },
         {
           id: watch_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
-          capture: "Watch",
+          text: "Watch",
           active: 0
         },
         {
           id: main_menu_from_evolution_button,
           type: Button,
           rect: [0.2, 0.6, 0.2, 0.2],
-          capture: "Back",
+          text: "Back",
           clicked: main_window.open_main_menu
         }
       ]

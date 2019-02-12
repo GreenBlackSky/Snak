@@ -1,8 +1,8 @@
 from mwidgets import Window
 
 class MainWindow(Window):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, rect, fps=None, layout_name=None):
+        super().__init__(rect, fps, layout_name)
         self.triggers = {**self.triggers,
             "pause_game": self.pause_game,
             "continue_game": self.continue_game,
