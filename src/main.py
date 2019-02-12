@@ -1,9 +1,8 @@
 import sys
 import yaml
-from mwidgets import Loader
+from mwidgets import Loader, PygameGUI
 from mainwindow import MainWindow
 from gamescene import GameScene
-from gui import GUI
 
 
 if __name__ == "__main__":
@@ -14,7 +13,7 @@ if __name__ == "__main__":
     file.close()
     # Initialize gui
     *_, w, h = config["rect"]
-    gui = GUI(w, h)
+    gui = PygameGUI(w, h)
     # Load application
     loader = Loader()
     loader.register_widget("MainWindow", MainWindow)

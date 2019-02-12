@@ -95,12 +95,14 @@
       cell_size: 10,
       fps: 8,
       rect: [0, 0, 1, 1],
-      Label: {
-        id: score_label,
-        type: Label,
-        rect: [0.4, 0, 0.2, 0.4],
-        text: "0"
-      },
+      children: [
+        {
+          id: score_label,
+          type: Label,
+          rect: [0.4, 0, 0.2, 0.4],
+          text: "0"
+        }
+      ],
       Paused: main_window.pause_game,
       Closed: main_window.open_main_menu
     }

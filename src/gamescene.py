@@ -8,9 +8,9 @@ class GameScene(Scene):
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.fps = config["fps"]
-        self.score = Label(config["Label"], self)
-        self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
-        self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
+        # self.score = Label(config["Label"], self)
+        self.score = None
+        
         self.events = {
             **self.events,
             "Paused": Event.Type.Custom0,
@@ -24,6 +24,12 @@ class GameScene(Scene):
             "move_up": self.move_up,
             "move_down": self.move_down
         }
+
+    def add_child(self, child):
+        if child.id == "score_label":
+            self.score = child
+            self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
+            self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
 
     def pause_game(self):
         self.event_queue.append(Event(Event.Type.Custom0, self))
@@ -63,4 +69,3 @@ class GameScene(Scene):
         self.game.score = 0
 
 # TODO Move colors into config
-# TODO Move label into config
