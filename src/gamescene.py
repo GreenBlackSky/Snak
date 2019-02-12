@@ -24,8 +24,9 @@ class GameScene(Scene):
             "move_down": self.move_down
         }
 
-    def add_child(self, child):
-        if child.id == "score_label":
+    def add_child(self, id, child):
+        super().add_child(id, child)
+        if id == "score_label":
             self.score = child
             self.score.palette[Widget.State.Active][ColorRole.Foreground] = Color.BLACK
             self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
