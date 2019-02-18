@@ -1,4 +1,4 @@
-from mwidgets import Window
+from MWidgets import Window
 
 class MainWindow(Window):
     def __init__(self, rect, fps=None, layout_name=None):

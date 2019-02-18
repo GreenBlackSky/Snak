@@ -1,5 +1,5 @@
 import sys
-from mwidgets import Loader
+from MWidgets import Loader
 from mainwindow import MainWindow
 from gamescene import GameScene
 

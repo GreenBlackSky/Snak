@@ -1,4 +1,4 @@
-from mwidgets import Scene, Widget, Event, Color, ColorRole
+from MWidgets import Scene, Widget, Event, Color, ColorRole
 from game import Game
 
 
