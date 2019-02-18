@@ -31,7 +31,7 @@ class GameScene(Scene):
             self.score.palette[Widget.State.Active][ColorRole.Text] = Color.DARK_GRAY
 
     def pause_game(self):
-        self.event_queue.append(Event(Event.Type.Custom0, self))
+        self.emmit_event(Event.Type.Custom0)
 
     def move_left(self):
         self.game.snake_mind.desire((-1, 0))
@@ -50,7 +50,7 @@ class GameScene(Scene):
         self.game.make_move(self.game.get_next_move())
         self.score.text = str(self.game.score)
         if self.game.snake.is_selfcrossed():
-            self.event_queue.append(Event(Event.Type.Custom1, self))
+            self.emmit_event(Event.Type.Custom1)
 
     def redraw(self):
         self.clear()
