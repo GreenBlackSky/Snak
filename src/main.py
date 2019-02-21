@@ -12,5 +12,3 @@ if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
     main_window = Loader.load_yaml(path)
     main_window.exec()
-
-# TODO Document basic widgets and thier roles

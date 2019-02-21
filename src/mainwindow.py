@@ -6,16 +6,17 @@ from MWidgets import Window
 class MainWindow(Window):
     """Main window of application."""
 
-    def __init__(self, rect, fps=None, layout_name=None):
-        """Create new MainWindow with fps and name of initial top layout."""
-        super().__init__(rect, fps, layout_name)
-        self.triggers = {**self.triggers,
-                         "pause_game": self.pause_game,
-                         "continue_game": self.continue_game,
-                         "open_main_menu": self.open_main_menu,
-                         "open_evolution_menu": self.open_evolution_menu,
-                         "start_new_game": self.start_new_game
-                         }
+    def __init__(self, rect, layout_name=None):
+        """Create new MainWindow with name of initial top layout."""
+        super().__init__(rect, layout_name)
+        self.triggers = {
+            **self.triggers,
+            "pause_game": self.pause_game,
+            "continue_game": self.continue_game,
+            "open_main_menu": self.open_main_menu,
+            "open_evolution_menu": self.open_evolution_menu,
+            "start_new_game": self.start_new_game
+        }
 
     def pause_game(self):
         self.set_layout("pause_menu")

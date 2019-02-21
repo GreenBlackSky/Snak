@@ -43,18 +43,16 @@ class Game:
         self.width, self.height = width, height
         self.snake_mind = Controller()
         self.snake = Game.Snake((self.width/2, self.height/2))
-        self.food_pos = self.random_pos()
+        self.food_pos = self.__random_pos()
         self.score = 0
 
-    def random_pos(self):
-        """Get some random empty pos on field."""
+    def __random_pos(self):
         ret = self.snake.head
         while ret in self.snake.cells or ret == self.snake.tail:
             ret = (randint(0, self.width - 1), randint(0, self.height - 1))
         return ret
 
-    def get_next_move(self):
-        """Get next snake head position."""
+    def __get_next_move(self):
         nx, ny = self.snake.next_pos(self.snake_mind.decision())
         if nx < 0:
             nx = self.width
@@ -66,11 +64,12 @@ class Game:
             ny = 0
         return nx, ny
 
-    def make_move(self, next_pos):
+    def make_move(self):
         """Update situation on field."""
+        next_pos = self.__get_next_move()
         if self.food_pos == next_pos:
             self.snake.move_and_eat(next_pos)
-            self.food_pos = self.random_pos()
+            self.food_pos = self.__random_pos()
             self.score += 1
         else:
             self.snake.move(next_pos)

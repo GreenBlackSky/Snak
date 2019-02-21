@@ -3,7 +3,6 @@
   gui: pygame,
   type: MainWindow,
   rect: [0, 0, 800, 400],
-  fps: 20,
   layout: main_menu,
   children: [
     {
@@ -16,7 +15,7 @@
           type: Button,
           rect: [0.4, 0.2, 0.2, 0.2],
           text: "START",
-          clicked: main_window.start_new_game
+          clicked: "main_window.start_new_game, game_scene.reset"
         },
         {
           id: open_evolution_menu_button,
@@ -94,7 +93,7 @@
       id: game_scene,
       type: GameScene,
       cell_size: 10,
-      fps: 8,
+      fps: 10,
       rect: [0, 0, 1, 1],
       children: [
         {
@@ -105,7 +104,8 @@
         }
       ],
       Paused: main_window.pause_game,
-      Closed: main_window.open_main_menu
+      Closed: main_window.open_main_menu,
+      New_score: score_label.set_text
     }
   ],
   k_esc: game_scene.pause_game,
