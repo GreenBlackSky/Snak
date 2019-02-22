@@ -46,9 +46,9 @@ class GameScene(Scene):
                   config["fps"])
         return ret
 
-    def add_child(self, id, child):
+    def add_child(self, child, id):
         """Override parents add_child to set score label."""
-        super().add_child(id, child)
+        super().add_child(child, id)
         if id == "score_label":
             palette = child.palette[Widget.State.Active]
             palette[ColorRole.Foreground] = Color.BLACK
