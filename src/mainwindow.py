@@ -6,9 +6,9 @@ from MWidgets import Window
 class MainWindow(Window):
     """Main window of application."""
 
-    def __init__(self, rect, layout_name=None):
+    def __init__(self, rect, gui, layout_name=None):
         """Create new MainWindow with name of initial top layout."""
-        super().__init__(rect, layout_name)
+        super().__init__(rect, gui, layout_name)
         self.triggers = {
             **self.triggers,
             "pause_game": self.pause_game,
