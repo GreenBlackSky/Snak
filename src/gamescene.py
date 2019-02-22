@@ -7,7 +7,7 @@ from game import Game
 class GameScene(Scene):
     """Visual representation of game."""
 
-    def __init__(self, rect, cell_size, fps, parent=None):
+    def __init__(self, rect, parent, cell_size, fps):
         """Create new scene with, cell size and parent."""
         super().__init__(rect, parent)
         *_, w, h = self.rect
@@ -38,12 +38,12 @@ class GameScene(Scene):
         }
 
     @classmethod
-    def from_config(cls, config, parent=None):
+    def from_config(cls, config, parent):
         """Load scene from config."""
         ret = cls(config["rect"],
+                  parent,
                   config["cell_size"],
-                  config["fps"],
-                  parent)
+                  config["fps"])
         return ret
 
     def add_child(self, id, child):
