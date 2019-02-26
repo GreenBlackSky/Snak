@@ -46,3 +46,6 @@ class MainWindow(Window):
 
     def start_new_game(self):
         self.set_widget(self.layouts["game_scene"])
+
+# TODO Implement switching between layouts without additional methods
+
