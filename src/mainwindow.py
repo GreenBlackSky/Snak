@@ -29,7 +29,7 @@ class MainWindow(Window):
     def add_child(self, widget, id):
         """Add child widget."""
         self.layouts[id] = widget
-        if not self.widget or id == self.default_layout_name:
+        if not self.widgets or id == self.default_layout_name:
             self.set_widget(self.layouts[id])
 
     def pause_game(self):
@@ -48,4 +48,3 @@ class MainWindow(Window):
         self.set_widget(self.layouts["game_scene"])
 
 # TODO Implement switching between layouts without additional methods
-

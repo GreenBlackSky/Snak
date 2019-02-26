@@ -112,3 +112,4 @@ class GameScene(Scene):
         self.emmit_event(Event.Type.Custom2, "0")
 
 # TODO Move colors into config
+# TODO Make snake and food and other objects children of scene
