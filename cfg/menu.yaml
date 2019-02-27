@@ -103,12 +103,11 @@
           text: "0"
         }
       ],
-      Paused: main_window.pause_game,
       Closed: main_window.open_main_menu,
       New_score: score_label.set_text
     }
   ],
-  k_esc: game_scene.pause_game,
+  k_esc: main_window.pause_game,
   k_up: game_scene.move_up,
   k_down: game_scene.move_down,
   k_left: game_scene.move_left,

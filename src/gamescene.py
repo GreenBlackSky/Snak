@@ -1,7 +1,25 @@
 """Module contains scene for playing Snak."""
 
-from MWidgets import Scene, Widget, Event, Color, ColorRole
+from MWidgets import Scene, Widget, Event, ValueEvent, Color, ColorRole
 from game import Game
+
+
+class PauseGameEvent(Event):
+    """Event is generated to pause current game."""
+
+    pass
+
+
+class CloseGameEvent(Event):
+    """Create this event to finish game."""
+
+    pass
+
+
+class UpdateScoreEvent(ValueEvent):
+    """Create this event when score is updated."""
+
+    pass
 
 
 class GameScene(Scene):
@@ -23,14 +41,12 @@ class GameScene(Scene):
 
         self.events = {
             **self.events,
-            "Paused": Event.Type.Custom0,
-            "Closed": Event.Type.Custom1,
-            "New_score": Event.Type.Custom2
+            "Closed": CloseGameEvent,
+            "New_score": UpdateScoreEvent
         }
         self.triggers = {
             **self.triggers,
             "reset": self.reset,
-            "pause_game": self.pause_game,
             "move_left": self.move_left,
             "move_right": self.move_right,
             "move_up": self.move_up,
@@ -53,9 +69,6 @@ class GameScene(Scene):
             palette = child.palette[Widget.State.Active]
             palette[ColorRole.Foreground] = Color.BLACK
             palette[ColorRole.Text] = Color.DARK_GRAY
-
-    def pause_game(self):
-        self.emmit_event(Event.Type.Custom0)
 
     def move_left(self):
         self.game.snake_mind.desire((-1, 0))
@@ -82,9 +95,9 @@ class GameScene(Scene):
         score = self.game.score
         self.game.make_move()
         if self.game.score != score:
-            self.emmit_event(Event.Type.Custom2, str(self.game.score))
+            self.emmit_event(UpdateScoreEvent, [str(self.game.score)])
         if self.game.snake.is_selfcrossed():
-            self.emmit_event(Event.Type.Custom1)
+            self.emmit_event(CloseGameEvent)
 
     def redraw(self):
         """Redraw scene."""
@@ -109,7 +122,7 @@ class GameScene(Scene):
         *_, w, h = self.rect
         self.game = Game(w//self.cell_size, h//self.cell_size)
         self.game.score = 0
-        self.emmit_event(Event.Type.Custom2, "0")
+        self.emmit_event(UpdateScoreEvent, ["0"])
 
 # TODO Move colors into config
 # TODO Make snake and food and other objects children of scene
