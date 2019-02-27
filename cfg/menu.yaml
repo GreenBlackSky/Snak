@@ -107,9 +107,11 @@
       New_score: score_label.set_text
     }
   ],
-  k_esc: main_window.pause_game,
-  k_up: game_scene.move_up,
-  k_down: game_scene.move_down,
-  k_left: game_scene.move_left,
-  k_right: game_scene.move_right
+  key_down: {
+    k_esc: main_window.pause_game,
+    k_up: game_scene.move_up,
+    k_down: game_scene.move_down,
+    k_left: game_scene.move_left,
+    k_right: game_scene.move_right
+  }
 }
