@@ -28,23 +28,30 @@ class MainWindow(Window):
 
     def add_widget(self, widget, id):
         """Add child widget."""
+        def wrapper():
+            self.set_layout(id)
+        setattr(self, id, wrapper)
+
         self.layouts[id] = widget
         if not self.widgets or id == self.default_layout_name:
             super().add_widget(self.layouts[id])
 
+    def set_layout(self, name):
+        super().add_widget(self.layouts[name])
+
     def pause_game(self):
-        super().add_widget(self.layouts["pause_menu"])
+        self.set_layout("pause_menu")
 
     def continue_game(self):
-        super().add_widget(self.layouts["game_scene"])
+        self.set_layout("game_scene")
 
     def open_main_menu(self):
-        super().add_widget(self.layouts["main_menu"])
+        self.set_layout("main_menu")
 
     def open_evolution_menu(self):
-        super().add_widget(self.layouts["evolution_menu"])
+        self.set_layout("evolution_menu")
 
     def start_new_game(self):
-        super().add_widget(self.layouts["game_scene"])
+        self.set_layout("game_scene")
 
 # TODO Implement switching between layouts without additional methods
