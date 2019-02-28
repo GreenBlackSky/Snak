@@ -7,8 +7,9 @@ from gamescene import GameScene
 
 
 if __name__ == "__main__":
-    Loader.register_widget("MainWindow", MainWindow)
-    Loader.register_widget("GameScene", GameScene)
+    loader = Loader()
+    loader.register_widget("MainWindow", MainWindow)
+    loader.register_widget("GameScene", GameScene)
     path = sys.argv[1] if len(sys.argv) > 1 else "cfg/menu.yaml"
-    main_window = Loader.load_yaml(path)
+    main_window = loader.load_yaml(path)
     main_window.exec()
