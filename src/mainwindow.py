@@ -1,6 +1,6 @@
 """Module contains MainWindow of app."""
 
-from MWidgets import Window
+from mwidgets import Window
 
 
 class MainWindow(Window):

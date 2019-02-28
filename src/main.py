@@ -1,7 +1,7 @@
 """Executive module of game."""
 
 import sys
-from MWidgets import Loader
+from mwidgets import Loader
 from mainwindow import MainWindow
 from gamescene import GameScene
 

@@ -1,6 +1,6 @@
 """Module contains scene for playing Snak."""
 
-from MWidgets import Scene, Widget, Event, ValueEvent, Color, ColorRole
+from mwidgets import Scene, Widget, Event, ValueEvent, Color, ColorRole
 from game import Game
 
 
