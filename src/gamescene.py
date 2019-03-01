@@ -44,7 +44,6 @@ class GameScene(Scene):
             "Closed": CloseGameEvent,
             "New_score": UpdateScoreEvent
         }
-        self.__set_triggers()
         self.triggers = {
             **self.triggers,
             "reset": self.reset,
