@@ -1,114 +1,136 @@
 {
-  id: main_window,
   gui: pygame,
-  type: MainWindow,
+  id: main_window,
+  type: Window,
   rect: [0, 0, 800, 400],
-  layout: main_menu,
   children: [
     {
-      id: pause_menu,
-      type: Layout,
-      rect: [0, 0, 1, 1],
+      id: menu_holder,
+      type: TabWidget,
       children: [
         {
-          id: continue_game_button,
-          type: Button,
-          rect: [0.2, 0, 0.2, 0.2],
-          text: "Continue",
-          clicked: main_window.game_scene
+          id: pause_menu,
+          type: Layout,
+          children: [
+            {
+              id: continue_game_button,
+              type: Button,
+              rect: [0.2, 0, 0.2, 0.2],
+              text: "Continue",
+              clicked: menu_holder.game_scene
+            },
+            {
+              id: start_new_game_button,
+              type: Button,
+              rect: [0.2, 0.2, 0.2, 0.2],
+              text: "Restart",
+              clicked: "menu_holder.game_scene, game_scene.reset"
+            },
+            {
+              id: settings_button,
+              type: Button,
+              rect: [0.2, 0.4, 0.2, 0.2],
+              text: "Settings",
+              clicked: menu_holder.settings_menu
+            },
+            {
+              id: main_menu_from_pause_button,
+              type: Button,
+              rect: [0.2, 0.6, 0.2, 0.2],
+              text: "Back",
+              clicked: menu_holder.main_menu
+            }
+          ]
         },
         {
-          id: start_new_game_button,
-          type: Button,
-          rect: [0.2, 0.2, 0.2, 0.2],
-          text: "Restart",
-          clicked: "main_window.game_scene, game_scene.reset"
+          id: settings_menu,
+          type: Layout,
+          children: [
+            {
+              id: pause_menu_from_settings_button,
+              type: Button,
+              rect: [0.2, 0, 0.2, 0.2],
+              text: "Back",
+              clicked: menu_holder.pause_menu
+            },
+          ]
         },
         {
-          id: main_menu_from_pause_button,
-          type: Button,
-          rect: [0.2, 0.4, 0.2, 0.2],
-          text: "Back",
-          clicked: main_window.main_menu
-        }
-      ]
-    },
-    {
-      id: evolution_menu,
-      type: Layout,
-      rect: [0, 0, 1, 1],
-      children: [
-        {
-          id: start_evolution_button,
-          type: Button,
-          rect: [0.2, 0, 0.2, 0.2],
-          text: "Start",
-          active: 0
+          id: evolution_menu,
+          type: Layout,
+          children: [
+            {
+              id: start_evolution_button,
+              type: Button,
+              rect: [0.2, 0, 0.2, 0.2],
+              text: "Start",
+              active: 0
+            },
+            {
+              id: pause_evolution_button,
+              type: Button,
+              rect: [0.2, 0.2, 0.2, 0.2],
+              text: "Pause",
+              active: 0
+            },
+            {
+              id: watch_button,
+              type: Button,
+              rect: [0.2, 0.4, 0.2, 0.2],
+              text: "Watch",
+              active: 0
+            },
+            {
+              id: main_menu_from_evolution_button,
+              type: Button,
+              rect: [0.2, 0.6, 0.2, 0.2],
+              text: "Back",
+              clicked: menu_holder.main_menu
+            }
+          ]
         },
         {
-          id: pause_evolution_button,
-          type: Button,
-          rect: [0.2, 0.2, 0.2, 0.2],
-          text: "Pause",
-          active: 0
+          id: game_scene,
+          type: GameScene,
+          cell_size: 10,
+          fps: 10,
+          
+          children: [
+            {
+              id: score_label,
+              type: Label,
+              rect: [0.4, 0, 0.2, 0.4],
+              text: "0"
+            }
+          ],
+          Closed: menu_holder.main_menu,
+          New_score: score_label.set_text
         },
         {
-          id: watch_button,
-          type: Button,
-          rect: [0.2, 0.4, 0.2, 0.2],
-          text: "Watch",
-          active: 0
-        },
-        {
-          id: main_menu_from_evolution_button,
-          type: Button,
-          rect: [0.2, 0.6, 0.2, 0.2],
-          text: "Back",
-          clicked: main_window.main_menu
-        }
-      ]
-    },
-    {
-      id: game_scene,
-      type: GameScene,
-      cell_size: 10,
-      fps: 10,
-      rect: [0, 0, 1, 1],
-      children: [
-        {
-          id: score_label,
-          type: Label,
-          rect: [0.4, 0, 0.2, 0.4],
-          text: "0"
-        }
-      ],
-      Closed: main_window.main_menu,
-      New_score: score_label.set_text
-    },
-    {
-      id: main_menu,
-      type: Layout,
-      rect: [0, 0, 1, 1],
-      children: [
-        {
-          id: new_game_button,
-          type: Button,
-          rect: [0.4, 0.2, 0.2, 0.2],
-          text: "START",
-          clicked: "main_window.game_scene, game_scene.reset"
-        },
-        {
-          id: open_evolution_menu_button,
-          type: Button,
-          rect: [0.4, 0.6, 0.2, 0.2],
-          text: "EVOLVE",
-          clicked: main_window.evolution_menu
+          id: main_menu,
+          type: Layout,
+          children: [
+            {
+              id: new_game_button,
+              type: Button,
+              rect: [0.4, 0.2, 0.2, 0.2],
+              text: "START",
+              clicked: "menu_holder.game_scene, game_scene.reset"
+            },
+            {
+              id: open_evolution_menu_button,
+              type: Button,
+              rect: [0.4, 0.6, 0.2, 0.2],
+              text: "EVOLVE",
+              clicked: menu_holder.evolution_menu
+            }
+          ]
         }
       ]
     }
   ],
   key_down: {
-    k_esc: main_window.pause_menu,
+    k_esc: menu_holder.pause_menu,
     k_up: game_scene.move_up,
     k_down: game_scene.move_down,
     k_left: game_scene.move_left,

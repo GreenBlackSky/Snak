@@ -4,12 +4,6 @@ from mwidgets import Scene, Widget, Event, ValueEvent, Color, ColorRole
 from game import Game
 
 
-class PauseGameEvent(Event):
-    """Event is generated to pause current game."""
-
-    pass
-
-
 class CloseGameEvent(Event):
     """Create this event to finish game."""
 
@@ -56,7 +50,7 @@ class GameScene(Scene):
     @classmethod
     def from_config(cls, config, parent):
         """Load scene from config."""
-        ret = cls(config["rect"],
+        ret = cls(config.get("rect", [0, 0, 1, 1]),
                   parent,
                   config["cell_size"],
                   config["fps"])
