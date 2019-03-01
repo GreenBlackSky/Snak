@@ -47,12 +47,23 @@
           type: Layout,
           children: [
             {
+              id: dummy_label,
+              type: Label,
+              rect: [0.4, 0.1, 0.175, 0.05],
+              text: "Setting:"
+            },
+            {
+              id: dummy_checkbox,
+              type: CheckBox,
+              rect: [0.575, 0.1, 0.025, 0.05],
+            },
+            {
               id: pause_menu_from_settings_button,
               type: Button,
-              rect: [0.2, 0, 0.2, 0.2],
+              rect: [0.4, 0.8, 0.2, 0.2],
               text: "Back",
               clicked: menu_holder.pause_menu
-            },
+            }
           ]
         },
         {
@@ -92,9 +103,7 @@
         {
           id: game_scene,
           type: GameScene,
-          cell_size: 10,
           fps: 10,
-          
           children: [
             {
               id: score_label,

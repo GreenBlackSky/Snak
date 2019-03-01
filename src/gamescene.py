@@ -19,13 +19,13 @@ class UpdateScoreEvent(ValueEvent):
 class GameScene(Scene):
     """Visual representation of game."""
 
-    def __init__(self, rect, parent, cell_size, fps):
+    def __init__(self, rect, parent, fps):
         """Create new scene with, cell size and parent."""
         super().__init__(rect, parent)
         *_, w, h = self.rect
-        self.cell_size = cell_size
+        self.cell_side = 10
 
-        self.game = Game(w//self.cell_size, h//self.cell_size)
+        self.game = Game(w//self.cell_side, h//self.cell_side)
 
         self.speed = 40//fps
         if self.speed == 0:
@@ -44,7 +44,10 @@ class GameScene(Scene):
             "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
             "move_right": lambda: self.game.snake_mind.desire((1, 0)),
             "move_up": lambda: self.game.snake_mind.desire((0, -1)),
-            "move_down": lambda: self.game.snake_mind.desire((0, 1))
+            "move_down": lambda: self.game.snake_mind.desire((0, 1)),
+            "big_field": lambda: self.set_cell_side(5),
+            "average_field": lambda: self.set_cell_side(10),
+            "small_field": lambda: self.set_cell_side(20)
         }
 
     @classmethod
@@ -52,7 +55,6 @@ class GameScene(Scene):
         """Load scene from config."""
         ret = cls(config.get("rect", [0, 0, 1, 1]),
                   parent,
-                  config["cell_size"],
                   config["fps"])
         return ret
 
@@ -85,26 +87,30 @@ class GameScene(Scene):
         """Redraw scene."""
         super().redraw()
 
-        w, h = self.cell_size, self.cell_size
+        w, h = self.cell_side, self.cell_side
         x, y = self.game.food_pos
-        self.draw_rect((x*self.cell_size, y*self.cell_size, w, h),
+        self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
                        Color.RED)
 
         for cell in self.game.snake.cells:
             x, y = cell
-            self.draw_rect((x*self.cell_size, y*self.cell_size, w, h),
+            self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
                            Color.GRAY)
 
         x, y = self.game.snake.head
-        self.draw_rect((x*self.cell_size, y*self.cell_size, w, h),
+        self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
                        Color.WHITE)
 
     def reset(self):
         """Drop game and start new one."""
         *_, w, h = self.rect
-        self.game = Game(w//self.cell_size, h//self.cell_size)
+        self.game = Game(w//self.cell_side, h//self.cell_side)
         self.game.score = 0
         self.emmit_event(UpdateScoreEvent, ["0"])
+
+    def set_cell_side(self, size):
+        """Chenge side of cell of a field."""
+        self.cell_side = size
 
 # TODO Move colors into config
 # TODO Make snake and food and other objects children of scene
