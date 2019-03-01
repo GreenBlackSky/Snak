@@ -44,13 +44,14 @@ class GameScene(Scene):
             "Closed": CloseGameEvent,
             "New_score": UpdateScoreEvent
         }
+        self.__set_triggers()
         self.triggers = {
             **self.triggers,
             "reset": self.reset,
-            "move_left": self.move_left,
-            "move_right": self.move_right,
-            "move_up": self.move_up,
-            "move_down": self.move_down
+            "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
+            "move_right": lambda: self.game.snake_mind.desire((1, 0)),
+            "move_up": lambda: self.game.snake_mind.desire((0, -1)),
+            "move_down": lambda: self.game.snake_mind.desire((0, 1))
         }
 
     @classmethod
@@ -69,18 +70,6 @@ class GameScene(Scene):
             palette = child.palette[Widget.State.Active]
             palette[ColorRole.Foreground] = Color.BLACK
             palette[ColorRole.Text] = Color.DARK_GRAY
-
-    def move_left(self):
-        self.game.snake_mind.desire((-1, 0))
-
-    def move_right(self):
-        self.game.snake_mind.desire((1, 0))
-
-    def move_up(self):
-        self.game.snake_mind.desire((0, -1))
-
-    def move_down(self):
-        self.game.snake_mind.desire((0, 1))
 
     def update(self, events):
         """Update situation in game."""

@@ -6,27 +6,6 @@
   layout: main_menu,
   children: [
     {
-      id: main_menu,
-      type: Layout,
-      rect: [0, 0, 1, 1],
-      children: [
-        {
-          id: new_game_button,
-          type: Button,
-          rect: [0.4, 0.2, 0.2, 0.2],
-          text: "START",
-          clicked: "main_window.start_new_game, game_scene.reset"
-        },
-        {
-          id: open_evolution_menu_button,
-          type: Button,
-          rect: [0.4, 0.6, 0.2, 0.2],
-          text: "EVOLVE",
-          clicked: main_window.open_evolution_menu
-        }
-      ]
-    },
-    {
       id: pause_menu,
       type: Layout,
       rect: [0, 0, 1, 1],
@@ -36,21 +15,21 @@
           type: Button,
           rect: [0.2, 0, 0.2, 0.2],
           text: "Continue",
-          clicked: main_window.continue_game
+          clicked: main_window.game_scene
         },
         {
           id: start_new_game_button,
           type: Button,
           rect: [0.2, 0.2, 0.2, 0.2],
           text: "Restart",
-          clicked: "main_window.start_new_game, game_scene.reset"
+          clicked: "main_window.game_scene, game_scene.reset"
         },
         {
           id: main_menu_from_pause_button,
           type: Button,
           rect: [0.2, 0.4, 0.2, 0.2],
           text: "Back",
-          clicked: main_window.open_main_menu
+          clicked: main_window.main_menu
         }
       ]
     },
@@ -85,7 +64,7 @@
           type: Button,
           rect: [0.2, 0.6, 0.2, 0.2],
           text: "Back",
-          clicked: main_window.open_main_menu
+          clicked: main_window.main_menu
         }
       ]
     },
@@ -103,12 +82,33 @@
           text: "0"
         }
       ],
-      Closed: main_window.open_main_menu,
+      Closed: main_window.main_menu,
       New_score: score_label.set_text
+    },
+    {
+      id: main_menu,
+      type: Layout,
+      rect: [0, 0, 1, 1],
+      children: [
+        {
+          id: new_game_button,
+          type: Button,
+          rect: [0.4, 0.2, 0.2, 0.2],
+          text: "START",
+          clicked: "main_window.game_scene, game_scene.reset"
+        },
+        {
+          id: open_evolution_menu_button,
+          type: Button,
+          rect: [0.4, 0.6, 0.2, 0.2],
+          text: "EVOLVE",
+          clicked: main_window.evolution_menu
+        }
+      ]
     }
   ],
   key_down: {
-    k_esc: main_window.pause_game,
+    k_esc: main_window.pause_menu,
     k_up: game_scene.move_up,
     k_down: game_scene.move_down,
     k_left: game_scene.move_left,
