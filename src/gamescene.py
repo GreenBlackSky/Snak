@@ -1,6 +1,9 @@
 """Module contains scene for playing Snak."""
 
-from mwidgets import Scene, Widget, Event, ValueEvent, Color, ColorRole
+from mwidgets import Scene, Widget, trigger, \
+                     Event, ValueEvent, \
+                     Color, ColorRole
+
 from game import Game
 
 
@@ -40,7 +43,6 @@ class GameScene(Scene):
         }
         self.triggers = {
             **self.triggers,
-            "reset": self.reset,
             "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
             "move_right": lambda: self.game.snake_mind.desire((1, 0)),
             "move_up": lambda: self.game.snake_mind.desire((0, -1)),
@@ -66,6 +68,7 @@ class GameScene(Scene):
             palette[ColorRole.Foreground] = Color.BLACK
             palette[ColorRole.Text] = Color.DARK_GRAY
 
+    @trigger
     def update(self, events):
         """Update situation in game."""
         self.stored_events += events
@@ -83,6 +86,7 @@ class GameScene(Scene):
         if self.game.snake.is_selfcrossed():
             self.emmit_event(CloseGameEvent)
 
+    @trigger
     def redraw(self):
         """Redraw scene."""
         super().redraw()
@@ -101,6 +105,7 @@ class GameScene(Scene):
         self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
                        Color.WHITE)
 
+    @trigger
     def reset(self):
         """Drop game and start new one."""
         *_, w, h = self.rect
@@ -108,8 +113,10 @@ class GameScene(Scene):
         self.game.score = 0
         self.emmit_event(UpdateScoreEvent, ["0"])
 
+    @trigger
     def set_cell_side(self, size):
         """Chenge side of cell of a field."""
         self.cell_side = size
 
 # TODO Make snake and food and other objects children of scene
+# TODO Remove 40, add method for setting speed
