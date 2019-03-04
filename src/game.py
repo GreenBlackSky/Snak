@@ -43,13 +43,17 @@ class Game:
         self.width, self.height = width, height
         self.snake_mind = Controller()
         self.snake = Game.Snake((self.width/2, self.height/2))
+        self.obstacles = set()
         self.food_pos = self._random_pos()
-        self.obstacles = {self._random_pos() for _ in range(width*height//100)}
+        for _ in range(width*height//100):
+            self.obstacles.add(self._random_pos())
         self.score = 0
 
     def _random_pos(self):
         ret = self.snake.head
-        while ret in self.snake.cells or ret == self.snake.tail:
+        while ret in self.snake.cells \
+            or ret == self.snake.tail \
+                or ret in self.obstacles:
             ret = (randint(0, self.width - 1), randint(0, self.height - 1))
         return ret
 
