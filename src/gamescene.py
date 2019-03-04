@@ -83,7 +83,7 @@ class GameScene(Scene):
         self.game.make_move()
         if self.game.score != score:
             self.emmit_event(UpdateScoreEvent, [str(self.game.score)])
-        if self.game.snake.is_selfcrossed():
+        if self.game.snake_collided():
             self.emmit_event(CloseGameEvent)
 
     @trigger
@@ -95,6 +95,11 @@ class GameScene(Scene):
         x, y = self.game.food_pos
         self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
                        Color.RED)
+
+        for cell in self.game.obstacles:
+            x, y = cell
+            self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
+                           Color.DARK_CYAN)
 
         for cell in self.game.snake.cells:
             x, y = cell

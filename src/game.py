@@ -43,16 +43,17 @@ class Game:
         self.width, self.height = width, height
         self.snake_mind = Controller()
         self.snake = Game.Snake((self.width/2, self.height/2))
-        self.food_pos = self.__random_pos()
+        self.food_pos = self._random_pos()
+        self.obstacles = {self._random_pos() for _ in range(width*height//100)}
         self.score = 0
 
-    def __random_pos(self):
+    def _random_pos(self):
         ret = self.snake.head
         while ret in self.snake.cells or ret == self.snake.tail:
             ret = (randint(0, self.width - 1), randint(0, self.height - 1))
         return ret
 
-    def __get_next_move(self):
+    def _get_next_move(self):
         nx, ny = self.snake.next_pos(self.snake_mind.decision())
         if nx < 0:
             nx = self.width
@@ -66,12 +67,17 @@ class Game:
 
     def make_move(self):
         """Update situation on field."""
-        next_pos = self.__get_next_move()
+        next_pos = self._get_next_move()
         if self.food_pos == next_pos:
             self.snake.move_and_eat(next_pos)
-            self.food_pos = self.__random_pos()
+            self.food_pos = self._random_pos()
             self.score += 1
         else:
             self.snake.move(next_pos)
 
-# TODO Add some obstacles
+    def snake_collided(self):
+        """Check if snake has collided with obstacle."""
+        return self.snake.head in self.obstacles \
+            or self.snake.is_selfcrossed()
+
+# TODO Create a number of game configurations
