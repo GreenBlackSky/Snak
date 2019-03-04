@@ -112,5 +112,4 @@ class GameScene(Scene):
         """Chenge side of cell of a field."""
         self.cell_side = size
 
-# TODO Move colors into config
 # TODO Make snake and food and other objects children of scene
