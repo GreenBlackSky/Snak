@@ -36,13 +36,13 @@ class GameScene(Scene):
         self.update_count = 0
         self.stored_events = list()
 
-        self.events = {
-            **self.events,
+        self._events = {
+            **self._events,
             "Closed": CloseGameEvent,
             "New_score": UpdateScoreEvent
         }
-        self.triggers = {
-            **self.triggers,
+        self._triggers = {
+            **self._triggers,
             "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
             "move_right": lambda: self.game.snake_mind.desire((1, 0)),
             "move_up": lambda: self.game.snake_mind.desire((0, -1)),
