@@ -59,6 +59,11 @@
               rect: [0.575, 0.1, 0.025, 0.05],
             },
             {
+              id: dummy_slider,
+              type: Slider,
+              rect: [0.4, 0.15, 0.2, 0.05]
+            },
+            {
               id: pause_menu_from_settings_button,
               type: Button,
               rect: [0.4, 0.8, 0.2, 0.2],
