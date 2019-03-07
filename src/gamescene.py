@@ -22,6 +22,12 @@ class UpdateScoreEvent(ValueEvent):
 class GameScene(Scene):
     """Visual representation of game."""
 
+    _events = {
+        **Scene._events,
+        "Closed": CloseGameEvent,
+        "New_score": UpdateScoreEvent
+    }
+
     def __init__(self, rect, parent, fps):
         """Create new scene with, cell size and parent."""
         super().__init__(rect, parent)
@@ -36,11 +42,6 @@ class GameScene(Scene):
         self.update_count = 0
         self.stored_events = list()
 
-        self._events = {
-            **self._events,
-            "Closed": CloseGameEvent,
-            "New_score": UpdateScoreEvent
-        }
         self._triggers = {
             **self._triggers,
             "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
@@ -82,9 +83,9 @@ class GameScene(Scene):
         score = self.game.score
         self.game.make_move()
         if self.game.score != score:
-            self.emmit_event(UpdateScoreEvent, [str(self.game.score)])
+            self.emmit_event(UpdateScoreEvent(self.game.score))
         if self.game.snake_collided():
-            self.emmit_event(CloseGameEvent)
+            self.emmit_event(CloseGameEvent())
 
     @trigger
     def redraw(self):
@@ -116,7 +117,7 @@ class GameScene(Scene):
         *_, w, h = self.rect
         self.game = Game(w//self.cell_side, h//self.cell_side)
         self.game.score = 0
-        self.emmit_event(UpdateScoreEvent, ["0"])
+        self.emmit_event(UpdateScoreEvent(0))
 
     @trigger
     def set_cell_side(self, size):
