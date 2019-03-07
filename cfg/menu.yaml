@@ -50,7 +50,7 @@
               id: dummy_label,
               type: Label,
               rect: [0.4, 0.1, 0.175, 0.05],
-              text: "Setting:",
+              text: "12",
               text_size: 0.9
             },
             {
@@ -61,7 +61,10 @@
             {
               id: dummy_slider,
               type: Slider,
-              rect: [0.4, 0.15, 0.2, 0.05]
+              rect: [0.4, 0.15, 0.2, 0.05],
+              max: 14,
+              val: 12,
+              changed: dummy_label.set_text
             },
             {
               id: pause_menu_from_settings_button,
