@@ -4,7 +4,7 @@ Controller is a bridge between app and game-logic.
 """
 
 
-class Controller:
+class BaseController:
     """Bridge class, allows user to control snake."""
 
     def __init__(self):
@@ -15,9 +15,17 @@ class Controller:
         self.direction = (0, -1)
         self.desired_direction = self.direction
 
-    def desire(self, direction):
-        """Set next move."""
-        self.desired_direction = direction
+    def move_up(self):
+        self.desired_direction = (0, -1)
+
+    def move_down(self):
+        self.desired_direction = (0, 1)
+
+    def move_left(self):
+        self.desired_direction = (-1, 0)
+
+    def move_right(self):
+        self.desired_direction = (1, 0)
 
     def decision(self):
         """Get next move."""

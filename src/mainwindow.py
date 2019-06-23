@@ -1,22 +1,48 @@
-from mwidgets import Window, TabWidget
+"""MainWindow class."""
+
+from tkinter import Tk, BOTH, StringVar
+from mainmenuframe import MainMenuFrame
+from gameframe import GameFrame
+from aiframe import AIFrame
+from youlostframe import YouLostFrame
 
 
-class MainWindow(Window):
-    def __init__(self, gui):
-        super().__init__(gui)
-        self._widget = None
-        TabWidget((0, 0, 1, 1), self)
-        self._triggers = {
-            **self._triggers,
-            "pause_menu": lambda: self._widget.set_widget(0),
-            "settings_menu": lambda: self._widget.set_widget(1),
-            "evolution_menu": lambda: self._widget.set_widget(2),
-            "game_scene": lambda: self._widget.set_widget(3),
-            "main_menu": lambda: self._widget.set_widget(4)
-        }
+class MainWindow(Tk):
+    """MainWindow contains all widgets in app."""
 
-    def add_widget(self, widget):
-        if self._widget:
-            self._widget.add_widget(widget)
-        else:
-            self._widget = widget
+    def __init__(self):
+        """Create MainWindow."""
+        super().__init__()
+        score = StringVar()
+
+        self.title("Snak")
+        self._main_window_frame = MainMenuFrame(self)
+        self._game_frame = GameFrame(self, score)
+        self._ai_frame = AIFrame(self)
+        self._you_lost_frame = YouLostFrame(self, score)
+
+        self.main_menu()
+
+    def main_menu(self):
+        """Set MainMenuFrame on top of app."""
+        for widget in self.pack_slaves():
+            widget.pack_forget()
+        self._main_window_frame.pack(fill=BOTH, expand=True)
+
+    def game(self):
+        """Set GameFrame on top of app."""
+        for widget in self.pack_slaves():
+            widget.pack_forget()
+        self._game_frame.pack(fill=BOTH, expand=True)
+
+    def ai(self):
+        """Set AIFrame on top of app."""
+        for widget in self.pack_slaves():
+            widget.pack_forget()
+        self._ai_frame.pack(fill=BOTH, expand=True)
+
+    def you_lost(self):
+        """Set YouLostFrame on top of app."""
+        for widget in self.pack_slaves():
+            widget.pack_forget()
+        self._you_lost_frame.pack(fill=BOTH, expand=True)

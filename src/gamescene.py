@@ -1,127 +1,128 @@
-"""Module contains scene for playing Snak."""
+"""Tetris scene."""
 
-from mwidgets import Scene, Widget, trigger, \
-                     Event, ValueEvent, \
-                     Color, ColorRole
+
+from tkinter import Canvas
 
 from game import Game
+from basecontroller import BaseController
 
 
-class CloseGameEvent(Event):
-    """Create this event to finish game."""
+class GameScene(Canvas):
+    """Visual representation of game.
 
-    pass
+    Needs GameFrame as master.
+    """
 
+    def __init__(self, master, cell_size=10, step=50, **kargs):
+        """Create GameScene."""
+        super().__init__(master, **kargs)
+        self._width = 40
+        self._height = 20
+        self._cell_size = cell_size
+        self._step = step
 
-class UpdateScoreEvent(ValueEvent):
-    """Create this event when score is updated."""
+        self.config(
+            width=(self._width*self._cell_size),
+            height=(self._height*self._cell_size),
+            background='white'
+        )
 
-    pass
+        for y in range(self._height):
+            for x in range(self._width):
+                self.create_rectangle(
+                    x*self._cell_size,
+                    y*self._cell_size,
+                    x*self._cell_size + self._cell_size,
+                    y*self._cell_size + self._cell_size
+                )
 
+        self._controller = BaseController()
+        self._game = Game(
+            self._controller,
+            self._width,
+            self._height
+        )
 
-class GameScene(Scene):
-    """Visual representation of game."""
+        self.bind("<Key-Up>", lambda event: self._controller.move_up())
+        self.bind("<Key-Down>", lambda event: self._controller.move_down())
+        self.bind("<Key-Left>", lambda event: self._controller.move_left())
+        self.bind("<Key-Right>", lambda event: self._controller.move_right())
+        self._run = False
+        self.update()
 
-    _events = {
-        **Scene._events,
-        "Closed": CloseGameEvent,
-        "New_score": UpdateScoreEvent
-    }
+    def update(self):
+        """Update GameScene.
 
-    def __init__(self, rect, parent, fps):
-        """Create new scene with, cell size and parent."""
-        super().__init__(rect, parent)
-        *_, w, h = self.rect
-        self.cell_side = 10
-
-        self.game = Game(w//self.cell_side, h//self.cell_side)
-
-        self.speed = 40//fps
-        if self.speed == 0:
-            raise "Max fps value is 40"
-        self.update_count = 0
-        self.stored_events = list()
-
-        self._triggers = {
-            **self._triggers,
-            "move_left": lambda: self.game.snake_mind.desire((-1, 0)),
-            "move_right": lambda: self.game.snake_mind.desire((1, 0)),
-            "move_up": lambda: self.game.snake_mind.desire((0, -1)),
-            "move_down": lambda: self.game.snake_mind.desire((0, 1)),
-            "big_field": lambda: self.set_cell_side(5),
-            "average_field": lambda: self.set_cell_side(10),
-            "small_field": lambda: self.set_cell_side(20)
-        }
-
-    @classmethod
-    def from_config(cls, config, parent):
-        """Load scene from config."""
-        ret = cls(config.get("rect", [0, 0, 1, 1]),
-                  parent,
-                  config["fps"])
-        return ret
-
-    def add_widget(self, child):
-        """Override parents add_widget to set score label."""
-        super().add_widget(child)
-        palette = child.palette[Widget.State.Active]
-        palette[ColorRole.Foreground] = Color.BLACK
-        palette[ColorRole.Text] = Color.DARK_GRAY
-
-    @trigger
-    def update(self, events):
-        """Update situation in game."""
-        self.stored_events += events
-        self.update_count = (self.update_count + 1) % self.speed
-        if self.update_count != 0:
+        Schedules call of itself.
+        """
+        if not self._run:
+            self.after(self._step, self.update)
             return
 
-        super().update(self.stored_events)
-        self.stored_events.clear()
+        if self._game.snake_collided():
+            self.after(self._step, self.update)
+            self.master.master.you_lost()
+            return
 
-        score = self.game.score
-        self.game.make_move()
-        if self.game.score != score:
-            self.emmit_event(UpdateScoreEvent(self.game.score))
-        if self.game.snake_collided():
-            self.emmit_event(CloseGameEvent())
+        self._game.update()
+        self.master.score = self._game.score
+        self._clear()
+        self._draw_filled_cells()
 
-    @trigger
-    def redraw(self):
-        """Redraw scene."""
-        super().redraw()
+        self.after(self._step, self.update)
 
-        w, h = self.cell_side, self.cell_side
-        x, y = self.game.food_pos
-        self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
-                       Color.RED)
+    def restart_game(self):
+        """Restart game.
 
-        for cell in self.game.obstacles:
-            x, y = cell
-            self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
-                           Color.DARK_CYAN)
+        New game is held on pause.
+        """
+        self._game.restart()
+        self._run = False
+        self._clear()
 
-        for cell in self.game.snake.cells:
-            x, y = cell
-            self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
-                           Color.GRAY)
+    def _clear(self):
+        for item in self.find_all():
+            self.itemconfig(item, fill='black')
 
-        x, y = self.game.snake.head
-        self.draw_rect((x*self.cell_side, y*self.cell_side, w, h),
-                       Color.WHITE)
+    def _draw_filled_cells(self):
+        for x, y in self._game.snake.cells:
+            item = self.find_closest(
+                (x + 0.5)*self._cell_size,
+                (y + 0.5)*self._cell_size
+            )
+            self.itemconfig(item, fill='white')
 
-    @trigger
-    def reset(self):
-        """Drop game and start new one."""
-        *_, w, h = self.rect
-        self.game = Game(w//self.cell_side, h//self.cell_side)
-        self.game.score = 0
-        self.emmit_event(UpdateScoreEvent(0))
+        x, y = self._game.snake.head
+        self.itemconfig(
+            self.find_closest(
+                (x + 0.5)*self._cell_size,
+                (y + 0.5)*self._cell_size
+            ),
+            fill='red'
+        )
 
-    @trigger
-    def set_cell_side(self, size):
-        """Chenge side of cell of a field."""
-        self.cell_side = size
+        x, y = self._game.food_pos
+        self.itemconfig(
+            self.find_closest(
+                (x + 0.5)*self._cell_size,
+                (y + 0.5)*self._cell_size
+            ),
+            fill='green'
+        )
 
-# TODO Make snake and food and other objects children of scene
-# TODO Remove 40, add method for setting speed
+    @property
+    def run(self):
+        """Check if game is running.
+
+        If it is not, update method still schedules self-calls,
+        but do nothing aside of it.
+        """
+        return self._run
+
+    @run.setter
+    def run(self, value):
+        """Make game stop updating itself or run again."""
+        self._run = value
+
+# TODO create TkController
+# TODO control speed of movement

@@ -2,7 +2,6 @@
 
 
 from random import randint
-from controller import Controller
 
 
 class Game:
@@ -38,22 +37,18 @@ class Game:
             self.tail = self.cells[-1]
             self.cells.pop()
 
-    def __init__(self, width, height):
+    def __init__(self, controller, width, height):
         """Create field for snake with given sizes."""
         self.width, self.height = width, height
-        self.snake_mind = Controller()
-        self.snake = Game.Snake((self.width/2, self.height/2))
-        self.obstacles = set()
-        self.food_pos = self._random_pos()
-        for _ in range(width*height//100):
-            self.obstacles.add(self._random_pos())
-        self.score = 0
+        self.snake_mind = controller
+        self.snake = None
+        self.food_pos = None
+        self.restart()
 
     def _random_pos(self):
         ret = self.snake.head
         while ret in self.snake.cells \
-            or ret == self.snake.tail \
-                or ret in self.obstacles:
+            or ret == self.snake.tail:
             ret = (randint(0, self.width - 1), randint(0, self.height - 1))
         return ret
 
@@ -69,7 +64,7 @@ class Game:
             ny = 0
         return nx, ny
 
-    def make_move(self):
+    def update(self):
         """Update situation on field."""
         next_pos = self._get_next_move()
         if self.food_pos == next_pos:
@@ -81,7 +76,10 @@ class Game:
 
     def snake_collided(self):
         """Check if snake has collided with obstacle."""
-        return self.snake.head in self.obstacles \
-            or self.snake.is_selfcrossed()
+        return self.snake.is_selfcrossed()
 
-# TODO Create a number of game configurations
+    def restart(self):
+        """Restart game"""
+        self.snake = Game.Snake((self.width/2, self.height/2))
+        self.food_pos = self._random_pos()
+        self.score = 0
