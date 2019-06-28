@@ -1,6 +1,6 @@
 """MainMenuFrame class."""
 
-from tkinter import Frame, Button, Listbox, BOTH
+from tkinter import Frame, Button, BOTH
 
 
 class MainMenuFrame(Frame):

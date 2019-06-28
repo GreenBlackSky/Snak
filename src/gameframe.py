@@ -1,13 +1,15 @@
 """GameFrame class."""
 
 from tkinter import Frame, Label, Button
+
+from game import Game
 from gamescene import GameScene
 
 
 class GameFrame(Frame):
     """Frame contains game field to play on."""
 
-    def __init__(self, app, score):
+    def __init__(self, app, controller, score):
         """Create GameFrame."""
         super().__init__(app)
         self._score = score
@@ -22,7 +24,11 @@ class GameFrame(Frame):
             takefocus=False
         ).grid(column=2, row=0)
 
-        self._game_scene = GameScene(self)
+        width = 40
+        height = 20
+        game = Game(controller, width, height)
+
+        self._game_scene = GameScene(self, game)
         self._game_scene.grid(column=0, columnspan=3, row=1)
         self._game_scene.focus_force()
 

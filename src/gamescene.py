@@ -3,9 +3,6 @@
 
 from tkinter import Canvas
 
-from game import Game
-from basecontroller import BaseController
-
 
 class GameScene(Canvas):
     """Visual representation of game.
@@ -13,13 +10,13 @@ class GameScene(Canvas):
     Needs GameFrame as master.
     """
 
-    def __init__(self, master, cell_size=10, step=50, **kargs):
+    def __init__(self, master, game, **kargs):
         """Create GameScene."""
         super().__init__(master, **kargs)
-        self._width = 40
-        self._height = 20
-        self._cell_size = cell_size
-        self._step = step
+        self._width = kargs.get('width', 40)
+        self._height = kargs.get('height', 20)
+        self._cell_size = kargs.get('cell_size', 10)
+        self._step = kargs.get('step', 50)
 
         self.config(
             width=(self._width*self._cell_size),
@@ -35,18 +32,7 @@ class GameScene(Canvas):
                     x*self._cell_size + self._cell_size,
                     y*self._cell_size + self._cell_size
                 )
-
-        self._controller = BaseController()
-        self._game = Game(
-            self._controller,
-            self._width,
-            self._height
-        )
-
-        self.bind("<Key-Up>", lambda event: self._controller.move_up())
-        self.bind("<Key-Down>", lambda event: self._controller.move_down())
-        self.bind("<Key-Left>", lambda event: self._controller.move_left())
-        self.bind("<Key-Right>", lambda event: self._controller.move_right())
+        self._game = game
         self._run = False
         self.update()
 
@@ -76,6 +62,7 @@ class GameScene(Canvas):
 
         New game is held on pause.
         """
+        self._game.snake_mind.move_up()
         self._game.restart()
         self._run = False
         self._clear()

@@ -1,6 +1,8 @@
 """MainWindow class."""
 
 from tkinter import Tk, BOTH, StringVar
+
+from tkcontroller import TkController
 from mainmenuframe import MainMenuFrame
 from gameframe import GameFrame
 from aiframe import AIFrame
@@ -17,7 +19,7 @@ class MainWindow(Tk):
 
         self.title("Snak")
         self._main_window_frame = MainMenuFrame(self)
-        self._game_frame = GameFrame(self, score)
+        self._game_frame = GameFrame(self, TkController(self), score)
         self._ai_frame = AIFrame(self)
         self._you_lost_frame = YouLostFrame(self, score)
 
