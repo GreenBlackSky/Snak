@@ -12,25 +12,25 @@ class BaseController:
 
         Initial direction is up.
         """
-        self.direction = (0, -1)
-        self.desired_direction = self.direction
+        self._direction = (0, -1)
+        self._desired_direction = self._direction
 
     def move_up(self):
-        self.desired_direction = (0, -1)
+        self._desired_direction = (0, -1)
 
     def move_down(self):
-        self.desired_direction = (0, 1)
+        self._desired_direction = (0, 1)
 
     def move_left(self):
-        self.desired_direction = (-1, 0)
+        self._desired_direction = (-1, 0)
 
     def move_right(self):
-        self.desired_direction = (1, 0)
+        self._desired_direction = (1, 0)
 
     def decision(self):
         """Get next move."""
-        ndx, ndy = self.desired_direction
-        cdx, cdy = self.direction
+        ndx, ndy = self._desired_direction
+        cdx, cdy = self._direction
         if (ndx + cdx, ndy + cdy) != (0, 0):
-            self.direction = (ndx, ndy)
-        return self.direction
+            self._direction = (ndx, ndy)
+        return self._direction
