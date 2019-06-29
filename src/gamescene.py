@@ -10,13 +10,12 @@ class GameScene(Canvas):
     Needs GameFrame as master.
     """
 
-    def __init__(self, master, game, **kargs):
+    def __init__(self, master, **kargs):
         """Create GameScene."""
         super().__init__(master, **kargs)
         self._width = kargs.get('width', 40)
         self._height = kargs.get('height', 20)
         self._cell_size = kargs.get('cell_size', 10)
-        self._step = kargs.get('step', 50)
 
         self.config(
             width=(self._width*self._cell_size),
@@ -32,54 +31,21 @@ class GameScene(Canvas):
                     x*self._cell_size + self._cell_size,
                     y*self._cell_size + self._cell_size
                 )
-        self._game = game
-        self._run = False
-        self.update()
 
-    def update(self):
-        """Update GameScene.
-
-        Schedules call of itself.
-        """
-        if not self._run:
-            self.after(self._step, self.update)
-            return
-
-        if self._game.snake_collided():
-            self.after(self._step, self.update)
-            self.master.master.you_lost()
-            return
-
-        self._game.update()
-        self.master.score = self._game.score
-        self._clear()
-        self._draw_filled_cells()
-
-        self.after(self._step, self.update)
-
-    def restart_game(self):
-        """Restart game.
-
-        New game is held on pause.
-        """
-        self._game.snake_mind.move_up()
-        self._game.restart()
-        self._run = False
-        self._clear()
-
-    def _clear(self):
+    def clear(self):
         for item in self.find_all():
             self.itemconfig(item, fill='black')
 
-    def _draw_filled_cells(self):
-        for x, y in self._game.snake.cells:
+    def draw(self, game):
+        self.clear()
+        for x, y in game.snake_body:
             item = self.find_closest(
                 (x + 0.5)*self._cell_size,
                 (y + 0.5)*self._cell_size
             )
             self.itemconfig(item, fill='white')
 
-        x, y = self._game.snake.head
+        x, y = game.snake_head
         self.itemconfig(
             self.find_closest(
                 (x + 0.5)*self._cell_size,
@@ -88,7 +54,7 @@ class GameScene(Canvas):
             fill='red'
         )
 
-        x, y = self._game.food_pos
+        x, y = game.food_pos
         self.itemconfig(
             self.find_closest(
                 (x + 0.5)*self._cell_size,
@@ -96,20 +62,3 @@ class GameScene(Canvas):
             ),
             fill='green'
         )
-
-    @property
-    def run(self):
-        """Check if game is running.
-
-        If it is not, update method still schedules self-calls,
-        but do nothing aside of it.
-        """
-        return self._run
-
-    @run.setter
-    def run(self, value):
-        """Make game stop updating itself or run again."""
-        self._run = value
-
-# TODO create TkController
-# TODO control speed of movement

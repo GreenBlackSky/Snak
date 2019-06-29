@@ -1,6 +1,6 @@
 """GameFrame class."""
 
-from tkinter import Frame, Label, Button
+from tkinter import Frame, Label, Button, StringVar
 
 from game import Game
 from gamescene import GameScene
@@ -9,10 +9,16 @@ from gamescene import GameScene
 class GameFrame(Frame):
     """Frame contains game field to play on."""
 
-    def __init__(self, app, controller, score):
+    def __init__(self, app, controller, **kargs):
         """Create GameFrame."""
         super().__init__(app)
-        self._score = score
+
+        self._width = kargs.get('width', 40)
+        self._height = kargs.get('height', 20)
+        self._step = kargs.get('step', 50)
+        self._controller = controller
+
+        self._score = StringVar()
         self._score.set('0')
         Label(self, text='Score:').grid(column=0, row=0)
         Label(self, textvar=self._score).grid(column=1, row=0)
@@ -24,26 +30,38 @@ class GameFrame(Frame):
             takefocus=False
         ).grid(column=2, row=0)
 
-        width = 40
-        height = 20
-        game = Game(controller, width, height)
-
-        self._game_scene = GameScene(self, game)
+        self._game = Game(self._controller, self._width, self._height)
+        self._game_scene = GameScene(self)
         self._game_scene.grid(column=0, columnspan=3, row=1)
         self._game_scene.focus_force()
+        self._run = False
+        self.update()
 
-    @property
-    def score(self):
-        return self._score
+    def update(self):
+        """Update GameScene.
 
-    @score.setter
-    def score(self, val):
-        self._score.set(str(val))
+        Schedules call of itself.
+        """
+        if not self._run:
+            self.after(self._step, self.update)
+            return
+
+        if self._game.is_lost():
+            self.after(self._step, self.update)
+            self.master.you_lost(self._game.score)
+            return
+
+        self._game.update()
+        self._score.set(str(self._game.score))
+        self._game_scene.draw(self._game)
+        self.after(self._step, self.update)
 
     def pack(self, *args, **kargs):
-        self._game_scene.run = True
+        self._run = True
         Frame.pack(self, *args, **kargs)
 
     def pack_forget(self, *args, **kargs):
-        self._game_scene.restart_game()
+        self._game.restart()
+        self._game_scene.clear()
+        self._run = False
         Frame.pack_forget(self, *args, **kargs)
