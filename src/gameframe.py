@@ -4,6 +4,7 @@ from tkinter import Frame, Label, Button, StringVar
 
 from game import Game
 from gamescene import GameScene
+from config import STEP
 
 
 class GameFrame(Frame):
@@ -13,9 +14,6 @@ class GameFrame(Frame):
         """Create GameFrame."""
         super().__init__(app)
 
-        self._width = kargs.get('width', 40)
-        self._height = kargs.get('height', 20)
-        self._step = kargs.get('step', 50)
         self._controller = controller
 
         self._score = StringVar()
@@ -30,10 +28,9 @@ class GameFrame(Frame):
             takefocus=False
         ).grid(column=2, row=0)
 
-        self._game = Game(self._controller, self._width, self._height)
+        self._game = Game(self._controller)
         self._game_scene = GameScene(self)
         self._game_scene.grid(column=0, columnspan=3, row=1)
-        self._game_scene.focus_force()
         self._run = False
         self.update()
 
@@ -43,20 +40,21 @@ class GameFrame(Frame):
         Schedules call of itself.
         """
         if not self._run:
-            self.after(self._step, self.update)
+            self.after(STEP, self.update)
             return
 
         if self._game.is_lost():
-            self.after(self._step, self.update)
+            self.after(STEP, self.update)
             self.master.you_lost(self._game.score)
             return
 
         self._game.update()
         self._score.set(str(self._game.score))
-        self._game_scene.draw(self._game)
-        self.after(self._step, self.update)
+        self._game_scene.redraw(self._game)
+        self.after(STEP, self.update)
 
     def pack(self, *args, **kargs):
+        self._game_scene.draw(self._game)
         self._run = True
         Frame.pack(self, *args, **kargs)
 

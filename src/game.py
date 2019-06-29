@@ -1,7 +1,8 @@
 """Module contains logic for a game of snak."""
 
 
-from random import randint
+from random import randint, choice, sample
+from config import WIDTH, HEIGHT, RELATIVE_OBSTACLE_N, OBSTACLE_RATE
 
 
 class Game:
@@ -37,32 +38,14 @@ class Game:
             self.tail = self.cells[-1]
             self.cells.pop()
 
-    def __init__(self, controller, width, height):
+    def __init__(self, controller):
         """Create field for snake with given sizes."""
-        self._width, self._height = width, height
         self._controller = controller
         self._snake = None
         self._food_pos = None
+        self._obstacles = None
         self._score = 0
         self.restart()
-
-    def _random_pos(self):
-        ret = self._snake.head
-        while ret in self._snake.cells or ret == self._snake.tail:
-            ret = (randint(0, self._width - 1), randint(0, self._height - 1))
-        return ret
-
-    def _get_next_move(self):
-        nx, ny = self._snake.next_pos(self._controller.decision())
-        if nx < 0:
-            nx = self._width
-        elif nx >= self._width:
-            nx = 0
-        if ny < 0:
-            ny = self._height
-        elif ny >= self._height:
-            ny = 0
-        return nx, ny
 
     def update(self):
         """Update situation on field."""
@@ -76,12 +59,14 @@ class Game:
 
     def is_lost(self):
         """Check if snake has collided with obstacle."""
-        return self._snake.is_selfcrossed()
+        return self._snake.is_selfcrossed() or \
+            self._snake.head in self._obstacles
 
     def restart(self):
         """Restart game"""
+        self._generate_obstacles()
         self._controller.move_up()
-        self._snake = Game._Snake((self._width/2, self._height/2))
+        self._snake = Game._Snake((WIDTH/2, HEIGHT/2))
         self._food_pos = self._random_pos()
         self._score = 0
 
@@ -90,13 +75,72 @@ class Game:
         return self._score
 
     @property
-    def snake_body(self):
-        return tuple(self._snake.cells)
-
-    @property
     def snake_head(self):
         return self._snake.head
 
     @property
+    def snake_neck(self):
+        if len(self._snake.cells) > 1:
+            ret = self._snake.cells[1]
+        else:
+            ret = self._snake.head
+        return ret
+
+    @property
+    def snake_body(self):
+        return tuple(self._snake.cells)
+
+    @property
+    def snake_tail(self):
+        return self._snake.tail
+
+    @property
     def food_pos(self):
         return self._food_pos
+
+    @property
+    def obstacles(self):
+        return list(self._obstacles)
+
+    def _random_pos(self):
+        ret = self._snake.head
+        while ret in self._snake.cells or \
+            ret == self._snake.tail or \
+                ret in self._obstacles:
+            ret = (randint(0, WIDTH - 1), randint(0, HEIGHT - 1))
+        return ret
+
+    def _get_next_move(self):
+        nx, ny = self._snake.next_pos(self._controller.decision())
+        if nx < 0:
+            nx = WIDTH
+        elif nx >= WIDTH:
+            nx = 0
+        if ny < 0:
+            ny = HEIGHT
+        elif ny >= HEIGHT:
+            ny = 0
+        return nx, ny
+
+    def _generate_obstacles(self):
+        self._obstacles = set()
+        S = WIDTH * HEIGHT
+        obst_N = int(S * RELATIVE_OBSTACLE_N)
+        obst_N_full = int(S * OBSTACLE_RATE)
+
+        while len(self._obstacles) < obst_N:
+            self._obstacles.add((
+                randint(0, WIDTH - 1),
+                randint(0, HEIGHT - 1)
+            ))
+
+        while len(self._obstacles) < obst_N_full:
+            x, y = sample(self._obstacles, 1)[0]
+            neighbs = [
+                (nx, ny)
+                for nx, ny in ((x, y - 1), (x + 1, y), (x, y + 1), (x - 1, y))
+                if 0 <= nx < WIDTH and 0 <= ny < HEIGHT and
+                    (nx, ny) not in self._obstacles
+            ]
+            if neighbs:
+                self._obstacles.add(choice(neighbs))
