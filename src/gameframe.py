@@ -28,7 +28,7 @@ class GameFrame(Frame):
             takefocus=False
         ).grid(column=2, row=0)
 
-        self._game = Game(self._controller)
+        self._game = Game()
         self._game_scene = GameScene(self)
         self._game_scene.grid(column=0, columnspan=3, row=1)
         self._run = False
@@ -48,7 +48,8 @@ class GameFrame(Frame):
             self.master.you_lost(self._game.score)
             return
 
-        self._game.update()
+        self._controller.update()
+        self._game.update(self._controller.direction)
         self._score.set(str(self._game.score))
         self._game_scene.redraw(self._game)
         self.after(STEP, self.update)

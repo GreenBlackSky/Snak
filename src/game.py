@@ -38,18 +38,17 @@ class Game:
             self.tail = self.cells[-1]
             self.cells.pop()
 
-    def __init__(self, controller):
+    def __init__(self):
         """Create field for snake with given sizes."""
-        self._controller = controller
         self._snake = None
         self._food_pos = None
         self._obstacles = None
         self._score = 0
         self.restart()
 
-    def update(self):
+    def update(self, direction):
         """Update situation on field."""
-        next_pos = self._get_next_move()
+        next_pos = self._get_next_move(direction)
         if self._food_pos == next_pos:
             self._snake.move_and_eat(next_pos)
             self._food_pos = self._random_pos()
@@ -65,7 +64,6 @@ class Game:
     def restart(self):
         """Restart game"""
         self._generate_obstacles()
-        self._controller.move_up()
         self._snake = Game._Snake((WIDTH/2, HEIGHT/2))
         self._food_pos = self._random_pos()
         self._score = 0
@@ -110,8 +108,8 @@ class Game:
             ret = (randint(0, WIDTH - 1), randint(0, HEIGHT - 1))
         return ret
 
-    def _get_next_move(self):
-        nx, ny = self._snake.next_pos(self._controller.decision())
+    def _get_next_move(self, direction):
+        nx, ny = self._snake.next_pos(direction)
         if nx < 0:
             nx = WIDTH
         elif nx >= WIDTH:

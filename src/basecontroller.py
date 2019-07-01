@@ -27,10 +27,12 @@ class BaseController:
     def move_right(self):
         self._desired_direction = (1, 0)
 
-    def decision(self):
-        """Get next move."""
+    def update(self):
         ndx, ndy = self._desired_direction
         cdx, cdy = self._direction
         if (ndx + cdx, ndy + cdy) != (0, 0):
             self._direction = (ndx, ndy)
+
+    @property
+    def direction(self):
         return self._direction
