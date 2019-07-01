@@ -34,7 +34,7 @@ class AIController(BaseController):
         BaseController.__init__(self)
         self._step = 0
         self._direction_n = 1
-        self._nodes_scheme = [10, 7, 4, 2]
+        self._nodes_scheme = [10, 8, 5, 3]
         self._neurons = [
             [AIController.Neuron() for _ in range(layer_size)]
             for layer_size in self._nodes_scheme
@@ -59,9 +59,10 @@ class AIController(BaseController):
 
     def _apply_update_result(self):
         cur_dir_n = AIController.MASKS.index(self._direction)
-        if self._neurons[-1][0] > self._neurons[-1][1]:
+        v1, v2, v3 = [self._neurons[-1][i].value for i in range(3)]
+        if v1 > max(v2, v3):
             self._direction = AIController.MASKS[(8 + cur_dir_n - 2) % 8]
-        else:
+        elif v3 > max(v1, v2):
             self._direction = AIController.MASKS[(8 + cur_dir_n + 2) % 8]
 
     def _get_masks(self):

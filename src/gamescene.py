@@ -11,9 +11,9 @@ class GameScene(Canvas):
     Needs GameFrame as master.
     """
 
-    def __init__(self, master, **kargs):
+    def __init__(self, master):
         """Create GameScene."""
-        super().__init__(master, **kargs)
+        super().__init__(master)
 
         self.config(
             width=(WIDTH*CELL_SIZE),

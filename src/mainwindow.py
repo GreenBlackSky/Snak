@@ -3,7 +3,6 @@
 from tkinter import Tk, BOTH
 
 from tkcontroller import TkController
-from aicontroller import AIController
 from mainmenuframe import MainMenuFrame
 from gameframe import GameFrame
 from aiframe import AIFrame
@@ -20,7 +19,7 @@ class MainWindow(Tk):
         self.title("Snak")
         self._main_window_frame = MainMenuFrame(self)
         self._game_frame = GameFrame(self, TkController(self))
-        self._ai_frame = AIFrame(self, AIController())
+        self._ai_frame = AIFrame(self)
         self._you_lost_frame = YouLostFrame(self)
 
         self.main_menu()
