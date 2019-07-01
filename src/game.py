@@ -100,6 +100,16 @@ class Game:
     def obstacles(self):
         return list(self._obstacles)
 
+    def scan_cell(self, x, y):
+        pos = (x % WIDTH, y % HEIGHT)
+        if pos == self._food_pos:
+            return 3
+        if pos in self._obstacles:
+            return 2
+        if pos in self._snake.cells or pos == self._snake.tail:
+            return 1
+        return 0
+
     def _random_pos(self):
         ret = self._snake.head
         while ret in self._snake.cells or \
