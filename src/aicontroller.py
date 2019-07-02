@@ -1,13 +1,15 @@
-from random import random as randfloat
+from random import random as randfloat, randint
 from basecontroller import BaseController
 
 
 class AIController(BaseController):
-    MASKS = ((-1, 0), (-1, -1), (0, -1), (1, -1),
-             (1, 0), (1, 1), (0, 1), (-1, 1))
+    DIRECTIONS = (
+        (-1, 0), (-1, -1), (0, -1), (1, -1),
+        (1, 0), (1, 1), (0, 1), (-1, 1)
+    )
     SCAN_DISTANCE = 5
 
-    class Neuron(object):
+    class _Neuron(object):
         def __init__(self):
             self._inputs = []
             self._value = 0
@@ -34,15 +36,17 @@ class AIController(BaseController):
         BaseController.__init__(self)
         self._step = 0
         self._direction_n = 1
-        self._nodes_scheme = [10, 8, 5, 3]
+        self._nodes_scheme = (10, 8, 5, 3)
         self._neurons = [
-            [AIController.Neuron() for _ in range(layer_size)]
+            [AIController._Neuron() for _ in range(layer_size)]
             for layer_size in self._nodes_scheme
         ]
         for i in range(len(self._nodes_scheme) - 1):
             for node_1 in self._neurons[i + 1]:
                 for node_2 in self._neurons[i]:
-                    node_1.connect(node_2, randfloat())
+                    weight = randfloat()
+                    sign = 1 if randint(0, 1) == 1 else -1
+                    node_1.connect(node_2, weight * sign)
 
     def update(self):
         for layer_n in range(1, len(self._neurons)):
@@ -58,17 +62,17 @@ class AIController(BaseController):
             self._neurons[0][i*2 + 1].value = scan_result/4
 
     def _apply_update_result(self):
-        cur_dir_n = AIController.MASKS.index(self._direction)
+        cur_dir_n = AIController.DIRECTIONS.index(self._direction)
         v1, v2, v3 = [self._neurons[-1][i].value for i in range(3)]
         if v1 > max(v2, v3):
-            self._direction = AIController.MASKS[(8 + cur_dir_n - 2) % 8]
+            self._direction = AIController.DIRECTIONS[(8 + cur_dir_n - 2) % 8]
         elif v3 > max(v1, v2):
-            self._direction = AIController.MASKS[(8 + cur_dir_n + 2) % 8]
+            self._direction = AIController.DIRECTIONS[(8 + cur_dir_n + 2) % 8]
 
     def _get_masks(self):
-        cur_dir_n = AIController.MASKS.index(self._direction)
+        cur_dir_n = AIController.DIRECTIONS.index(self._direction)
         return (
-            AIController.MASKS[i % 8]
+            AIController.DIRECTIONS[i % 8]
             for i in range(
                 8 + cur_dir_n - 2,
                 8 + cur_dir_n + 3
@@ -88,3 +92,7 @@ class AIController(BaseController):
             if scan_result != 0:
                 break
         return scan_result, distance
+
+    @property
+    def scheme(self):
+        return self._nodes_scheme

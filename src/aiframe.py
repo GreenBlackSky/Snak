@@ -28,6 +28,7 @@ class AIFrame(Frame):
         self._game_scene.grid(column=1, row=1)
 
         self._ai_view = AIView(self)
+        self._ai_view.set_contorller(self._controller)
         self._ai_view.grid(column=1, row=2)
 
         self._run = False
@@ -50,6 +51,7 @@ class AIFrame(Frame):
             return
 
         self._controller.update()
+        self._ai_view.update()
         self._game.update(self._controller.direction)
         self._game_scene.redraw(self._game)
         self.after(STEP, self.update)
