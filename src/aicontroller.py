@@ -7,7 +7,7 @@ class AIController(BaseController):
         (-1, 0), (-1, -1), (0, -1), (1, -1),
         (1, 0), (1, 1), (0, 1), (-1, 1)
     )
-    SCAN_DISTANCE = 5
+    SCAN_DISTANCE = 10
 
     class _Neuron(object):
         def __init__(self):
@@ -51,15 +51,15 @@ class AIController(BaseController):
     def update(self):
         for layer_n in range(1, len(self._neurons)):
             for node in self._neurons[layer_n]:
-                node.activate()
-        self._apply_update_result()
+                # node.activate()
+                pass
+        # self._apply_update_result()
 
     def percive(self, game):
-        masks = self._get_masks()
-        for i, mask in enumerate(masks):
-            scan_result, distance = AIController._scan_direction(game, mask)
-            self._neurons[0][i*2].value = distance/AIController.SCAN_DISTANCE
-            self._neurons[0][i*2 + 1].value = scan_result/4
+        for i, (dx, dy) in enumerate(self.get_directions()):
+            scan_result, distance = AIController._scan_direction(game, dx, dy)
+            self._neurons[0][i*2].value = distance
+            self._neurons[0][i*2 + 1].value = scan_result
 
     def _apply_update_result(self):
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
@@ -69,7 +69,7 @@ class AIController(BaseController):
         elif v3 > max(v1, v2):
             self._direction = AIController.DIRECTIONS[(8 + cur_dir_n + 2) % 8]
 
-    def _get_masks(self):
+    def get_directions(self):
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
         return (
             AIController.DIRECTIONS[i % 8]
@@ -79,16 +79,18 @@ class AIController(BaseController):
             )
         )
 
+    def get_node_value(self, layer, node_n):
+        return self._neurons[layer][node_n].value
+
     @staticmethod
-    def _scan_direction(game, mask):
+    def _scan_direction(game, dx, dy):
         x, y = game.snake_head
-        dx, dy = mask
         distance = 0
         scan_result = 0
-        for _ in range(AIController.SCAN_DISTANCE):
-            x, y = x + dx, y + dy
+        for i in range(1, AIController.SCAN_DISTANCE):
+            tx, ty = x + dx*i, y + dy*i
             distance += 1
-            scan_result = game.scan_cell(x, y)
+            scan_result = game.scan_cell(tx, ty)
             if scan_result != 0:
                 break
         return scan_result, distance

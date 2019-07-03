@@ -3,8 +3,8 @@
 from tkinter import Frame, Button, Listbox
 from aicontroller import AIController
 from aiview import AIView
+from aiscene import AIScene
 from game import Game
-from gamescene import GameScene
 from config import STEP
 
 
@@ -24,7 +24,7 @@ class AIFrame(Frame):
         self._ai_list_box.grid(row=1, rowspan=2, sticky='NSWE')
 
         self._game = Game()
-        self._game_scene = GameScene(self)
+        self._game_scene = AIScene(self, self._controller)
         self._game_scene.grid(column=1, row=1)
 
         self._ai_view = AIView(self)
@@ -50,6 +50,7 @@ class AIFrame(Frame):
             self.after(STEP, self.update)
             return
 
+        self._controller.percive(self._game)
         self._controller.update()
         self._ai_view.update()
         self._game.update(self._controller.direction)
