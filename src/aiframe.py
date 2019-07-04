@@ -43,18 +43,16 @@ class AIFrame(Frame):
             self.after(STEP, self.update)
             return
 
+        self._game.update(self._controller.direction)
+        self._controller.percive(self._game)
+        self._controller.update()
+        self._ai_view.update()
         if self._game.is_lost():
             self._game.restart()
             self._game_scene.clear()
             self._game_scene.draw(self._game)
-            self.after(STEP, self.update)
-            return
-
-        self._controller.percive(self._game)
-        self._controller.update()
-        self._ai_view.update()
-        self._game.update(self._controller.direction)
-        self._game_scene.redraw(self._game)
+        else:
+            self._game_scene.redraw(self._game)
         self.after(STEP, self.update)
 
     def pack(self, *args, **kargs):

@@ -42,16 +42,15 @@ class GameFrame(Frame):
             self.after(STEP, self.update)
             return
 
-        if self._game.is_lost():
-            self.after(STEP, self.update)
-            self.master.you_lost(self._game.score)
-            return
-
         self._controller.update()
         self._game.update(self._controller.direction)
         self._score.set(str(self._game.score))
-        self._game_scene.redraw(self._game)
-        self.after(STEP, self.update)
+        if self._game.is_lost():
+            self.after(STEP, self.update)
+            self.master.you_lost(self._game.score)
+        else:
+            self._game_scene.redraw(self._game)
+            self.after(STEP, self.update)
 
     def pack(self, *args, **kargs):
         self._game_scene.draw(self._game)

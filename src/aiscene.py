@@ -17,14 +17,18 @@ class AIScene(GameScene):
 
         x, y = game.snake_head
         for i, (dx, dy) in enumerate(self._controller.get_directions()):
-            dist = self._controller.get_node_value(0, i*2)
-            val = self._controller.get_node_value(0, i*2 + 1)
-            if val in (1, 2):
-                dist -= 1
+            dist = self._controller.get_input_value(i*2)
+            val = self._controller.get_input_value(i*2 + 1)
             cx, cy = x + dx*dist, y + dy*dist
+            if val == 3:
+                color = 'cyan'
+            elif val == 2 or val == 1:
+                color = 'magenta'
+            else:
+                color = 'yellow'
             item = self.find_closest(
                 (cx + 0.5)*CELL_SIZE,
                 (cy + 0.5)*CELL_SIZE
             )
             self._sensor_cells.add((item, self.itemcget(item, 'fill')))
-            self.itemconfig(item, fill='yellow')
+            self.itemconfig(item, fill=color)

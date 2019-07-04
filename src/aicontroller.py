@@ -47,19 +47,25 @@ class AIController(BaseController):
                     weight = randfloat()
                     sign = 1 if randint(0, 1) == 1 else -1
                     node_1.connect(node_2, weight * sign)
+        self._inputs = [0]*10
 
     def update(self):
+        for i in range(5):
+            self._neurons[0][i*2].value = self._inputs[i*2]
+            self._neurons[0][i*2 + 1].value = self._inputs[i*2 + 1]
+        self._scale_layer_output(0)
+
         for layer_n in range(1, len(self._neurons)):
             for node in self._neurons[layer_n]:
-                # node.activate()
-                pass
-        # self._apply_update_result()
+                node.activate()
+            self._scale_layer_output(layer_n)
+        self._apply_update_result()
 
     def percive(self, game):
         for i, (dx, dy) in enumerate(self.get_directions()):
             scan_result, distance = AIController._scan_direction(game, dx, dy)
-            self._neurons[0][i*2].value = distance
-            self._neurons[0][i*2 + 1].value = scan_result
+            self._inputs[i*2] = distance
+            self._inputs[i*2 + 1] = scan_result
 
     def _apply_update_result(self):
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
@@ -79,8 +85,20 @@ class AIController(BaseController):
             )
         )
 
-    def get_node_value(self, layer, node_n):
-        return self._neurons[layer][node_n].value
+    def get_input_value(self, n):
+        return self._inputs[n]
+
+    def _scale_layer_output(self, layer_n):
+        layer = self._neurons[layer_n]
+        mean = sum(neuron.value for neuron in layer)/len(layer)
+        std = (
+            sum(
+                (neuron.value - mean)**2
+                for neuron in layer
+            )/(len(layer) - 1)
+        )**0.5
+        for neuron in layer:
+            neuron.value = (neuron.value - mean)/std
 
     @staticmethod
     def _scan_direction(game, dx, dy):
