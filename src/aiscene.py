@@ -11,6 +11,7 @@ class AIScene(GameScene):
 
     def redraw(self, game):
         GameScene.redraw(self, game)
+
         for item, color in self._sensor_cells:
             self.itemconfig(item, fill=color)
         self._sensor_cells.clear()

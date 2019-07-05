@@ -44,22 +44,26 @@ class Game:
         self._food_pos = None
         self._obstacles = None
         self._score = 0
+        self._is_lost = False
         self.restart()
 
     def update(self, direction):
         """Update situation on field."""
         next_pos = self._get_next_move(direction)
-        if self._food_pos == next_pos:
+        if self._is_lost or \
+            next_pos in self._obstacles or \
+                next_pos in self._snake.cells:
+            self._is_lost = True
+        elif self._food_pos == next_pos:
             self._snake.move_and_eat(next_pos)
             self._food_pos = self._random_pos()
             self._score += 1
         else:
             self._snake.move(next_pos)
 
+    @property
     def is_lost(self):
-        """Check if snake has collided with obstacle."""
-        return self._snake.is_selfcrossed() or \
-            self._snake.head in self._obstacles
+        return self._is_lost
 
     def restart(self):
         """Restart game"""
@@ -67,6 +71,7 @@ class Game:
         self._snake = Game._Snake((WIDTH/2, HEIGHT/2))
         self._food_pos = self._random_pos()
         self._score = 0
+        self._is_lost = False
 
     @property
     def score(self):
@@ -145,10 +150,9 @@ class Game:
         while len(self._obstacles) < obst_N_full:
             x, y = sample(self._obstacles, 1)[0]
             neighbs = [
-                (nx, ny)
+                ((nx + WIDTH) % WIDTH, (ny + HEIGHT) % HEIGHT)
                 for nx, ny in ((x, y - 1), (x + 1, y), (x, y + 1), (x - 1, y))
-                if 0 <= nx < WIDTH and 0 <= ny < HEIGHT and
-                    (nx, ny) not in self._obstacles
+                if (nx, ny) not in self._obstacles
             ]
             if neighbs:
                 self._obstacles.add(choice(neighbs))

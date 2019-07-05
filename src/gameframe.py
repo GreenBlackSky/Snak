@@ -45,7 +45,7 @@ class GameFrame(Frame):
         self._controller.update()
         self._game.update(self._controller.direction)
         self._score.set(str(self._game.score))
-        if self._game.is_lost():
+        if self._game.is_lost:
             self.after(STEP, self.update)
             self.master.you_lost(self._game.score)
         else:
@@ -59,6 +59,7 @@ class GameFrame(Frame):
 
     def pack_forget(self, *args, **kargs):
         self._game.restart()
+        self._controller.move_up()
         self._game_scene.clear()
         self._run = False
         Frame.pack_forget(self, *args, **kargs)

@@ -46,12 +46,12 @@ class AIFrame(Frame):
         self._game.update(self._controller.direction)
         self._controller.percive(self._game)
         self._controller.update()
-        self._ai_view.update()
-        if self._game.is_lost():
+        if self._game.is_lost:
             self._game.restart()
             self._game_scene.clear()
             self._game_scene.draw(self._game)
         else:
+            self._ai_view.update()
             self._game_scene.redraw(self._game)
         self.after(STEP, self.update)
 
