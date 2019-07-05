@@ -113,6 +113,9 @@ class AIController(BaseController):
                 break
         return scan_result, distance
 
+    def reset(self):
+        self._inputs = [0]*10
+
     @property
     def scheme(self):
         return self._nodes_scheme

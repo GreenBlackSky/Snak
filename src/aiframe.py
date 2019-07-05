@@ -47,6 +47,7 @@ class AIFrame(Frame):
         self._controller.percive(self._game)
         self._controller.update()
         if self._game.is_lost:
+            self._controller.reset()
             self._game.restart()
             self._game_scene.clear()
             self._game_scene.draw(self._game)

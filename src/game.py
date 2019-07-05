@@ -106,7 +106,7 @@ class Game:
         return list(self._obstacles)
 
     def scan_cell(self, x, y):
-        pos = (x % WIDTH, y % HEIGHT)
+        pos = ((x + WIDTH) % WIDTH, (y + HEIGHT) % HEIGHT)
         if pos == self._food_pos:
             return 3
         if pos in self._obstacles:
