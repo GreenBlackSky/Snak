@@ -45,7 +45,6 @@ class AIFrame(Frame):
 
         self._game.update(self._controller.direction)
         self._controller.percive(self._game)
-        self._controller.update()
         if self._game.is_lost:
             self._controller.reset()
             self._game.restart()
@@ -54,6 +53,7 @@ class AIFrame(Frame):
         else:
             self._ai_view.update()
             self._game_scene.redraw(self._game)
+            self._controller.update()
         self.after(STEP, self.update)
 
     def pack(self, *args, **kargs):

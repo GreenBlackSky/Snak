@@ -50,10 +50,12 @@ class GameScene(Canvas):
         self._fill_cell(*game.food_pos, 'green')
 
     def _fill_cell(self, x, y, color):
-        self.itemconfig(
-            self.find_closest(
-                (x + 0.5)*CELL_SIZE,
-                (y + 0.5)*CELL_SIZE
-            ),
-            fill=color
+        x = (x + WIDTH) % WIDTH
+        y = (y + HEIGHT) % HEIGHT
+        item = self.find_closest(
+            (x + 0.5)*CELL_SIZE,
+            (y + 0.5)*CELL_SIZE
         )
+        original_color = self.itemcget(item, 'fill')
+        self.itemconfig(item, fill=color)
+        return item, original_color

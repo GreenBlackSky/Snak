@@ -1,5 +1,4 @@
 from gamescene import GameScene
-from config import CELL_SIZE
 
 
 class AIScene(GameScene):
@@ -11,8 +10,9 @@ class AIScene(GameScene):
         GameScene.__init__(self, master)
 
     def clear(self):
+        self._sensor_cells.clear()
+        self._visible_cells.clear()
         GameScene.clear(self)
-        self._sensor_cells = set()
 
     def redraw(self, game):
         self._reset_visible_cells()
@@ -39,22 +39,14 @@ class AIScene(GameScene):
         if val == 3:
             color = 'cyan'
         elif val == 2 or val == 1:
-            color = 'magenta'
-        else:
             color = 'yellow'
-        item = self.find_closest(
-            (x + 0.5)*CELL_SIZE,
-            (y + 0.5)*CELL_SIZE
-        )
-        self._sensor_cells.add((item, self.itemcget(item, 'fill')))
-        self.itemconfig(item, fill=color)
+        else:
+            color = 'blue'
+        item, original_color = self._fill_cell(x, y, color)
+        self._sensor_cells.add((item, original_color))
 
     def _set_visible_cells(self, x, y, dx, dy, dist):
         for j in range(1, dist):
             cx, cy = x + dx*j, y + dy*j
-            item = self.find_closest(
-                (cx + 0.5)*CELL_SIZE,
-                (cy + 0.5)*CELL_SIZE
-            )
+            item, original_color = self._fill_cell(cx, cy, 'blue')
             self._visible_cells.add(item)
-            self.itemconfig(item, fill='blue')
