@@ -88,6 +88,9 @@ class AIController(BaseController):
     def get_input_value(self, n):
         return self._inputs[n]
 
+    def get_node_value(self, layer_n, node_n):
+        return self._neurons[layer_n][node_n].value
+
     def _scale_layer_output(self, layer_n):
         layer = self._neurons[layer_n]
         mean = sum(neuron.value for neuron in layer)/len(layer)
@@ -99,6 +102,15 @@ class AIController(BaseController):
         )**0.5
         for neuron in layer:
             neuron.value = (neuron.value - mean)/std
+
+    def max_min(self):
+        return tuple(
+            (
+                max(neuron.value for neuron in layer),
+                min(neuron.value for neuron in layer)
+            )
+            for layer in self._neurons
+        )
 
     @staticmethod
     def _scan_direction(game, dx, dy):
