@@ -41,12 +41,17 @@ class AIController(BaseController):
             [AIController._Neuron() for _ in range(layer_size)]
             for layer_size in self._nodes_scheme
         ]
-        for i in range(len(self._nodes_scheme) - 1):
-            for node_1 in self._neurons[i + 1]:
-                for node_2 in self._neurons[i]:
+        self._connections = {}
+        for x2 in range(len(self._nodes_scheme) - 1):
+            x1 = x2 + 1
+            for y1, node_1 in enumerate(self._neurons[x1]):
+                for y2, node_2 in enumerate(self._neurons[x2]):
                     weight = randfloat()
                     sign = 1 if randint(0, 1) == 1 else -1
                     node_1.connect(node_2, weight * sign)
+                    self._connections[(
+                        x1, y1, x2, y2
+                    )] = weight * sign
         self._inputs = [0]*10
 
     def update(self):
@@ -84,6 +89,9 @@ class AIController(BaseController):
                 8 + cur_dir_n + 3
             )
         )
+
+    def get_connection(self, x1, y1, x2, y2):
+        return self._connections[(x1, y1, x2, y2)]
 
     def get_input_value(self, n):
         return self._inputs[n]

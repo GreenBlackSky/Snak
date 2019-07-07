@@ -17,8 +17,8 @@ class AIView(Canvas):
         cell_width = int(self['width'])//len(scheme)
         cell_height = int(self['height'])//max(scheme)
         R = min(cell_width, cell_height)//3
-        self._draw_nodes(cell_width, cell_height, R)
         self._draw_connectors(cell_width, cell_height, R)
+        self._draw_nodes(cell_width, cell_height, R)
 
     def update(self):
         max_min_scheme = self._controller.max_min()
@@ -53,13 +53,19 @@ class AIView(Canvas):
 
     def _draw_connectors(self, cell_width, cell_height, R):
         scheme = self._controller.scheme
-        for x1 in range(len(scheme) - 1):
-            x2 = x1 + 1
+        for x2 in range(len(scheme) - 1):
+            x1 = x2 + 1
             for y1 in range(scheme[x1]):
                 for y2 in range(scheme[x2]):
+                    weight = self._controller.get_connection(
+                        x1, y1, x2, y2
+                    )
+                    color = self._get_color(weight, 1, -1)
                     self._connectors[((x1, y1), (x2, y2))] = self.create_line(
-                        int(cell_width*(x1 + 0.5)) + R,
+                        int(cell_width*(x1 + 0.5)) - R,
                         int(cell_height*(y1 + 0.5)),
-                        int(cell_width*(x2 + 0.5)) - R,
+                        int(cell_width*(x2 + 0.5)) + R,
                         int(cell_height*(y2 + 0.5)),
+                        width=2,
+                        fill=color
                     )
