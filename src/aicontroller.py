@@ -1,4 +1,4 @@
-from random import random as randfloat, randint
+from random import random as randfloat, randint, choice
 from basecontroller import BaseController
 
 
@@ -9,61 +9,38 @@ class AIController(BaseController):
     )
     SCAN_DISTANCE = 10
 
-    class _Neuron(object):
-        def __init__(self):
-            self._inputs = []
-            self._value = 0
-
-        @property
-        def value(self):
-            return self._value
-
-        @value.setter
-        def value(self, val):
-            self._value = val
-
-        def connect(self, node, weight):
-            self._inputs.append((node, weight))
-
-        def activate(self):
-            S = sum(
-                weight * node.value
-                for node, weight in self._inputs
-            )
-            self._value = S if S > 0 else S * 0.01
-
     def __init__(self):
         BaseController.__init__(self)
         self._step = 0
         self._direction_n = 1
         self._nodes_scheme = (10, 8, 5, 3)
         self._neurons = [
-            [AIController._Neuron() for _ in range(layer_size)]
+            [0] * layer_size
             for layer_size in self._nodes_scheme
         ]
-        self._connections = {}
-        for x2 in range(len(self._nodes_scheme) - 1):
-            x1 = x2 + 1
-            for y1, node_1 in enumerate(self._neurons[x1]):
-                for y2, node_2 in enumerate(self._neurons[x2]):
-                    weight = randfloat()
-                    sign = 1 if randint(0, 1) == 1 else -1
-                    node_1.connect(node_2, weight * sign)
-                    self._connections[(
-                        x1, y1, x2, y2
-                    )] = weight * sign
+        self._connections = {
+            (x2 - 1, y1, x2, y2): randfloat() * choice((1, -1))
+            for x2 in range(1, len(self._nodes_scheme))
+            for y2 in range(self._nodes_scheme[x2])
+            for y1 in range(self._nodes_scheme[x2 - 1])
+        }
+
         self._inputs = [0]*10
 
     def update(self):
         for i in range(5):
-            self._neurons[0][i*2].value = self._inputs[i*2]
-            self._neurons[0][i*2 + 1].value = self._inputs[i*2 + 1]
-        self._scale_layer_output(0)
+            self._neurons[0][i*2] = self._inputs[i*2] / 5
+            self._neurons[0][i*2 + 1] = self._inputs[i*2 + 1] / 4
 
-        for layer_n in range(1, len(self._neurons)):
-            for node in self._neurons[layer_n]:
-                node.activate()
-            self._scale_layer_output(layer_n)
+        number_of_layers = len(self._nodes_scheme)
+        for x2 in range(1, number_of_layers):
+            x1 = x2 - 1
+            for y2 in range(self._nodes_scheme[x2]):
+                S = sum(
+                    self._neurons[x1][y1]*self._connections[(x1, y1, x2, y2)]
+                    for y1 in range(self._nodes_scheme[x1])
+                )
+                self._neurons[x2][y2] = S if S > 0 else S * 0.01
         self._apply_update_result()
 
     def percive(self, game):
@@ -74,7 +51,7 @@ class AIController(BaseController):
 
     def _apply_update_result(self):
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
-        v1, v2, v3 = [self._neurons[-1][i].value for i in range(3)]
+        v1, v2, v3 = [self._neurons[-1][i] for i in range(3)]
         if v1 > max(v2, v3):
             self._direction = AIController.DIRECTIONS[(8 + cur_dir_n - 2) % 8]
         elif v3 > max(v1, v2):
@@ -97,26 +74,11 @@ class AIController(BaseController):
         return self._inputs[n]
 
     def get_node_value(self, layer_n, node_n):
-        return self._neurons[layer_n][node_n].value
-
-    def _scale_layer_output(self, layer_n):
-        layer = self._neurons[layer_n]
-        mean = sum(neuron.value for neuron in layer)/len(layer)
-        std = (
-            sum(
-                (neuron.value - mean)**2
-                for neuron in layer
-            )/(len(layer) - 1)
-        )**0.5
-        for neuron in layer:
-            neuron.value = (neuron.value - mean)/std
+        return self._neurons[layer_n][node_n]
 
     def max_min(self):
         return tuple(
-            (
-                max(neuron.value for neuron in layer),
-                min(neuron.value for neuron in layer)
-            )
+            (max(layer), min(layer))
             for layer in self._neurons
         )
 

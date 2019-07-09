@@ -53,18 +53,18 @@ class AIView(Canvas):
 
     def _draw_connectors(self, cell_width, cell_height, R):
         scheme = self._controller.scheme
-        for x2 in range(len(scheme) - 1):
-            x1 = x2 + 1
-            for y1 in range(scheme[x1]):
-                for y2 in range(scheme[x2]):
+        for x2 in range(1, len(scheme)):
+            x1 = x2 - 1
+            for y2 in range(scheme[x2]):
+                for y1 in range(scheme[x1]):
                     weight = self._controller.get_connection(
                         x1, y1, x2, y2
                     )
                     color = self._get_color(weight, 1, -1)
                     self._connectors[((x1, y1), (x2, y2))] = self.create_line(
-                        int(cell_width*(x1 + 0.5)) - R,
+                        int(cell_width*(x1 + 0.5)) + R,
                         int(cell_height*(y1 + 0.5)),
-                        int(cell_width*(x2 + 0.5)) + R,
+                        int(cell_width*(x2 + 0.5)) - R,
                         int(cell_height*(y2 + 0.5)),
                         width=2,
                         fill=color
