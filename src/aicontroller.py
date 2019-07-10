@@ -1,8 +1,17 @@
-from random import random as randfloat, randint, choice
+"""Module contains AIController class."""
+
+from random import random as randfloat, choice
 from basecontroller import BaseController
 
 
 class AIController(BaseController):
+    """
+    Neural network-based controller.
+
+    It observes field through `percive`
+    and calculates next moving direction in `update`.
+    """
+
     DIRECTIONS = (
         (-1, 0), (-1, -1), (0, -1), (1, -1),
         (1, 0), (1, 1), (0, 1), (-1, 1)
@@ -10,6 +19,7 @@ class AIController(BaseController):
     SCAN_DISTANCE = 10
 
     def __init__(self):
+        """Create new AIController."""
         BaseController.__init__(self)
         self._step = 0
         self._direction_n = 1
@@ -27,7 +37,19 @@ class AIController(BaseController):
 
         self._inputs = [0]*10
 
+    def percive(self, game):
+        """
+        Percive situation in the game.
+
+        Actualy controller scans 5 directions relative to current direction.
+        """
+        for i, (dx, dy) in enumerate(self.get_directions()):
+            scan_result, distance = AIController._scan_direction(game, dx, dy)
+            self._inputs[i*2] = distance
+            self._inputs[i*2 + 1] = scan_result
+
     def update(self):
+        """Calculate next moving direction based on input."""
         for i in range(5):
             self._neurons[0][i*2] = self._inputs[i*2] / 5
             self._neurons[0][i*2 + 1] = self._inputs[i*2 + 1] / 4
@@ -43,21 +65,20 @@ class AIController(BaseController):
                 self._neurons[x2][y2] = S if S > 0 else S * 0.01
         self._apply_update_result()
 
-    def percive(self, game):
-        for i, (dx, dy) in enumerate(self.get_directions()):
-            scan_result, distance = AIController._scan_direction(game, dx, dy)
-            self._inputs[i*2] = distance
-            self._inputs[i*2 + 1] = scan_result
-
     def _apply_update_result(self):
-        cur_dir_n = AIController.DIRECTIONS.index(self._direction)
-        v1, v2, v3 = [self._neurons[-1][i] for i in range(3)]
-        if v1 > max(v2, v3):
-            self._direction = AIController.DIRECTIONS[(8 + cur_dir_n - 2) % 8]
-        elif v3 > max(v1, v2):
-            self._direction = AIController.DIRECTIONS[(8 + cur_dir_n + 2) % 8]
+        v0, v1, v2 = self._neurons[-1]
+        val, n = max((abs(v), i) for i, v in enumerate(self._neurons[-1]))
+        if (val > 0 and n == 0) or \
+            (val < 0 and n == 2) or \
+                (val < 0 and n == 1 and v0 > v2):
+            self.turn_right()
+        elif (val > 0 and n == 2) or \
+            (val < 0 and n == 0) or \
+                (val < 0 and n == 1 and v2 > v0):
+            self.turn_left()
 
     def get_directions(self):
+        """Get current scanning directions."""
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
         return (
             AIController.DIRECTIONS[i % 8]
@@ -68,15 +89,19 @@ class AIController(BaseController):
         )
 
     def get_connection(self, x1, y1, x2, y2):
+        """Get weight of connection between twoneurons."""
         return self._connections[(x1, y1, x2, y2)]
 
     def get_input_value(self, n):
+        """Get value of input node."""
         return self._inputs[n]
 
     def get_node_value(self, layer_n, node_n):
+        """Pretty much self described."""
         return self._neurons[layer_n][node_n]
 
     def max_min(self):
+        """Get pairs of `(max, min)` values for each layer."""
         return tuple(
             (max(layer), min(layer))
             for layer in self._neurons
@@ -96,8 +121,10 @@ class AIController(BaseController):
         return scan_result, distance
 
     def reset(self):
+        """Reset input values."""
         self._inputs = [0]*10
 
     @property
     def scheme(self):
+        """Get scheme of neural network."""
         return self._nodes_scheme
