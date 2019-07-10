@@ -14,7 +14,6 @@ class GameScene(Canvas):
     def __init__(self, master):
         """Create GameScene."""
         super().__init__(master)
-
         self.config(
             width=(WIDTH*CELL_SIZE),
             height=(HEIGHT*CELL_SIZE),
@@ -31,10 +30,12 @@ class GameScene(Canvas):
                 )
 
     def clear(self):
+        """Clear scene."""
         for item in self.find_all():
             self.itemconfig(item, fill='black')
 
     def draw(self, game):
+        """Draw given game."""
         self.clear()
         for x, y in game.obstacles:
             self._fill_cell(x, y, 'gray')
@@ -44,6 +45,13 @@ class GameScene(Canvas):
         self._fill_cell(*game.food_pos, 'green')
 
     def redraw(self, game):
+        """
+        Update game.
+
+        It is assumed that given game is already being displayed.
+        Only head, neck and tail of snake and food are redrawn.
+        All obstacles stays the same.
+        """
         self._fill_cell(*game.snake_neck, 'white')
         self._fill_cell(*game.snake_head, 'red')
         self._fill_cell(*game.snake_tail, 'black')

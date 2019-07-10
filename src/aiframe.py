@@ -1,4 +1,4 @@
-"""AIFrame class."""
+"""Module contains AIFrame class."""
 
 from tkinter import Frame, Button, Listbox
 from aicontroller import AIController
@@ -9,7 +9,10 @@ from config import STEP
 
 
 class AIFrame(Frame):
+    """Frame with some widgets to perform and observe evolution of ai."""
+
     def __init__(self, master, **kargs):
+        """Create AIFrame."""
         super().__init__(master, **kargs)
         self._controller = AIController()
 
@@ -18,18 +21,18 @@ class AIFrame(Frame):
             text="Menu",
             command=self.master.main_menu,
             takefocus=False
-        ).grid()
+        ).pack()
 
         self._ai_list_box = Listbox(self)
-        self._ai_list_box.grid(row=1, rowspan=2, sticky='NSWE')
+        self._ai_list_box.pack(side='left', fill='both')
 
         self._game = Game()
         self._game_scene = AIScene(self, self._controller)
-        self._game_scene.grid(column=1, row=1)
+        self._game_scene.pack(fill='both', expand=True)
 
         self._ai_view = AIView(self)
         self._ai_view.set_contorller(self._controller)
-        self._ai_view.grid(column=1, row=2)
+        self._ai_view.pack(fill='both', expand=True)
 
         self._run = False
         self.update()
@@ -57,11 +60,21 @@ class AIFrame(Frame):
         self.after(STEP, self.update)
 
     def pack(self, *args, **kargs):
+        """
+        Pack frame into master space.
+
+        Overloaded to start all processes when frame is visible.
+        """
         self._game_scene.draw(self._game)
         self._run = True
         Frame.pack(self, *args, **kargs)
 
     def pack_forget(self, *args, **kargs):
+        """
+        Remove frame from masters space.
+
+        Overloaded to stop all processes while frame is not visible.
+        """
         self._game.restart()
         self._game_scene.clear()
         self._run = False

@@ -1,6 +1,6 @@
 """MainMenuFrame class."""
 
-from tkinter import Frame, Button, BOTH
+from tkinter import Frame, Button
 
 
 class MainMenuFrame(Frame):
@@ -14,16 +14,16 @@ class MainMenuFrame(Frame):
             self,
             text="Play game",
             command=self.master.game
-        ).pack(fill=BOTH, expand=True)
+        ).pack(fill='both', expand=True)
 
         Button(
             self,
             text="A.I.",
             command=self.master.ai
-        ).pack(fill=BOTH, expand=True)
+        ).pack(fill='both', expand=True)
 
         Button(
             self,
             text="Quit",
             command=self.master.destroy
-        ).pack(fill=BOTH, expand=True)
+        ).pack(fill='both', expand=True)

@@ -15,21 +15,23 @@ class GameFrame(Frame):
 
         self._controller = controller
 
+        self._score = StringVar()
+        self._score.set('0')
+
+        control_frame = Frame(self)
         Button(
-            self,
+            control_frame,
             text="Menu",
             command=self.master.main_menu,
             takefocus=False
-        ).grid(column=0, row=0)
-
-        self._score = StringVar()
-        self._score.set('0')
-        Label(self, text='Score:').grid(column=1, row=0)
-        Label(self, textvar=self._score).grid(column=2, row=0)
+        ).pack(side='left')
+        Label(control_frame, text='Score:').pack(side='left')
+        Label(control_frame, textvar=self._score).pack(side='left')
+        control_frame.pack(fill='x')
 
         self._game = Game()
         self._game_scene = GameScene(self)
-        self._game_scene.grid(column=0, columnspan=3, row=1)
+        self._game_scene.pack(fill='both', expand=True)
         self._run = False
         self.update()
 

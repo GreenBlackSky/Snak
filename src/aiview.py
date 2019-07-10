@@ -1,15 +1,20 @@
-from tkinter import Canvas
+"""Module contains AIView class."""
+
+from resiziblecanvas import ResizibleCanvas
 
 
-class AIView(Canvas):
+class AIView(ResizibleCanvas):
+    """Canvas, which is used to display neural network."""
 
     def __init__(self, master):
-        Canvas.__init__(self, master, background='white')
+        """Create AIView."""
+        super().__init__(master, background='white')
         self._controller = None
         self._nodes = {}
         self._connectors = {}
 
     def set_contorller(self, controller):
+        """Set neural network to display."""
         self._controller = controller
         self._nodes = {}
         self._connectors = {}
@@ -21,6 +26,7 @@ class AIView(Canvas):
         self._draw_nodes(cell_width, cell_height, R)
 
     def update(self):
+        """Update view."""
         max_min_scheme = self._controller.max_min()
         for (x, y), node in self._nodes.items():
             val = self._controller.get_node_value(x, y)

@@ -1,20 +1,35 @@
+"""Module contains AIScene widget."""
+
 from gamescene import GameScene
 
 
 class AIScene(GameScene):
+    """
+    Scene to display ai, playing snake.
+
+    Beside game objects, displays ai sensors.
+    """
 
     def __init__(self, master, controller):
+        """Create AIScene."""
         self._controller = controller
         self._sensor_cells = set()
         self._visible_cells = set()
-        GameScene.__init__(self, master)
+        super().__init__(master)
 
     def clear(self):
+        """Clear scene."""
         self._sensor_cells.clear()
         self._visible_cells.clear()
-        GameScene.clear(self)
+        super().clear()
 
     def redraw(self, game):
+        """
+        Update display.
+
+        It is assumed that the same game has been displayed.
+        Only sensors, game and food are updated.
+        """
         self._reset_visible_cells()
         self._reset_sensor_cells()
         x, y = game.snake_head
@@ -23,7 +38,7 @@ class AIScene(GameScene):
             val = self._controller.get_input_value(i*2 + 1)
             self._set_visible_cells(x, y, dx, dy, dist)
             self._set_sensor_cell(x + dx*dist, y + dy*dist, val)
-        GameScene.redraw(self, game)
+        super().redraw(game)
 
     def _reset_sensor_cells(self):
         for item, color in self._sensor_cells:
