@@ -6,28 +6,38 @@ from config import WIDTH, CELL_SIZE, HEIGHT
 
 
 class GameScene(Canvas):
-    """Visual representation of game.
-
-    Needs GameFrame as master.
-    """
+    """Visual representation of game."""
 
     def __init__(self, master):
         """Create GameScene."""
-        super().__init__(master)
-        self.config(
-            width=(WIDTH*CELL_SIZE),
-            height=(HEIGHT*CELL_SIZE),
-            background='white'
+        self._cell_w = CELL_SIZE
+        self._cell_h = CELL_SIZE
+        super().__init__(
+            master,
+            width=(WIDTH*self._cell_w),
+            height=(HEIGHT*self._cell_h)
         )
+        self._width = self.winfo_reqwidth()
+        self._height = self.winfo_reqheight()
+        self.bind('<Configure>', self._on_resize)
 
         for y in range(HEIGHT):
             for x in range(WIDTH):
                 self.create_rectangle(
-                    x*CELL_SIZE,
-                    y*CELL_SIZE,
-                    x*CELL_SIZE + CELL_SIZE,
-                    y*CELL_SIZE + CELL_SIZE
+                    x*self._cell_w,
+                    y*self._cell_h,
+                    (x + 1)*self._cell_w,
+                    (y + 1)*self._cell_h
                 )
+
+    def _on_resize(self, event):
+        wscale = float(event.width/self._width)
+        hscale = float(event.height/self._height)
+        self._width = event.width
+        self._height = event.height
+        self._cell_w *= wscale
+        self._cell_h *= hscale
+        self.scale('all', 0, 0, wscale, hscale)
 
     def clear(self):
         """Clear scene."""
@@ -61,8 +71,8 @@ class GameScene(Canvas):
         x = (x + WIDTH) % WIDTH
         y = (y + HEIGHT) % HEIGHT
         item = self.find_closest(
-            (x + 0.5)*CELL_SIZE,
-            (y + 0.5)*CELL_SIZE
+            (x + 0.5)*self._cell_w,
+            (y + 0.5)*self._cell_h
         )
         original_color = self.itemcget(item, 'fill')
         self.itemconfig(item, fill=color)

@@ -23,8 +23,14 @@ class AIFrame(Frame):
             takefocus=False
         ).pack()
 
-        self._ai_list_box = Listbox(self)
+        self._ai_list_box = Listbox(self, selectmode='single')
         self._ai_list_box.pack(side='left', fill='both')
+        for i in range(10):
+            self._ai_list_box.insert(i, f"Line {i}")
+        self._ai_list_box.bind(
+            "<<ListboxSelect>>",
+            lambda event: print(event.widget.get(event.widget.curselection()[0]))
+        )
 
         self._game = Game()
         self._game_scene = AIScene(self, self._controller)
