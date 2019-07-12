@@ -1,25 +1,23 @@
 """Tetris scene."""
 
 
-from tkinter import Canvas
+from resiziblecanvas import ResizibleCanvas
 from config import WIDTH, CELL_SIZE, HEIGHT
 
 
-class GameScene(Canvas):
+class GameScene(ResizibleCanvas):
     """Visual representation of game."""
 
     def __init__(self, master):
         """Create GameScene."""
         self._cell_w = CELL_SIZE
         self._cell_h = CELL_SIZE
-        super().__init__(
+        ResizibleCanvas.__init__(
+            self,
             master,
             width=(WIDTH*self._cell_w),
             height=(HEIGHT*self._cell_h)
         )
-        self._width = self.winfo_reqwidth()
-        self._height = self.winfo_reqheight()
-        self.bind('<Configure>', self._on_resize)
 
         for y in range(HEIGHT):
             for x in range(WIDTH):
@@ -31,13 +29,9 @@ class GameScene(Canvas):
                 )
 
     def _on_resize(self, event):
-        wscale = float(event.width/self._width)
-        hscale = float(event.height/self._height)
-        self._width = event.width
-        self._height = event.height
-        self._cell_w *= wscale
-        self._cell_h *= hscale
-        self.scale('all', 0, 0, wscale, hscale)
+        self._cell_w *= event.width/self._width
+        self._cell_h *= event.height/self._height
+        ResizibleCanvas._on_resize(self, event)
 
     def clear(self):
         """Clear scene."""
