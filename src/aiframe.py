@@ -1,7 +1,7 @@
 """Module contains AIFrame class."""
 
 from tkinter import Frame, Button, Listbox
-from aicontroller import AIController
+from aipool import AIPool
 from aiview import AIView
 from aiscene import AIScene
 from game import Game
@@ -14,7 +14,7 @@ class AIFrame(Frame):
     def __init__(self, master, **kargs):
         """Create AIFrame."""
         super().__init__(master, **kargs)
-        self._controller = AIController()
+        self._pool = AIPool()
 
         Button(
             self,
@@ -25,15 +25,17 @@ class AIFrame(Frame):
 
         self._ai_list_box = Listbox(self, selectmode='single')
         self._ai_list_box.pack(side='left', fill='both')
-        for i in range(10):
-            self._ai_list_box.insert(i, f"Line {i}")
+        self._ai_list_box.insert(0, *self._pool.get_instances_ids())
         self._ai_list_box.bind(
             "<<ListboxSelect>>",
-            lambda event: print(event.widget.get(event.widget.curselection()[0]))
+            self._switch_displayed_nn
         )
+        self._ai_list_box.selection_set(0)
+
+        self._controller = self._pool.get_instance_by_id(0)
 
         self._game = Game()
-        self._game_scene = AIScene(self, self._controller)
+        self._game_scene = AIScene(self)
         self._game_scene.pack(fill='both', expand=True)
 
         self._ai_view = AIView(self)
@@ -61,9 +63,19 @@ class AIFrame(Frame):
             self._game_scene.draw(self._game)
         else:
             self._ai_view.update()
-            self._game_scene.redraw(self._game)
+            self._game_scene.redraw(self._game, self._controller)
             self._controller.update()
         self.after(STEP, self.update)
+
+    def _switch_displayed_nn(self, *_):
+        nn_n = self._ai_list_box.get(self._ai_list_box.curselection()[0])
+        controller = self._pool.get_instance_by_id(nn_n)
+        self._run = False
+        self._controller = controller
+        self._ai_view.set_contorller(controller)
+        self._game.restart()
+        self._game_scene.draw(self._game)
+        self._run = True
 
     def pack(self, *args, **kargs):
         """

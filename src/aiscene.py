@@ -10,9 +10,8 @@ class AIScene(GameScene):
     Beside game objects, displays ai sensors.
     """
 
-    def __init__(self, master, controller):
+    def __init__(self, master):
         """Create AIScene."""
-        self._controller = controller
         self._sensor_cells = set()
         self._visible_cells = set()
         super().__init__(master)
@@ -23,7 +22,7 @@ class AIScene(GameScene):
         self._visible_cells.clear()
         super().clear()
 
-    def redraw(self, game):
+    def redraw(self, game, controller):
         """
         Update display.
 
@@ -33,9 +32,9 @@ class AIScene(GameScene):
         self._reset_visible_cells()
         self._reset_sensor_cells()
         x, y = game.snake_head
-        for i, (dx, dy) in enumerate(self._controller.get_directions()):
-            dist = self._controller.get_input_value(i*2)
-            val = self._controller.get_input_value(i*2 + 1)
+        for i, (dx, dy) in enumerate(controller.get_directions()):
+            dist = controller.get_input_value(i*2)
+            val = controller.get_input_value(i*2 + 1)
             self._set_visible_cells(x, y, dx, dy, dist)
             self._set_sensor_cell(x + dx*dist, y + dy*dist, val)
         super().redraw(game)

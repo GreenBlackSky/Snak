@@ -2,6 +2,7 @@
 
 from random import random as randfloat, choice
 from basecontroller import BaseController
+from config import SCHEME
 
 
 class AIController(BaseController):
@@ -18,22 +19,25 @@ class AIController(BaseController):
     )
     SCAN_DISTANCE = 10
 
-    def __init__(self):
+    def __init__(self, parent=None, mutation=0):
         """Create new AIController."""
         BaseController.__init__(self)
         self._step = 0
         self._direction_n = 1
-        self._nodes_scheme = (10, 8, 5, 3)
+        self._nodes_scheme = parent.scheme if parent else SCHEME
         self._neurons = [
             [0] * layer_size
             for layer_size in self._nodes_scheme
         ]
-        self._connections = {
-            (x2 - 1, y1, x2, y2): randfloat() * choice((1, -1))
-            for x2 in range(1, len(self._nodes_scheme))
-            for y2 in range(self._nodes_scheme[x2])
-            for y1 in range(self._nodes_scheme[x2 - 1])
-        }
+        if parent:
+            self._connections = dict(parent._connections)
+        else:
+            self._connections = {
+                (x2 - 1, y1, x2, y2): randfloat() * choice((1, -1))
+                for x2 in range(1, len(self._nodes_scheme))
+                for y2 in range(self._nodes_scheme[x2])
+                for y1 in range(self._nodes_scheme[x2 - 1])
+            }
 
         self._inputs = [0]*10
 

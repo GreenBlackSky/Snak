@@ -15,6 +15,7 @@ class AIView(ResizibleCanvas):
 
     def set_contorller(self, controller):
         """Set neural network to display."""
+        self.delete('all')
         self._controller = controller
         self._nodes = {}
         self._connectors = {}
