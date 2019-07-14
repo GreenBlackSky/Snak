@@ -1,3 +1,5 @@
+"""Module contains configuration values."""
+
 WIDTH = 40
 HEIGHT = 20
 OBSTACLE_RATE = 0.1

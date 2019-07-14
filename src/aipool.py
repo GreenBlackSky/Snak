@@ -16,10 +16,10 @@ class AIPool(object):
     def __init__(self):
         """Create AIPool."""
         self._speciments = {
-            i: AIController()
+            f"G0S{i}": AIController()
             for i in range(POPULATION)
         }
-        pass
+        self._counter = 0
 
     def get_instances_ids(self):
         """Get list of instances ids."""
@@ -31,4 +31,7 @@ class AIPool(object):
 
     def process_generation(self):
         """Update situation inside pool."""
-        pass
+        self._counter = (self._counter + 1) % 100
+        if self._counter == 0:
+            return True
+        return False

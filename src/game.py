@@ -6,40 +6,40 @@ from config import WIDTH, HEIGHT, RELATIVE_OBSTACLE_N, OBSTACLE_RATE
 
 
 class Game:
-    """Class implements base logic of game."""
+    """Class implements the base logic of the game."""
 
     class _Snake:
-        """Abstraction for snake itself."""
+        """Abstraction for the snake itself."""
 
         def __init__(self, pos):
-            """Create small snake in given pos."""
+            """Create the small snake in the given pos."""
             self.head = pos
             self.tail = pos
             self.cells = [pos]
 
         def is_selfcrossed(self):
-            """Check if snake has bumped into itself."""
+            """Check if the snake has bumped into itself."""
             return self.head in self.cells[1::]
 
         def next_pos(self, direction):
-            """Get position, where snakes head will be on next turn."""
+            """Get the position of the snakes head by the next turn."""
             dx, dy = direction
             x, y = self.head
             return x + dx, y + dy
 
         def move_and_eat(self, pos):
-            """Put head to given coordinates."""
+            """Place the head to the given coordinates."""
             self.head = pos
             self.cells.insert(0, pos)
 
         def move(self, pos):
-            """Put head to given coordinates and pull tail."""
+            """Place the head to the given coordinates and pull the tail."""
             self.move_and_eat(pos)
             self.tail = self.cells[-1]
             self.cells.pop()
 
     def __init__(self):
-        """Create field for snake with given sizes."""
+        """Create the field for the snake with given sizes."""
         self._snake = None
         self._food_pos = None
         self._obstacles = None
@@ -47,8 +47,16 @@ class Game:
         self._is_lost = False
         self.restart()
 
+    def restart(self):
+        """Restart the game."""
+        self._generate_obstacles()
+        self._snake = Game._Snake((WIDTH/2, HEIGHT/2))
+        self._food_pos = self._random_pos()
+        self._score = 0
+        self._is_lost = False
+
     def update(self, direction):
-        """Update situation on field."""
+        """Update the situation on the field."""
         next_pos = self._get_next_move(direction)
         if self._is_lost or \
             next_pos in self._obstacles or \
@@ -60,60 +68,6 @@ class Game:
             self._score += 1
         else:
             self._snake.move(next_pos)
-
-    @property
-    def is_lost(self):
-        return self._is_lost
-
-    def restart(self):
-        """Restart game"""
-        self._generate_obstacles()
-        self._snake = Game._Snake((WIDTH/2, HEIGHT/2))
-        self._food_pos = self._random_pos()
-        self._score = 0
-        self._is_lost = False
-
-    @property
-    def score(self):
-        return self._score
-
-    @property
-    def snake_head(self):
-        return self._snake.head
-
-    @property
-    def snake_neck(self):
-        if len(self._snake.cells) > 1:
-            ret = self._snake.cells[1]
-        else:
-            ret = self._snake.head
-        return ret
-
-    @property
-    def snake_body(self):
-        return tuple(self._snake.cells)
-
-    @property
-    def snake_tail(self):
-        return self._snake.tail
-
-    @property
-    def food_pos(self):
-        return self._food_pos
-
-    @property
-    def obstacles(self):
-        return list(self._obstacles)
-
-    def scan_cell(self, x, y):
-        pos = ((x + WIDTH) % WIDTH, (y + HEIGHT) % HEIGHT)
-        if pos == self._food_pos:
-            return 3
-        if pos in self._obstacles:
-            return 2
-        if pos in self._snake.cells or pos == self._snake.tail:
-            return 1
-        return 0
 
     def _random_pos(self):
         ret = self._snake.head
@@ -156,3 +110,62 @@ class Game:
             ]
             if neighbs:
                 self._obstacles.add(choice(neighbs))
+
+    @property
+    def is_lost(self):
+        """Check if the game is lost."""
+        return self._is_lost
+
+    @property
+    def score(self):
+        """Get the current game score."""
+        return self._score
+
+    @property
+    def snake_head(self):
+        """Position of the snakes head."""
+        return self._snake.head
+
+    @property
+    def snake_neck(self):
+        """
+        Position of the snakes neck.
+
+        One block behind the head.
+        """
+        if len(self._snake.cells) > 1:
+            ret = self._snake.cells[1]
+        else:
+            ret = self._snake.head
+        return ret
+
+    @property
+    def snake_body(self):
+        """Get positions of blocks in the snakes body."""
+        return tuple(self._snake.cells)
+
+    @property
+    def snake_tail(self):
+        """Get the position of the snakes tail."""
+        return self._snake.tail
+
+    @property
+    def food_pos(self):
+        """Get the position of the food."""
+        return self._food_pos
+
+    @property
+    def obstacles(self):
+        """Get the list of all occupied cells."""
+        return list(self._obstacles)
+
+    def scan_cell(self, x, y):
+        """Check what is insede the cell on the given coordinates."""
+        pos = ((x + WIDTH) % WIDTH, (y + HEIGHT) % HEIGHT)
+        if pos == self._food_pos:
+            return 3
+        if pos in self._obstacles:
+            return 2
+        if pos in self._snake.cells or pos == self._snake.tail:
+            return 1
+        return 0
