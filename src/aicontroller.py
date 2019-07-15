@@ -1,6 +1,6 @@
 """Module contains AIController class."""
 
-from random import random as randfloat, choice
+from random import randint, random as randfloat, choice, choices
 from basecontroller import BaseController
 from config import SCHEME
 
@@ -19,7 +19,7 @@ class AIController(BaseController):
     )
     SCAN_DISTANCE = 10
 
-    def __init__(self, parent=None, mutation=0):
+    def __init__(self, parent=None, mutation_chance=0):
         """Create new AIController."""
         BaseController.__init__(self)
         self._step = 0
@@ -31,6 +31,13 @@ class AIController(BaseController):
         ]
         if parent:
             self._connections = dict(parent._connections)
+            mutations_n = randint(
+                0,
+                int(len(self._connections)*mutation_chance)
+            )
+            mutations = choices(list(self._connections), k=mutations_n)
+            for connection_id in mutations:
+                self._connections[connection_id] = randfloat()*choice((1, -1))
         else:
             self._connections = {
                 (x2 - 1, y1, x2, y2): randfloat() * choice((1, -1))

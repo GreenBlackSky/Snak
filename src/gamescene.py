@@ -6,17 +6,18 @@ from config import WIDTH, CELL_SIZE, HEIGHT
 
 
 class GameScene(ResizibleCanvas):
-    """Visual representation of game."""
+    """Visual representation of the game."""
 
     def __init__(self, master):
-        """Create GameScene."""
+        """Create the GameScene."""
         self._cell_w = CELL_SIZE
         self._cell_h = CELL_SIZE
         ResizibleCanvas.__init__(
             self,
             master,
             width=(WIDTH*self._cell_w),
-            height=(HEIGHT*self._cell_h)
+            height=(HEIGHT*self._cell_h),
+            background='black'
         )
 
         for y in range(HEIGHT):
@@ -28,18 +29,13 @@ class GameScene(ResizibleCanvas):
                     (y + 1)*self._cell_h
                 )
 
-    def _on_resize(self, event):
-        self._cell_w *= event.width/self._width
-        self._cell_h *= event.height/self._height
-        ResizibleCanvas._on_resize(self, event)
-
     def clear(self):
-        """Clear scene."""
+        """Clear the scene."""
         for item in self.find_all():
             self.itemconfig(item, fill='black')
 
     def draw(self, game):
-        """Draw given game."""
+        """Draw the given game."""
         self.clear()
         for x, y in game.obstacles:
             self._fill_cell(x, y, 'gray')
@@ -50,10 +46,11 @@ class GameScene(ResizibleCanvas):
 
     def redraw(self, game):
         """
-        Update game.
+        Update the game.
 
-        It is assumed that given game is already being displayed.
-        Only head, neck and tail of snake and food are redrawn.
+        It is assumed that the given game is already being displayed.
+        Only the head, the neck and the tail of the snake
+         and the food are redrawn.
         All obstacles stays the same.
         """
         self._fill_cell(*game.snake_neck, 'white')
@@ -71,3 +68,8 @@ class GameScene(ResizibleCanvas):
         original_color = self.itemcget(item, 'fill')
         self.itemconfig(item, fill=color)
         return item, original_color
+
+    def _on_resize(self, event):
+        self._cell_w *= event.width/self._width
+        self._cell_h *= event.height/self._height
+        ResizibleCanvas._on_resize(self, event)
