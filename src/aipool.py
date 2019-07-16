@@ -94,7 +94,7 @@ class AIPool(object):
 
     @staticmethod
     def _process_speciment(speciment, game):
-        scores = []
+        scores = [0]*GAMES_PER_GENERATION
         for game_n in range(GAMES_PER_GENERATION):
             speciment.reset()
             game.restart()
@@ -104,5 +104,5 @@ class AIPool(object):
                 speciment.update()
                 if game.is_lost:
                     break
-            scores.append(game.score)
+            scores[game_n] = game.score
         return sum(scores)

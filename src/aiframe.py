@@ -1,6 +1,6 @@
 """Module contains the AIFrame class."""
 
-from tkinter import Frame, Button, Listbox
+from tkinter import Frame, Button, Listbox, Scrollbar
 from aipool import AIPool
 from aiview import AIView
 from aiscene import AIScene
@@ -57,6 +57,13 @@ class AIFrame(Frame):
             "<<ListboxSelect>>",
             self._switch_displayed_controller
         )
+        scrollbar = Scrollbar(
+            master=self,
+            orient='vertical',
+            command=self._ai_listbox.yview
+        )
+        scrollbar.pack(side='left', fill='y')
+        self._ai_listbox.configure(yscrollcommand=scrollbar.set)
 
         self._ai_listbox.insert(0, *self._pool.get_instances_ids())
         self._ai_listbox.selection_set(0)
