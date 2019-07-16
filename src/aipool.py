@@ -2,7 +2,7 @@
 
 
 from concurrent.futures import ThreadPoolExecutor
-from threading import Thread
+from multiprocessing import Process, Manager
 from random import choice
 from aicontroller import AIController
 from game import Game
@@ -15,17 +15,16 @@ class AIPool(object):
     AIPool contains the pool of AIController instances.
 
     Inside it controllers are being trained and evolve.
+    All the evolution is happening in parallel Process.
     """
 
     def __init__(self):
         """Create the AIPool."""
-        Thread.__init__(self)
-        self._speciments = {
+        self._speciments = Manager().dict({
             (0, i): AIController()
             for i in range(POPULATION_SIZE)
-        }
-        self._games_pool = [Game() for _ in range(POPULATION_SIZE)]
-        self._thread = None
+        })
+        self._process = None
         self._gen_n = 0
 
     def get_instances_ids(self):
@@ -38,17 +37,25 @@ class AIPool(object):
 
     def ready(self):
         """Check if pool is ready for next generation."""
-        return self._thread is None or not self._thread.is_alive()
+        return self._process is None or not self._process.is_alive()
 
-    def start_process(self):
-        """Process one generation."""
-        if self._thread:
-            self._thread.join()
-        self._thread = Thread(target=self._run)
-        self._thread.start()
+    def process_generation(self):
+        """
+        Process one generation.
 
-    def _run(self):
+        Method starts sub-process.
+        """
         self._gen_n += 1
+        if self._process:
+            self._process.join()
+        self._process = Process(
+            target=self._run,
+            args=((self._speciments,))
+        )
+        self._process.start()
+
+    def _run(self, speciments):
+        self._speciments = speciments
         scores = self._play()
         self._select(scores)
         self._repopulate()
@@ -59,10 +66,9 @@ class AIPool(object):
                 spec_id: executor.submit(
                     AIPool._process_speciment,
                     speciment,
-                    game
+                    Game()
                 )
-                for (spec_id, speciment), game in
-                zip(self._speciments.items(), self._games_pool)
+                for (spec_id, speciment) in self._speciments.items()
             }
         return [
             (spec_id, future.result())
@@ -75,10 +81,12 @@ class AIPool(object):
             reverse=True
         )
         scores = scores[:int(len(scores)*SURVIVING_ODDS)]
-        self._speciments = {
-            spec_id: self._speciments[spec_id]
-            for spec_id, score in scores
+        survived_speciments = {
+            spec_id for spec_id, score in scores
         }
+        for spec_id in self._speciments.keys():
+            if spec_id not in survived_speciments:
+                del self._speciments[spec_id]
 
     def _repopulate(self):
         children = []

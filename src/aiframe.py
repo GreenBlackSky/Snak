@@ -10,7 +10,9 @@ from config import STEP
 
 class AIFrame(Frame):
     """
-    Frame with some widgets to perform and observe the evolution of the ai.
+    Frame with some widgets to perform the evolution of the ai.
+
+    Allows user to observe the ai behavement during its development.
     """
 
     def __init__(self, master, **kargs):
@@ -105,11 +107,12 @@ class AIFrame(Frame):
             self._ai_listbox.delete(0, 'end')
             self._ai_listbox.insert(0, *self._pool.get_instances_ids())
             self._stoping_evolution = False
+            self._stop_evolution()
 
         if self._run_evolution and self._pool.ready():
             self._ai_listbox.delete(0, 'end')
             self._ai_listbox.insert(0, *self._pool.get_instances_ids())
-            self._pool.start_process()
+            self._pool.process_generation()
 
         self.after(STEP, self.update)
 
@@ -142,17 +145,21 @@ class AIFrame(Frame):
     def _start_evolution(self):
         self._evolution_button.configure(
             text="Stop evolution",
-            command=self._stop_evolution
+            command=self._signal_to_stop_evolution
         )
         self._run_evolution = True
+
+    def _signal_to_stop_evolution(self):
+        self._stoping_evolution = True
+        self._evolution_button.configure(state='disable')
 
     def _stop_evolution(self):
         self._evolution_button.configure(
             text="Start evolution",
-            command=self._start_evolution
+            command=self._start_evolution,
+            state='normal'
         )
         self._run_evolution = False
-        self._stoping_evolution = True
 
     def _switch_displayed_controller(self, _):
         nn_n = self._ai_listbox.get(self._ai_listbox.curselection()[0])
