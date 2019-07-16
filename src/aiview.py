@@ -1,6 +1,7 @@
 """Module contains AIView class."""
 
 from resiziblecanvas import ResizibleCanvas
+from config import SCHEME
 
 
 class AIView(ResizibleCanvas):
@@ -19,9 +20,8 @@ class AIView(ResizibleCanvas):
         self._controller = controller
         self._nodes = {}
         self._connectors = {}
-        scheme = self._controller.scheme
-        cell_width = int(self['width'])//len(scheme)
-        cell_height = int(self['height'])//max(scheme)
+        cell_width = int(self['width'])//len(SCHEME)
+        cell_height = int(self['height'])//max(SCHEME)
         R = min(cell_width, cell_height)//3
         self._draw_connectors(cell_width, cell_height, R)
         self._draw_nodes(cell_width, cell_height, R)
@@ -50,7 +50,7 @@ class AIView(ResizibleCanvas):
         return color
 
     def _draw_nodes(self, cell_width, cell_height, R):
-        for x, layer in enumerate(self._controller.scheme):
+        for x, layer in enumerate(SCHEME):
             for y in range(layer):
                 xc = int(cell_width*(x + 0.5))
                 yc = int(cell_height*(y + 0.5))
@@ -59,11 +59,10 @@ class AIView(ResizibleCanvas):
                 )
 
     def _draw_connectors(self, cell_width, cell_height, R):
-        scheme = self._controller.scheme
-        for x2 in range(1, len(scheme)):
+        for x2 in range(1, len(SCHEME)):
             x1 = x2 - 1
-            for y2 in range(scheme[x2]):
-                for y1 in range(scheme[x1]):
+            for y2 in range(SCHEME[x2]):
+                for y1 in range(SCHEME[x1]):
                     weight = self._controller.get_connection(
                         x1, y1, x2, y2
                     )

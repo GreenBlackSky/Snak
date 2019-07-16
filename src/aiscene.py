@@ -34,8 +34,8 @@ class AIScene(GameScene):
         super().redraw(game)
         x, y = game.snake_head
         for i, (dx, dy) in enumerate(controller.get_directions()):
-            dist = controller.get_input_value(i*2)
-            val = controller.get_input_value(i*2 + 1)
+            dist = controller.get_distance_value(i)
+            val = controller.get_input_value(i)
             self._set_visible_cells(x, y, dx, dy, dist)
             self._set_sensor_cell(x + dx*dist, y + dy*dist, val)
 
@@ -50,12 +50,7 @@ class AIScene(GameScene):
         self._visible_cells.clear()
 
     def _set_sensor_cell(self, x, y, val):
-        if val == 3:
-            color = 'cyan'
-        elif val == 2 or val == 1:
-            color = 'yellow'
-        else:
-            color = 'blue'
+        color = {0: 'blue', 1: 'yellow', 2: 'cyan'}[val]
         item, original_color = self._fill_cell(x, y, color)
         self._sensor_cells.add((item, original_color))
 
