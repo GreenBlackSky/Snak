@@ -38,7 +38,17 @@ class AIFrame(Frame):
         )
         self._simulation_button.pack(side='left')
 
-        control_frame.pack()
+        Button(
+            master=control_frame,
+            text='Import NN'
+        ).pack(side='left')
+
+        Button(
+            master=control_frame,
+            text='Export NN'
+        ).pack(side='left')
+
+        control_frame.pack(fill='x')
 
         self._pool = AIPool()
         self._ai_listbox = Listbox(self, selectmode='single')

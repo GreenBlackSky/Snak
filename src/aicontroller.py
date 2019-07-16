@@ -2,7 +2,7 @@
 
 from random import randint, random as randfloat, choice, choices
 from basecontroller import BaseController
-from config import SCHEME
+from config import SCHEME, SCAN_DISTANCE
 
 
 class AIController(BaseController):
@@ -14,10 +14,8 @@ class AIController(BaseController):
     """
 
     DIRECTIONS = (
-        (-1, 0), (-1, -1), (0, -1), (1, -1),
-        (1, 0), (1, 1), (0, 1), (-1, 1)
+        (-1, 0), (0, -1), (1, 0), (0, 1)
     )
-    SCAN_DISTANCE = 10
 
     def __init__(self, parent=None, mutation_chance=0):
         """Create new AIController."""
@@ -52,7 +50,7 @@ class AIController(BaseController):
         """
         Percive situation in the game.
 
-        Actualy controller scans 5 directions relative to current direction.
+        Actualy controller scans 3 directions relative to current direction.
         """
         for i, (dx, dy) in enumerate(self.get_directions()):
             scan_result, distance = AIController._scan_direction(game, dx, dy)
@@ -61,8 +59,8 @@ class AIController(BaseController):
 
     def update(self):
         """Calculate next moving direction based on input."""
-        for i in range(5):
-            self._neurons[0][i*2] = self._inputs[i*2] / 5
+        for i in range(3):
+            self._neurons[0][i*2] = self._inputs[i*2] / SCAN_DISTANCE
             self._neurons[0][i*2 + 1] = self._inputs[i*2 + 1] / 4
 
         number_of_layers = len(self._nodes_scheme)
@@ -77,25 +75,22 @@ class AIController(BaseController):
         self._apply_update_result()
 
     def _apply_update_result(self):
-        v0, v1, v2 = self._neurons[-1]
-        val, n = max((abs(v), i) for i, v in enumerate(self._neurons[-1]))
-        if (val > 0 and n == 0) or \
-            (val < 0 and n == 2) or \
-                (val < 0 and n == 1 and v0 > v2):
-            self.turn_right()
-        elif (val > 0 and n == 2) or \
-            (val < 0 and n == 0) or \
-                (val < 0 and n == 1 and v2 > v0):
+        left, right = self._neurons[-1]
+        if abs(left - right) < 1:
+            return
+        if left > right:
             self.turn_left()
+        elif left < right:
+            self.turn_right()
 
     def get_directions(self):
         """Get current scanning directions."""
         cur_dir_n = AIController.DIRECTIONS.index(self._direction)
         return (
-            AIController.DIRECTIONS[i % 8]
+            AIController.DIRECTIONS[i % 4]
             for i in range(
-                8 + cur_dir_n - 2,
-                8 + cur_dir_n + 3
+                4 + cur_dir_n - 1,
+                4 + cur_dir_n + 2
             )
         )
 
@@ -123,7 +118,7 @@ class AIController(BaseController):
         x, y = game.snake_head
         distance = 0
         scan_result = 0
-        for i in range(1, AIController.SCAN_DISTANCE):
+        for i in range(1, SCAN_DISTANCE):
             tx, ty = x + dx*i, y + dy*i
             distance += 1
             scan_result = game.scan_cell(tx, ty)
