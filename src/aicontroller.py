@@ -105,6 +105,7 @@ class AIController(BaseController):
         return self._inputs[n]
 
     def get_distance_value(self, n):
+        """Get distance, on wich relative sensor has been triggered."""
         return self._distances[n]
 
     def get_node_value(self, layer_n, node_n):

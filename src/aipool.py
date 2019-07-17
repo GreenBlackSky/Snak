@@ -1,7 +1,6 @@
 """Module contains AIPool class."""
 
 
-from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process, Manager
 from random import choice
 from aicontroller import AIController
@@ -25,6 +24,7 @@ class AIPool(object):
             for i in range(POPULATION_SIZE)
         })
         self._process = None
+        self._game = Game()
         self._gen_n = 0
 
     def get_instances_ids(self):
@@ -61,29 +61,15 @@ class AIPool(object):
         self._repopulate()
 
     def _play(self):
-        with ThreadPoolExecutor(max_workers=MAX_WORKING_THREADS) as executor:
-            results = {
-                spec_id: executor.submit(
-                    AIPool._process_speciment,
-                    speciment,
-                    Game()
-                )
-                for (spec_id, speciment) in self._speciments.items()
-            }
         return [
-            (spec_id, future.result())
-            for spec_id, future in results.items()
+            (self._process_speciment(speciment), spec_id)
+            for (spec_id, speciment) in self._speciments.items()
         ]
 
     def _select(self, scores):
-        scores.sort(
-            key=lambda item: item[1],
-            reverse=True
-        )
+        scores.sort(reverse=True)
         scores = scores[:int(len(scores)*SURVIVING_ODDS)]
-        survived_speciments = {
-            spec_id for spec_id, score in scores
-        }
+        survived_speciments = {spec_id for score, spec_id in scores}
         for spec_id in self._speciments.keys():
             if spec_id not in survived_speciments:
                 del self._speciments[spec_id]
@@ -100,17 +86,16 @@ class AIPool(object):
             children.append((child_id, child))
         self._speciments.update(children)
 
-    @staticmethod
-    def _process_speciment(speciment, game):
+    def _process_speciment(self, speciment):
         scores = [0]*GAMES_PER_GENERATION
         for game_n in range(GAMES_PER_GENERATION):
             speciment.reset()
-            game.restart()
+            self._game.restart()
             for _ in range(MAX_TURNS):
-                game.update(speciment.direction)
-                speciment.percive(game)
+                self._game.update(speciment.direction)
+                speciment.percive(self._game)
                 speciment.update()
-                if game.is_lost:
+                if self._game.is_lost:
                     break
-            scores[game_n] = game.score
+            scores[game_n] = self._game.score
         return sum(scores)

@@ -20,6 +20,7 @@ class AIView(ResizibleCanvas):
         self._controller = controller
         self._nodes = {}
         self._connectors = {}
+
         cell_width = int(self['width'])//len(SCHEME)
         cell_height = int(self['height'])//max(SCHEME)
         R = min(cell_width, cell_height)//3
