@@ -65,7 +65,7 @@ class AIView(ResizibleCanvas):
             for y2 in range(SCHEME[x2]):
                 for y1 in range(SCHEME[x1]):
                     weight = self._controller.get_connection(
-                        x1, y1, x2, y2
+                        x1, y1, y2
                     )
                     color = self._get_color(weight, 1, -1)
                     self._connectors[((x1, y1), (x2, y2))] = self.create_line(

@@ -6,7 +6,7 @@ from random import choice
 from aicontroller import AIController
 from game import Game
 from config import POPULATION_SIZE, GAMES_PER_GENERATION, \
-    MAX_TURNS, SURVIVING_ODDS, MUTATION_CHANCE, MAX_WORKING_THREADS
+    MAX_TURNS, SURVIVING_ODDS, MAX_WORKING_THREADS
 
 
 class AIPool(object):
@@ -80,7 +80,7 @@ class AIPool(object):
         last_id = 0
         for _ in range(POPULATION_SIZE - len(self._speciments)):
             (gen_id, spec_id), parent = choice(parents)
-            child = AIController(parent, MUTATION_CHANCE)
+            child = AIController(parent)
             child_id = (self._gen_n, last_id)
             last_id += 1
             children.append((child_id, child))

@@ -1,8 +1,9 @@
 """Module contains the AIController class."""
 
-from random import randint, random as randfloat, choice, choices
+from random import randint, random as randfloat, choice
+from copy import deepcopy
 from basecontroller import BaseController
-from config import SCHEME, MAX_SCAN_DISTANCE
+from config import SCHEME, MAX_SCAN_DISTANCE, MUTATION_CHANCE
 
 
 class AIController(BaseController):
@@ -17,7 +18,7 @@ class AIController(BaseController):
         (-1, 0), (0, -1), (1, 0), (0, 1)
     )
 
-    def __init__(self, parent=None, mutation_chance=0):
+    def __init__(self, parent=None):
         """Create new AIController."""
         BaseController.__init__(self)
         self._step = 0
@@ -26,22 +27,12 @@ class AIController(BaseController):
             [0] * layer_size
             for layer_size in SCHEME
         ]
+        self._connections = None
+
         if parent:
-            self._connections = dict(parent._connections)
-            mutations_n = randint(
-                0,
-                int(len(self._connections)*mutation_chance)
-            )
-            mutations = choices(list(self._connections), k=mutations_n)
-            for connection_id in mutations:
-                self._connections[connection_id] = randfloat()*choice((1, -1))
+            self._inherit_connections(parent)
         else:
-            self._connections = {
-                (x2 - 1, y1, x2, y2): randfloat() * choice((1, -1))
-                for x2 in range(1, len(SCHEME))
-                for y2 in range(SCHEME[x2])
-                for y1 in range(SCHEME[x2 - 1])
-            }
+            self._generate_connections()
 
         self._inputs = [0]*3
         self._distances = [0]*3
@@ -65,25 +56,17 @@ class AIController(BaseController):
         for i in range(3):
             self._neurons[0][i + 3] = self._distances[i]/MAX_SCAN_DISTANCE
 
-        number_of_layers = len(SCHEME)
-        for x2 in range(1, number_of_layers):
-            x1 = x2 - 1
-            for y2 in range(SCHEME[x2]):
+        for layer_n, connections in enumerate(self._connections):
+            start_nodes = self._neurons[layer_n]
+            end_nodes = self._neurons[layer_n + 1]
+            for end_node_n in range(len(end_nodes)):
+                weights = connections[end_node_n]
                 S = sum(
-                    self._neurons[x1][y1]*self._connections[(x1, y1, x2, y2)]
-                    for y1 in range(SCHEME[x1])
+                    val * weight
+                    for val, weight in zip(start_nodes, weights)
                 )
-                self._neurons[x2][y2] = S if S > 0 else S * 0.01
+                end_nodes[end_node_n] = S if S > 0 else S * 0.01
         self._apply_update_result()
-
-    def _apply_update_result(self):
-        left, right = self._neurons[-1]
-        if abs(left - right) < 0.5:
-            return
-        if left > right:
-            self.turn_left()
-        elif left < right:
-            self.turn_right()
 
     def get_directions(self):
         """Get current scanning directions."""
@@ -96,9 +79,9 @@ class AIController(BaseController):
             )
         )
 
-    def get_connection(self, x1, y1, x2, y2):
+    def get_connection(self, layer_n, start_node_n, end_node_n):
         """Get the weight of connection between twoneurons."""
-        return self._connections[(x1, y1, x2, y2)]
+        return self._connections[layer_n][end_node_n][start_node_n]
 
     def get_input_value(self, n):
         """Get the value of input node."""
@@ -119,6 +102,47 @@ class AIController(BaseController):
             for layer in self._neurons
         )
 
+    def reset(self):
+        """Reset input values."""
+        self._inputs = [0]*3
+        self._distances = [0]*3
+
+    def _inherit_connections(self, parent):
+        self._connections = deepcopy(parent._connections)
+        connections_n = sum(
+            SCHEME[i] * SCHEME[i + 1]
+            for i in range(len(SCHEME) - 1)
+        )
+        mutations_n = randint(0, int(connections_n * MUTATION_CHANCE) - 1)
+
+        for _ in range(mutations_n):
+            layer_n = randint(0, len(SCHEME) - 2)
+            start_node_n = randint(0, SCHEME[layer_n] - 1)
+            end_node_n = randint(0, SCHEME[layer_n + 1] - 1)
+            val = randfloat() * choice((-1, 1))
+            self._connections[layer_n][end_node_n][start_node_n] = val
+
+    def _generate_connections(self):
+        self._connections = [
+            [
+                [
+                    randfloat() * choice((-1, 1))
+                    for start_node_n in range(SCHEME[layer_n])
+                ]
+                for end_node_n in range(SCHEME[layer_n + 1])
+            ]
+            for layer_n in range(len(SCHEME) - 1)
+        ]
+
+    def _apply_update_result(self):
+        left, right = self._neurons[-1]
+        if abs(left - right) < 0.5:
+            return
+        if left > right:
+            self.turn_left()
+        elif left < right:
+            self.turn_right()
+
     @staticmethod
     def _scan_direction(game, dx, dy):
         x, y = game.snake_head
@@ -131,8 +155,3 @@ class AIController(BaseController):
             if scan_result != 0:
                 break
         return scan_result, distance
-
-    def reset(self):
-        """Reset input values."""
-        self._inputs = [0]*3
-        self._distances = [0]*3
