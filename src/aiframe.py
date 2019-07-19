@@ -1,6 +1,7 @@
 """Module contains the AIFrame class."""
 
 from tkinter import Frame, Button, Listbox, Scrollbar
+from tkinter.ttk import Treeview
 from aipool import AIPool
 from aiview import AIView
 from aiscene import AIScene
@@ -19,57 +20,14 @@ class AIFrame(Frame):
         """Create the AIFrame."""
         super().__init__(master, **kargs)
 
-        control_frame = Frame(self)
-        Button(
-            master=control_frame,
-            text="Menu",
-            command=self.master.main_menu,
-        ).pack(side='left')
+        self._evolution_button = None
+        self._simulation_button = None
+        self._set_control_panel()
 
-        self._evolution_button = Button(
-            master=control_frame,
-            text='Start evolution',
-            command=self._start_evolution,
-        )
-        self._evolution_button.pack(side='left')
-
-        self._simulation_button = Button(
-            master=control_frame,
-            text="Start simutation",
-            command=self._start_simulation,
-        )
-        self._simulation_button.pack(side='left')
-
-        Button(
-            master=control_frame,
-            text='Import NN'
-        ).pack(side='left')
-
-        Button(
-            master=control_frame,
-            text='Export NN'
-        ).pack(side='left')
-
-        control_frame.pack(fill='x')
-
-        self._pool = AIPool()
-        self._ai_listbox = Listbox(self, selectmode='single')
-        self._ai_listbox.pack(side='left', fill='both')
-        self._ai_listbox.bind(
-            "<<ListboxSelect>>",
-            self._switch_displayed_controller
-        )
-        scrollbar = Scrollbar(
-            master=self,
-            orient='vertical',
-            command=self._ai_listbox.yview
-        )
-        scrollbar.pack(side='left', fill='y')
-        self._ai_listbox.configure(yscrollcommand=scrollbar.set)
-
-        self._ai_listbox.insert(0, *self._pool.get_instances_ids())
-        self._ai_listbox.selection_set(0)
-        self._controller = self._pool.get_instance_by_id((0, 0))
+        self._controller = None
+        self._pool = None
+        self._ai_list = None
+        self._set_listbox()
 
         self._game = Game()
         self._game_scene = AIScene(self)
@@ -103,16 +61,19 @@ class AIFrame(Frame):
                 self._game_scene.redraw(self._game, self._controller)
                 self._controller.update()
 
-        if self._stoping_evolution and self._pool.ready():
-            self._ai_listbox.delete(0, 'end')
-            self._ai_listbox.insert(0, *self._pool.get_instances_ids())
-            self._stoping_evolution = False
-            self._stop_evolution()
-
         if self._run_evolution and self._pool.ready():
-            self._ai_listbox.delete(0, 'end')
-            self._ai_listbox.insert(0, *self._pool.get_instances_ids())
-            self._pool.process_generation()
+            for child in self._ai_list.get_children():
+                self._ai_list.delete(child)
+            for (gen, spec_id, score) in self._pool.get_instances_data():
+                self._ai_list.insert('', 'end', values=(gen, spec_id, score))
+            self._ai_list.selection_set(self._ai_list.identify_row(0))
+
+            if self._stoping_evolution:
+                self._stoping_evolution = False
+                self._stop_evolution()
+
+            if self._run_evolution:
+                self._pool.process_generation()
 
         self.after(STEP, self.update)
 
@@ -127,6 +88,40 @@ class AIFrame(Frame):
         self._stop_evolution()
         self._stop_simulation()
         Frame.pack_forget(self, *args, **kargs)
+
+    def _set_control_panel(self):
+        control_frame = Frame(self)
+        Button(
+            master=control_frame,
+            text="Menu",
+            command=self.master.main_menu,
+        ).pack(side='left')
+
+        self._evolution_button = Button(
+            master=control_frame,
+            text='Start evolution',
+            command=self._start_evolution,
+        )
+        self._evolution_button.pack(side='left')
+
+        self._simulation_button = Button(
+            master=control_frame,
+            text="Start simutation",
+            command=self._start_simulation,
+        )
+        self._simulation_button.pack(side='left')
+
+        Button(
+            master=control_frame,
+            text='Import NN'
+        ).pack(side='left')
+
+        Button(
+            master=control_frame,
+            text='Export NN'
+        ).pack(side='left')
+
+        control_frame.pack(fill='x')
 
     def _start_simulation(self):
         self._simulation_button.configure(
@@ -162,11 +157,46 @@ class AIFrame(Frame):
         self._run_evolution = False
 
     def _switch_displayed_controller(self, _):
-        nn_n = self._ai_listbox.get(self._ai_listbox.curselection()[0])
-        controller = self._pool.get_instance_by_id(nn_n)
+        nn_n = tuple(self._ai_list.item(self._ai_list.focus())['values'])
+        if not nn_n:
+            return
+        controller = self._pool.get_instance_by_id(nn_n[:-1])
         simulation_state, self._run_simulation = self._run_simulation, False
         self._controller = controller
         self._ai_view.set_contorller(controller)
         self._game.restart()
         self._game_scene.draw(self._game)
         self._run_simulation = simulation_state
+
+    def _set_listbox(self):
+        self._pool = AIPool()
+        columns = ("Gen", "Id", "Score")
+        self._ai_list = Treeview(
+            self,
+            selectmode='browse',
+            columns=columns,
+            show='headings'
+        )
+        for column_id in columns:
+            self._ai_list.column(column_id, width=50)
+            self._ai_list.heading(column_id, text=column_id)
+
+        self._ai_list.pack(side='left', fill='both')
+        self._ai_list.bind(
+            "<<TreeviewSelect>>",
+            self._switch_displayed_controller
+        )
+
+        scrollbar = Scrollbar(
+            master=self,
+            orient='vertical',
+            command=self._ai_list.yview
+        )
+        scrollbar.pack(side='left', fill='y')
+        self._ai_list.configure(yscrollcommand=scrollbar.set)
+
+        for (gen, spec_id, score) in self._pool.get_instances_data():
+            self._ai_list.insert('', 'end', values=(gen, spec_id, score))
+        self._ai_list.selection_set(self._ai_list.identify_row(0))
+
+        self._controller = self._pool.get_instance_by_id((0, 0))
