@@ -42,6 +42,7 @@ class AIPool(object):
         """Get the instance of an AIController by its id."""
         return AIController(self._speciments[id])
 
+    @property
     def ready(self):
         """Check if pool is ready for next generation."""
         return self._process is None or not self._process.is_alive()
