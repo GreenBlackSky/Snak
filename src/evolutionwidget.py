@@ -53,3 +53,7 @@ class EvolutionWidget(Frame):
 
     def process_generation(self):
         self._pool.process_generation()
+
+    def reset(self):
+        self._pool = AIPool()
+        self.update()

@@ -1,5 +1,4 @@
 
-
 from tkinter import Frame, Button
 
 
@@ -11,11 +10,12 @@ class ControlWidget(Frame):
         self._run_simulation = False
         self._run_evolution = False
         self._stoping_evolution = False
+        self._exiting = False
 
         Button(
             master=self,
             text="Menu",
-            command=master.master.main_menu,
+            command=self._signal_to_exit,
         ).pack(side='left')
 
         self._evolution_button = Button(
@@ -46,6 +46,12 @@ class ControlWidget(Frame):
             master=self,
             text='Export NN'
         ).pack(side='left')
+
+    def reset(self):
+        self._run_simulation = False
+        self._run_evolution = False
+        self._stoping_evolution = False
+        self._exiting = False
 
     def start_simulation(self):
         self._simulation_button.configure(
@@ -81,6 +87,10 @@ class ControlWidget(Frame):
         self._stoping_evolution = False
         self._run_evolution = False
 
+    def _signal_to_exit(self):
+        self._signal_to_stop_evolution()
+        self._exiting = True
+
     @property
     def run_evolution(self):
         return self._run_evolution
@@ -92,3 +102,7 @@ class ControlWidget(Frame):
     @property
     def stoping_evolution(self):
         return self._stoping_evolution
+
+    @property
+    def exiting(self):
+        return self._exiting
