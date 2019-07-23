@@ -3,7 +3,7 @@
 from tkinter import Frame, Button
 
 
-class AIControl(Frame):
+class ControlWidget(Frame):
 
     def __init__(self, master):
         Frame.__init__(self, master)

@@ -1,9 +1,8 @@
 """Module contains the AIFrame class."""
 
-from tkinter import Frame, Scrollbar
-from tkinter.ttk import Treeview
-from aicontrol import AIControl
-from aipool import AIPool
+from tkinter import Frame
+from evolutionwidget import EvolutionWidget
+from controlwidget import ControlWidget
 from aiview import AIView
 from aiscene import AIScene
 from game import Game
@@ -21,13 +20,17 @@ class AIFrame(Frame):
         """Create the AIFrame."""
         super().__init__(master, **kargs)
 
-        self._control = AIControl(self)
+        self._control = ControlWidget(self)
         self._control.pack(fill='x')
 
-        self._controller = None
-        self._pool = None
-        self._ai_list = None
-        self._set_listbox()
+        self._evolution = EvolutionWidget(self)
+        self._evolution.pack(side='left', fill='both')
+        self._evolution.bind(
+            "<<TreeviewSelect>>",
+            self._switch_displayed_controller
+        )
+
+        self._controller = self._evolution.selected_controller()
 
         self._game = Game()
         self._game_scene = AIScene(self)
@@ -58,18 +61,14 @@ class AIFrame(Frame):
                 self._game_scene.redraw(self._game, self._controller)
                 self._controller.update()
 
-        if self._control.run_evolution and self._pool.ready:
-            for child in self._ai_list.get_children():
-                self._ai_list.delete(child)
-            for (gen, spec_id, score) in self._pool.get_instances_data():
-                self._ai_list.insert('', 'end', values=(gen, spec_id, score))
-            self._ai_list.selection_set(self._ai_list.identify_row(0))
+        if self._control.run_evolution and self._evolution.ready:
+            self._evolution.update()
 
             if self._control.stoping_evolution:
                 self._control.stop_evolution()
 
             if self._control.run_evolution:
-                self._pool.process_generation()
+                self._evolution.process_generation()
 
         self.after(STEP, self.update)
 
@@ -86,14 +85,10 @@ class AIFrame(Frame):
         Frame.pack_forget(self, *args, **kargs)
 
     def _switch_displayed_controller(self, _):
-        nn_n = tuple(self._ai_list.item(self._ai_list.focus())['values'])
-        if not nn_n:
-            return
+        controller = self._evolution.selected_controller()
 
         simulation_state = self._control.run_simulation
         self._control.stop_simulation()
-
-        controller = self._pool.get_instance_by_id(nn_n[:-1])
         self._controller = controller
         self._ai_view.set_contorller(controller)
         self._game.restart()
@@ -101,36 +96,3 @@ class AIFrame(Frame):
 
         if simulation_state:
             self._control.start_simulation()
-
-    def _set_listbox(self):
-        self._pool = AIPool()
-        columns = ("Gen", "Id", "Score")
-        self._ai_list = Treeview(
-            self,
-            selectmode='browse',
-            columns=columns,
-            show='headings'
-        )
-        for column_id in columns:
-            self._ai_list.column(column_id, width=50)
-            self._ai_list.heading(column_id, text=column_id)
-
-        self._ai_list.pack(side='left', fill='both')
-        self._ai_list.bind(
-            "<<TreeviewSelect>>",
-            self._switch_displayed_controller
-        )
-
-        scrollbar = Scrollbar(
-            master=self,
-            orient='vertical',
-            command=self._ai_list.yview
-        )
-        scrollbar.pack(side='left', fill='y')
-        self._ai_list.configure(yscrollcommand=scrollbar.set)
-
-        for (gen, spec_id, score) in self._pool.get_instances_data():
-            self._ai_list.insert('', 'end', values=(gen, spec_id, score))
-        self._ai_list.selection_set(self._ai_list.identify_row(0))
-
-        self._controller = self._pool.get_instance_by_id((0, 0))
