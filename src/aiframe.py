@@ -1,8 +1,7 @@
 """Module contains the AIFrame class."""
 
-from tkinter import Frame
+from tkinter import Frame, Button
 from evolutionwidget import EvolutionWidget
-from controlwidget import ControlWidget
 from simulationwidget import SimulationWidget
 from config import STEP
 
@@ -18,21 +17,26 @@ class AIFrame(Frame):
         """Create the AIFrame."""
         super().__init__(master, **kargs)
 
-        self._control = ControlWidget(self)
-        self._control.pack(fill='x')
+        self._exiting = False
+
+        Button(
+            master=self,
+            text='Menu',
+            command=self._signal_to_exit,
+        ).grid()
 
         self._evolution = EvolutionWidget(self)
-        self._evolution.pack(side='left', fill='both')
         self._evolution.bind(
             "<<TreeviewSelect>>",
             self._switch_displayed_controller
         )
+        self._evolution.grid(row=1, sticky='ns')
 
         self._simulation = SimulationWidget(
             master=self,
             controller=self._evolution.selected_controller()
         )
-        self._simulation.pack(side='left', fill='both', expand=True)
+        self._simulation.grid(column=1, row=0, rowspan=2)
 
         self.update()
 
@@ -41,19 +45,9 @@ class AIFrame(Frame):
 
         Schedules call of itself.
         """
-        if self._control.run_simulation:
-            self._simulation.update()
-
-        if self._control.run_evolution and self._evolution.ready:
-            self._evolution.update()
-
-            if self._control.stoping_evolution:
-                self._control.stop_evolution()
-
-            if self._control.run_evolution:
-                self._evolution.process_generation()
-
-        if self._control.exiting and not self._control.run_evolution:
+        self._simulation.update()
+        self._evolution.update()
+        if self._exiting and not self._evolution.running:
             self.master.main_menu()
 
         self.after(STEP, self.update)
@@ -64,19 +58,15 @@ class AIFrame(Frame):
 
         Overloaded to stop all processes while the frame is not visible.
         """
-        self._control.reset()
         self._simulation.reset()
         self._evolution.reset()
-        self._control.stop_evolution()
-        self._control.stop_simulation()
+        self._exiting = False
         Frame.pack_forget(self, *args, **kargs)
 
     def _switch_displayed_controller(self, _):
-        simulation_state = self._control.run_simulation
-        self._control.stop_simulation()
-
         controller = self._evolution.selected_controller()
         self._simulation.set_controller(controller)
 
-        if simulation_state:
-            self._control.start_simulation()
+    def _signal_to_exit(self):
+        self._evolution.signal_to_stop()
+        self._exiting = True

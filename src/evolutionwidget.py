@@ -1,16 +1,29 @@
+
 from tkinter.ttk import Treeview
-from tkinter import Frame, Scrollbar
+from tkinter import Frame, Scrollbar, Button
 from aipool import AIPool
 
 
 class EvolutionWidget(Frame):
 
     def __init__(self, master):
-        self._pool = AIPool()
-        columns = ("Gen", "Id", "Score")
         Frame.__init__(self, master)
+
+        self._running = False
+        self._stoping = False
+
+        self._button = Button(
+            master=self,
+            text='Start evolution',
+            command=self._start,
+        )
+        self._button.pack()
+
+        self._pool = AIPool()
+
+        columns = ("Gen", "Id", "Score")
         self._list = Treeview(
-            self,
+            master=self,
             selectmode='browse',
             columns=columns,
             show='headings'
@@ -27,14 +40,19 @@ class EvolutionWidget(Frame):
         )
         scrollbar.pack(side='left', fill='y')
         self._list.configure(yscrollcommand=scrollbar.set)
+
         self._list.selection_set(self._list.identify_row(0))
-        self.update()
+        self._update_data()
 
     def update(self):
-        for child in self._list.get_children():
-            self._list.delete(child)
-        for (gen, spec_id, score) in self._pool.get_instances_data():
-            self._list.insert('', 'end', values=(gen, spec_id, score))
+        if self._running and self._pool.ready:
+            self._update_data()
+
+            if self._stoping:
+                self._stop()
+
+            if self._running:
+                self._pool.process_generation()
 
     def bind(self, *args):
         self._list.bind(*args)
@@ -47,13 +65,37 @@ class EvolutionWidget(Frame):
         controller_id = tuple(selected_item['values'])
         return self._pool.get_instance_by_id(controller_id[:-1])
 
-    @property
-    def ready(self):
-        return self._pool.ready
-
-    def process_generation(self):
-        self._pool.process_generation()
-
     def reset(self):
+        self._stop()
         self._pool = AIPool()
-        self.update()
+        self._update_data()
+
+    def signal_to_stop(self):
+        self._stoping = True
+        self._button.configure(state='disable')
+
+    @property
+    def running(self):
+        return self._running
+
+    def _start(self):
+        self._button.configure(
+            text="Stop evolution",
+            command=self.signal_to_stop
+        )
+        self._running = True
+
+    def _stop(self):
+        self._button.configure(
+            text="Start evolution",
+            command=self._start,
+            state='normal'
+        )
+        self._stoping = False
+        self._running = False
+
+    def _update_data(self):
+        for child in self._list.get_children():
+            self._list.delete(child)
+        for (gen, spec_id, score) in self._pool.get_instances_data():
+            self._list.insert('', 'end', values=(gen, spec_id, score))
