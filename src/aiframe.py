@@ -71,6 +71,7 @@ class AIFrame(Frame):
 
         Overloaded to stop all processes while the frame is not visible.
         """
+        self._simulation.stop()
         self._simulation.reset()
         self._statistics.reset()
         self._evolution.reset()

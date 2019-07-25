@@ -82,7 +82,6 @@ class SimulationWidget(Frame):
 
     def reset(self):
         """Reset widget to default state."""
-        self.stop()
         self._game.restart()
         self._game_scene.clear()
         self._game_scene.draw(self._game)

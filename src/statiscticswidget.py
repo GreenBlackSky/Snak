@@ -1,3 +1,4 @@
+"""Module contains StatisticsWidget class."""
 
 from tkinter import Frame
 from matplotlib.figure import Figure
@@ -5,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class StatisticsWidget(Frame):
-
+    """Widget can display given data."""
     def __init__(self, master):
         Frame.__init__(self, master)
 
@@ -25,10 +26,12 @@ class StatisticsWidget(Frame):
         )
 
     def reset(self):
+        """Reset widget."""
         self._axes.clear()
         self._canvas.draw()
 
     def set_data_callback(self, event):
+        """Add scores from event to displayed statistics."""
         data = event.widget.data
         self._generation_count += 1
         for gen_n, spec_id, score in data:
