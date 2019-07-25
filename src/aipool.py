@@ -32,10 +32,10 @@ class AIPool(object):
 
     def get_instances_data(self):
         """Get the list of instances ids."""
-        return [
+        return tuple(
             (*key, self._scores[key])
             for key in self._speciments
-        ]
+        )
 
     def get_instance_by_id(self, id):
         """Get the instance of an AIController by its id."""

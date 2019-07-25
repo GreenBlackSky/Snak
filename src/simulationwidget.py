@@ -56,7 +56,7 @@ class SimulationWidget(Frame):
     def set_controller(self, controller):
         """Set controller directly."""
         simulation_state = self._running
-        self._stop()
+        self.stop()
 
         self._controller = controller
         self._ai_view.set_contorller(controller)
@@ -82,21 +82,22 @@ class SimulationWidget(Frame):
 
     def reset(self):
         """Reset widget to default state."""
-        self._stop()
+        self.stop()
         self._game.restart()
         self._game_scene.clear()
         self._game_scene.draw(self._game)
 
-    def _start(self):
-        self._button.configure(
-            text="Stop simulation",
-            command=self._stop
-        )
-        self._running = True
-
-    def _stop(self):
+    def stop(self, _=None):
+        """Stop simulation."""
         self._button.configure(
             text="Start simulation",
             command=self._start
         )
         self._running = False
+
+    def _start(self):
+        self._button.configure(
+            text="Stop simulation",
+            command=self.stop
+        )
+        self._running = True

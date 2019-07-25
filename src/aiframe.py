@@ -4,6 +4,7 @@ from tkinter import Frame, Button
 from tkinter.ttk import Notebook
 from evolutionwidget import EvolutionWidget
 from simulationwidget import SimulationWidget
+from statiscticswidget import StatisticsWidget
 from config import STEP
 
 
@@ -30,7 +31,7 @@ class AIFrame(Frame):
         self._evolution.grid(row=1, sticky='ns')
 
         notebook = Notebook(self)
-        notebook.grid(column=1, row=0, rowspan=2)
+        notebook.grid(column=1, row=0, rowspan=2, stick='nwse')
 
         self._simulation = SimulationWidget(
             master=notebook,
@@ -40,7 +41,15 @@ class AIFrame(Frame):
             "<<SelectController>>",
             self._simulation.set_controller_callback
         )
+        notebook.bind("<<NotebookTabChanged>>", self._simulation.stop)
         notebook.add(self._simulation, text="Simulation")
+
+        self._statistics = StatisticsWidget(self)
+        self._evolution.bind(
+            "<<Updated>>",
+            self._statistics.set_data_callback
+        )
+        notebook.add(self._statistics, text='Statistics')
 
         self.update()
 
@@ -63,6 +72,7 @@ class AIFrame(Frame):
         Overloaded to stop all processes while the frame is not visible.
         """
         self._simulation.reset()
+        self._statistics.reset()
         self._evolution.reset()
         self._exiting = False
         Frame.pack_forget(self, *args, **kargs)

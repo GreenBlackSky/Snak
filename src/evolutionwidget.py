@@ -29,6 +29,7 @@ class EvolutionWidget(Frame):
         self._button.pack()
 
         self._pool = AIPool()
+        self._data = self._pool.get_instances_data()
 
         columns = ("Gen", "Id", "Score")
         self._list = Treeview(
@@ -68,6 +69,7 @@ class EvolutionWidget(Frame):
         """
         if self._running and self._pool.ready:
             self._update_data()
+            self.event_generate("<<Updated>>")
 
             if self._stoping:
                 self._stop()
@@ -105,6 +107,11 @@ class EvolutionWidget(Frame):
         """Check if calculations for current generationl are over."""
         return self._running
 
+    @property
+    def data(self):
+        """Get current generation data."""
+        return self._data
+
     def _start(self):
         self._button.configure(
             text="Stop evolution",
@@ -122,9 +129,10 @@ class EvolutionWidget(Frame):
         self._running = False
 
     def _update_data(self):
+        self._data = self._pool.get_instances_data()
         for child in self._list.get_children():
             self._list.delete(child)
-        for (gen, spec_id, score) in self._pool.get_instances_data():
+        for (gen, spec_id, score) in self._data:
             self._list.insert('', 'end', values=(gen, spec_id, score))
 
     def _pass_controller(self, event):
