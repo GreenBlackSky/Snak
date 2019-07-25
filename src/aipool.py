@@ -1,6 +1,5 @@
 """Module contains the AIPool class."""
 
-
 from multiprocessing import Process, Manager
 from random import choice
 from aicontroller import AIController

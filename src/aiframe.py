@@ -1,6 +1,7 @@
 """Module contains the AIFrame class."""
 
 from tkinter import Frame, Button
+from tkinter.ttk import Notebook
 from evolutionwidget import EvolutionWidget
 from simulationwidget import SimulationWidget
 from config import STEP
@@ -26,17 +27,20 @@ class AIFrame(Frame):
         ).grid()
 
         self._evolution = EvolutionWidget(self)
-        self._evolution.bind(
-            "<<TreeviewSelect>>",
-            self._switch_displayed_controller
-        )
         self._evolution.grid(row=1, sticky='ns')
 
+        notebook = Notebook(self)
+        notebook.grid(column=1, row=0, rowspan=2)
+
         self._simulation = SimulationWidget(
-            master=self,
+            master=notebook,
             controller=self._evolution.selected_controller()
         )
-        self._simulation.grid(column=1, row=0, rowspan=2)
+        self._evolution.bind(
+            "<<SelectController>>",
+            self._simulation.set_controller_callback
+        )
+        notebook.add(self._simulation, text="Simulation")
 
         self.update()
 
@@ -62,10 +66,6 @@ class AIFrame(Frame):
         self._evolution.reset()
         self._exiting = False
         Frame.pack_forget(self, *args, **kargs)
-
-    def _switch_displayed_controller(self, _):
-        controller = self._evolution.selected_controller()
-        self._simulation.set_controller(controller)
 
     def _signal_to_exit(self):
         self._evolution.signal_to_stop()

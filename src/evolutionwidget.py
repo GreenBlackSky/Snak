@@ -1,3 +1,4 @@
+"""Module contains the EvolutionWidget class."""
 
 from tkinter.ttk import Treeview
 from tkinter import Frame, Scrollbar, Button
@@ -5,8 +6,16 @@ from aipool import AIPool
 
 
 class EvolutionWidget(Frame):
+    """
+    List-based widget, purpoced to control evolution.
+
+    By pressing the button, user can start and stop evolution
+    of controllers. Picking controller from list leads to
+    generating <<SelectController>> event.
+    """
 
     def __init__(self, master):
+        """Create EvolutionWidget."""
         Frame.__init__(self, master)
 
         self._running = False
@@ -28,6 +37,11 @@ class EvolutionWidget(Frame):
             columns=columns,
             show='headings'
         )
+        self._list.bind(
+            "<<TreeviewSelect>>",
+            self._pass_controller
+        )
+
         for column_id in columns:
             self._list.column(column_id, width=50)
             self._list.heading(column_id, text=column_id)
@@ -45,6 +59,13 @@ class EvolutionWidget(Frame):
         self._update_data()
 
     def update(self):
+        """
+        Update widget.
+
+        Widget makes calculations in separate process.
+        If calculations for current generation are finished,
+        this method updates list. Does nothing otherwise.
+        """
         if self._running and self._pool.ready:
             self._update_data()
 
@@ -54,10 +75,8 @@ class EvolutionWidget(Frame):
             if self._running:
                 self._pool.process_generation()
 
-    def bind(self, *args):
-        self._list.bind(*args)
-
     def selected_controller(self):
+        """Get currently selected controller."""
         selected_item_id = self._list.selection()
         if not selected_item_id:
             selected_item_id = self._list.identify_row(0)
@@ -66,16 +85,24 @@ class EvolutionWidget(Frame):
         return self._pool.get_instance_by_id(controller_id[:-1])
 
     def reset(self):
+        """Reset widget to default state."""
         self._stop()
         self._pool = AIPool()
         self._update_data()
 
     def signal_to_stop(self):
+        """
+        Send widget signal to stop.
+
+        Widget would stop evolution after calculations for
+        current generations are over.
+        """
         self._stoping = True
         self._button.configure(state='disable')
 
     @property
     def running(self):
+        """Check if calculations for current generationl are over."""
         return self._running
 
     def _start(self):
@@ -99,3 +126,6 @@ class EvolutionWidget(Frame):
             self._list.delete(child)
         for (gen, spec_id, score) in self._pool.get_instances_data():
             self._list.insert('', 'end', values=(gen, spec_id, score))
+
+    def _pass_controller(self, event):
+        self.event_generate("<<SelectController>>")

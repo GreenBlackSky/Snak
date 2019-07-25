@@ -1,6 +1,5 @@
 """Module contains logic for a game of snak."""
 
-
 from random import randint, choice, sample
 from config import WIDTH, HEIGHT, RELATIVE_OBSTACLE_N, OBSTACLE_RATE
 
