@@ -1,13 +1,12 @@
 """Module contains the AIController class."""
 
-from random import randint, random as randfloat, choice
-from numpy import array, zeros, sum as np_sum, maximum, minimum
-from numpy.random import uniform
+from numpy import zeros
+from nntools import BasicNN
 from basecontroller import BaseController
-from config import SCHEME, MAX_SCAN_DISTANCE, MUTATION_CHANCE, MUTATION_POWER
+from config import MAX_SCAN_DISTANCE
 
 
-class AIController(BaseController):
+class AIController(BaseController, BasicNN):
     """
     Neural network-based controller.
 
@@ -22,15 +21,9 @@ class AIController(BaseController):
     def __init__(self, parent=None):
         """Create new AIController."""
         BaseController.__init__(self)
+        BasicNN.__init__(self, parent)
         self._step = 0
         self._direction_n = 1
-        self._neurons = [zeros(layer_size) for layer_size in SCHEME]
-        self._connections = None
-
-        if parent:
-            self._inherit_connections(parent)
-        else:
-            self._generate_connections()
 
         self._inputs = zeros(3, dtype=int)
         self._distances = zeros(3, dtype=int)
@@ -54,10 +47,8 @@ class AIController(BaseController):
         for i in range(3):
             self._neurons[0][i + 3] = self._distances[i]/MAX_SCAN_DISTANCE
 
-        for layer_n, connections in enumerate(self._connections):
-            self._neurons[layer_n + 1] = self._neurons[layer_n] @ connections
-            self._neurons[layer_n] = maximum(self._neurons[layer_n], 0) + \
-                minimum(self._neurons[layer_n], 0) * 0.01
+        BasicNN.update(self)
+
         self._apply_update_result()
 
     def get_directions(self):
@@ -71,10 +62,6 @@ class AIController(BaseController):
             )
         )
 
-    def get_connection(self, layer_n, start_node_n, end_node_n):
-        """Get the weight of connection between twoneurons."""
-        return self._connections[layer_n][start_node_n][end_node_n]
-
     def get_input_value(self, n):
         """Get the value of input node."""
         return self._inputs[n]
@@ -83,40 +70,10 @@ class AIController(BaseController):
         """Get distance, on wich relative sensor has been triggered."""
         return self._distances[n]
 
-    def get_node_value(self, layer_n, node_n):
-        """Pretty much self described."""
-        return self._neurons[layer_n][node_n]
-
-    def max_min(self):
-        """Get pairs of `(max, min)` values for each layer."""
-        return tuple(
-            (max(layer), min(layer))
-            for layer in self._neurons
-        )
-
     def reset(self):
         """Reset input values."""
         self._inputs = [0]*3
         self._distances = [0]*3
-
-    def _inherit_connections(self, parent):
-        self._connections = [array(layer) for layer in parent._connections]
-        is_mutant = randfloat() < MUTATION_CHANCE
-        connections_n = sum(np_sum(layer) for layer in self._connections)
-        mutations_n = int(randfloat() * connections_n * MUTATION_POWER)
-
-        for _ in range(mutations_n):
-            layer_n = randint(0, len(SCHEME) - 2)
-            start_node_n = randint(0, SCHEME[layer_n] - 1)
-            end_node_n = randint(0, SCHEME[layer_n + 1] - 1)
-            val = randfloat() * choice((-1, 1))
-            self._connections[layer_n][end_node_n][start_node_n] = val
-
-    def _generate_connections(self):
-        self._connections = [
-            uniform(-1, 1, (SCHEME[layer_n], SCHEME[layer_n + 1]))
-            for layer_n in range(len(SCHEME) - 1)
-        ]
 
     def _apply_update_result(self):
         left, right = self._neurons[-1]
