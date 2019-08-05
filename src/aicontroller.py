@@ -1,12 +1,12 @@
 """Module contains the AIController class."""
 
-from numpy import zeros
-from nntools import BasicNN
+from numpy import zeros, sign as np_sign
+from nntools import BasicNN, RecurrentNN
 from basecontroller import BaseController
 from config import MAX_SCAN_DISTANCE
 
 
-class AIController(BaseController, BasicNN):
+class AIController(BaseController, RecurrentNN):
     """
     Neural network-based controller.
 
@@ -26,7 +26,6 @@ class AIController(BaseController, BasicNN):
         self._direction_n = 1
 
         self._inputs = zeros(3, dtype=int)
-        self._distances = zeros(3, dtype=int)
 
     def percive(self, game):
         """
@@ -36,16 +35,12 @@ class AIController(BaseController, BasicNN):
         """
         for i, (dx, dy) in enumerate(self.get_directions()):
             scan_result, distance = AIController._scan_direction(game, dx, dy)
-            self._inputs[i] = scan_result
-            self._distances[i] = distance
+            self._inputs[i] = scan_result*distance
 
     def update(self):
         """Calculate the next moving direction based on the input."""
         for i in range(3):
-            self._neurons[0][i] = self._inputs[i] - 1
-
-        for i in range(3):
-            self._neurons[0][i + 3] = self._distances[i]/MAX_SCAN_DISTANCE
+            self._neurons[0][i] = self._inputs[i] / MAX_SCAN_DISTANCE
 
         BasicNN.update(self)
 
@@ -64,11 +59,11 @@ class AIController(BaseController, BasicNN):
 
     def get_input_value(self, n):
         """Get the value of input node."""
-        return self._inputs[n]
+        return int(np_sign(self._inputs[n]))
 
     def get_distance_value(self, n):
         """Get distance, on wich relative sensor has been triggered."""
-        return self._distances[n]
+        return abs(self._inputs[n])
 
     def reset(self):
         """Reset input values."""
@@ -76,12 +71,9 @@ class AIController(BaseController, BasicNN):
         self._distances = [0]*3
 
     def _apply_update_result(self):
-        left, right = self._neurons[-1]
-        if abs(left - right) < 0.5:
-            return
-        if left > right:
+        if self._neurons[-1][0] > 0.5:
             self.turn_left()
-        elif left < right:
+        elif self._neurons[-1][0] < -0.5:
             self.turn_right()
 
     @staticmethod

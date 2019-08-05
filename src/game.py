@@ -162,10 +162,10 @@ class Game:
         """Check what is insede the cell on the given coordinates."""
         pos = ((x + WIDTH) % WIDTH, (y + HEIGHT) % HEIGHT)
         if pos == self._food_pos:
-            return 2
+            return 1
         elif pos in self._obstacles or \
             pos in self._snake.cells \
                 or pos == self._snake.tail:
-            return 1
+            return -1
         else:
             return 0

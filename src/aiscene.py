@@ -50,7 +50,7 @@ class AIScene(GameScene):
         self._visible_cells.clear()
 
     def _set_sensor_cell(self, x, y, val):
-        color = {0: 'blue', 1: 'yellow', 2: 'cyan'}[val]
+        color = {0: 'blue', -1: 'yellow', 1: 'cyan'}[val]
         item, original_color = self._fill_cell(x, y, color)
         self._sensor_cells.add((item, original_color))
 

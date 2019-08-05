@@ -91,3 +91,54 @@ class BasicNN(object):
             uniform(-1, 1, (SCHEME[layer_n], SCHEME[layer_n + 1]))
             for layer_n in range(len(SCHEME) - 1)
         ]
+
+
+class RecurrentNN(BasicNN):
+
+    def __init__(self, parent=None):
+        self._hidden = [zeros(layer_size) for layer_size in SCHEME[1::]]
+        self._hidden_in = None
+        self._hidden_out = None
+        BasicNN.__init__(self, parent)
+
+    def update(self):
+        """Process signals from inputs to outputs."""
+        for prev_n, connections in enumerate(self._connections):
+            n = prev_n + 1
+            self._neurons[n] = self._neurons[prev_n] @ connections
+            self._neurons[n] += self._hidden[n]*self._hidden_out[n]
+            self._neurons[prev_n] = self._activation(self._neurons[prev_n])
+            self._hidden[n] = self._neurons[n]*self._hidden_in[n]
+
+    def _inherit_connections(self, parent):
+        self._connections = [array(layer) for layer in parent._connections]
+        self._hidden_in = [array(layer) for layer in parent._hidden_in]
+        self._hidden_out = [array(layer) for layer in parent._hidden_out]
+
+        if randfloat() > MUTATION_CHANCE:
+            return
+
+        connections_n = sum(np_sum(layer) for layer in self._connections)
+        hidden_inputs_n = sum(np_sum(layer) for layer in self._hidden_in)
+        hidden_outputs_n = sum(np_sum(layer) for layer in self._hidden_out)
+        full_connections_n = connections_n+hidden_inputs_n+hidden_outputs_n
+        mutations_n = int(randfloat() * full_connections_n * MUTATION_POWER)
+
+        for _ in range(mutations_n):
+            layer_n = randint(0, len(SCHEME) - 2)
+            start_node_n = randint(0, SCHEME[layer_n] - 1)
+            val = randfloat() * choice((-1, 1))
+            dice = randint(0, full_connections_n)
+
+            if dice <= connections_n:
+                end_node_n = randint(0, SCHEME[layer_n + 1] - 1)
+                self._connections[layer_n][end_node_n][start_node_n] = val
+            elif connections_n < dice <= connections_n + hidden_inputs_n:
+                self._hidden_in[layer_n][start_node_n] = val
+            else:
+                self._hidden_out[layer_n][start_node_n] = val
+
+    def _generate_connections(self):
+        BasicNN._generate_connections(self)
+        self._hidden_in = [uniform(-1, 1, layer) for layer in SCHEME[1:]]
+        self._hidden_out = [uniform(-1, 1, layer) for layer in SCHEME[1:]]
