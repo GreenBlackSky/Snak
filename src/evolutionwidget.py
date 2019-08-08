@@ -26,14 +26,17 @@ class EvolutionWidget(Frame):
             text='Start evolution',
             command=self._start,
         )
-        self._button.pack()
+        self._button.pack(fill='x', expand=False)
+
+        list_widget = Frame(self)
+        list_widget.pack(fill='y', expand=True)
 
         self._pool = AIPool()
         self._data = self._pool.get_instances_data()
 
         columns = ("Gen", "Id", "Score")
         self._list = Treeview(
-            master=self,
+            master=list_widget,
             selectmode='browse',
             columns=columns,
             show='headings'
@@ -46,17 +49,17 @@ class EvolutionWidget(Frame):
         for column_id in columns:
             self._list.column(column_id, width=50)
             self._list.heading(column_id, text=column_id)
-        self._list.pack(side='left', fill='both')
+        self._list.selection_set(self._list.identify_row(0))
+        self._list.pack(fill='y', side='left')
 
         scrollbar = Scrollbar(
-            master=self,
+            master=list_widget,
             orient='vertical',
             command=self._list.yview
         )
-        scrollbar.pack(side='left', fill='y')
         self._list.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='left', fill='y')
 
-        self._list.selection_set(self._list.identify_row(0))
         self._update_data()
 
     def update(self):

@@ -21,17 +21,20 @@ class AIFrame(Frame):
 
         self._exiting = False
 
+        column_1 = Frame(self)
+        column_1.pack(side='left', fill='y', expand=False)
+
         Button(
-            master=self,
+            master=column_1,
             text='Menu',
             command=self._signal_to_exit,
-        ).grid()
+        ).pack(fill='x', expand=False)
 
-        self._evolution = EvolutionWidget(self)
-        self._evolution.grid(row=1, sticky='ns')
+        self._evolution = EvolutionWidget(column_1)
+        self._evolution.pack(fill='both', expand=True)
 
         notebook = Notebook(self)
-        notebook.grid(column=1, row=0, rowspan=2, stick='nwse')
+        notebook.pack(side='left', fill='both', expand=True)
 
         self._simulation = SimulationWidget(
             master=notebook,

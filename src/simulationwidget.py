@@ -22,6 +22,8 @@ class SimulationWidget(Frame):
         self._running = False
 
         control_frame = Frame(self)
+        control_frame.pack(anchor='w')
+
         self._button = Button(
             master=control_frame,
             text="Start simutation",
@@ -31,7 +33,6 @@ class SimulationWidget(Frame):
 
         Button(control_frame, text="Import").pack(side='left')
         Button(control_frame, text="Export").pack(side='left')
-        control_frame.pack()
 
         self._controller = controller
         self._game = Game()
