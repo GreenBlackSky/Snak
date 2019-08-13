@@ -1,9 +1,9 @@
 """Module cntains basic NN class."""
 
-from random import random as randfloat, randint, choice
-from numpy import array, zeros, sum as np_sum
+from random import random as randfloat, choice
+from numpy import array, zeros
 from numpy.random import uniform
-from config import SCHEME, ACTIVATION, MUTATION_CHANCE, MUTATION_POWER
+from config import SCHEME, ACTIVATION, MUTATION_CHANCE
 import activations
 
 
@@ -45,18 +45,18 @@ class NN(object):
 
     def _inherit_connections(self, parent):
         self._connections = [array(layer) for layer in parent._connections]
-        if randfloat() > MUTATION_CHANCE:
-            return
 
-        connections_n = sum(np_sum(layer) for layer in self._connections)
-        mutations_n = int(randfloat() * connections_n * MUTATION_POWER)
+        chance = MUTATION_CHANCE * sum(
+            connections.size
+            for connections in self._connections
+        )
 
-        for _ in range(mutations_n):
-            layer_n = randint(0, len(SCHEME) - 2)
-            start_node_n = randint(0, SCHEME[layer_n] - 1)
-            end_node_n = randint(0, SCHEME[layer_n + 1] - 1)
-            val = randfloat() * choice((-1, 1))
-            self._connections[layer_n][end_node_n][start_node_n] = val
+        for connections in self._connections:
+            h, w = connections.shape
+            for y in range(h):
+                for x in range(w):
+                    if randfloat() <= chance:
+                        connections[y][x] = randfloat() * choice((-1, 1))
 
     def _generate_connections(self):
         self._connections = [

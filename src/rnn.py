@@ -1,10 +1,10 @@
 """Module contains Recurrent Neural Network class."""
 
-from random import random as randfloat, randint, choice
-from numpy import array, zeros, sum as np_sum
+from random import random as randfloat, choice
+from numpy import array, zeros
 from numpy.random import uniform
 from nn import NN
-from config import SCHEME, MUTATION_CHANCE, MUTATION_POWER
+from config import SCHEME, MUTATION_CHANCE
 
 
 class RNN(NN):
@@ -26,32 +26,20 @@ class RNN(NN):
             self._hidden[n] = self._neurons[n + 1]*self._hidden_in[n]
 
     def _inherit_connections(self, parent):
-        self._connections = [array(layer) for layer in parent._connections]
+        NN._inherit_connections(self, parent)
+
         self._hidden_in = [array(layer) for layer in parent._hidden_in]
         self._hidden_out = [array(layer) for layer in parent._hidden_out]
 
-        if randfloat() > MUTATION_CHANCE:
-            return
-
-        connections_n = sum(np_sum(layer) for layer in self._connections)
-        hidden_inputs_n = sum(np_sum(layer) for layer in self._hidden_in)
-        hidden_outputs_n = sum(np_sum(layer) for layer in self._hidden_out)
-        full_connections_n = connections_n+hidden_inputs_n+hidden_outputs_n
-        mutations_n = int(randfloat() * full_connections_n * MUTATION_POWER)
-
-        for _ in range(mutations_n):
-            layer_n = randint(0, len(SCHEME) - 2)
-            start_node_n = randint(0, SCHEME[layer_n] - 1)
-            val = randfloat() * choice((-1, 1))
-            dice = randint(0, full_connections_n)
-
-            if dice <= connections_n:
-                end_node_n = randint(0, SCHEME[layer_n + 1] - 1)
-                self._connections[layer_n][end_node_n][start_node_n] = val
-            elif connections_n < dice <= connections_n + hidden_inputs_n:
-                self._hidden_in[layer_n][start_node_n] = val
-            else:
-                self._hidden_out[layer_n][start_node_n] = val
+        for hidden in (self._hidden_in, self._hidden_out):
+            chance = MUTATION_CHANCE * sum(
+                hidden_layer.size for hidden_layer in hidden
+            )
+            for hidden_layer in hidden:
+                n, = hidden_layer.shape
+                for i in range(n):
+                    if randfloat() <= chance:
+                        hidden_layer[i] = randfloat() * choice((-1, 1))
 
     def _generate_connections(self):
         NN._generate_connections(self)
