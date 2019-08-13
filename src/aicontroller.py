@@ -1,12 +1,12 @@
 """Module contains the AIController class."""
 
 from numpy import zeros, sign as np_sign
-from nntools import BasicNN, RecurrentNN
+from rnn import RNN
 from basecontroller import BaseController
 from config import MAX_SCAN_DISTANCE
 
 
-class AIController(BaseController, RecurrentNN):
+class AIController(BaseController, RNN):
     """
     Neural network-based controller.
 
@@ -21,7 +21,7 @@ class AIController(BaseController, RecurrentNN):
     def __init__(self, parent=None):
         """Create new AIController."""
         BaseController.__init__(self)
-        BasicNN.__init__(self, parent)
+        RNN.__init__(self, parent)
         self._step = 0
         self._direction_n = 1
 
@@ -42,7 +42,7 @@ class AIController(BaseController, RecurrentNN):
         for i in range(3):
             self._neurons[0][i] = self._inputs[i] / MAX_SCAN_DISTANCE
 
-        BasicNN.update(self)
+        RNN.update(self)
 
         self._apply_update_result()
 
